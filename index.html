@@ -1,0 +1,893 @@
+<title>Red Earth Passwords</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap">
+<style>
+  /* Three pages, each sized to one window. The default path is three steps and
+   * nothing else on screen; level, VS points and individual extras are behind a
+   * disclosure, because almost nobody arriving here wants to tune them. */
+  :root {
+    --bg: #000;
+    --card: #050505;
+    --line: #333;
+    --text: #fff;
+    --dim: #888;
+    /* The accent belongs to whoever is selected, not to the site. Two roles,
+     * because these are the characters' own colours and some are light and some
+     * are dark: --fill is a background with --on-fill written on it, --ink is
+     * the one that has to stay readable as thin text on black. */
+    --fill: #7928ca;
+    --on-fill: #fff;
+    --ink-accent: #7928ca;
+    --glow: #7928ca66;
+    --hi: #fff;
+    --unit: 8px;
+    --mono: 'Berkeley Mono', 'Roboto Mono', ui-monospace, SFMono-Regular, monospace;
+    color-scheme: dark;
+  }
+
+  /* Leo */
+  [data-char="leo"] {
+    --fill: #c73737; --on-fill: #fff; --ink-accent: #a797a7;
+    --glow: #c7373766; --hi: #fff;
+  }
+  /* Kenji */
+  [data-char="kenji"] {
+    --fill: #4727ef; --on-fill: #fff; --ink-accent: #efb700;
+    --glow: #4727ef88; --hi: #fff;
+  }
+  /* Tessa -- her mauve fills, so what sits on it has to be dark. */
+  [data-char="tessa"] {
+    --fill: #ce829c; --on-fill: #23101a; --ink-accent: #e74900;
+    --glow: #ce829c66; --hi: #f7f3f7;
+  }
+  /* Mai-Ling -- her fill is pale, so what sits on it has to be dark. */
+  [data-char="mai"] {
+    --fill: #a0d078; --on-fill: #0a1408; --ink-accent: #b0e0e0;
+    --glow: #a0d07855; --hi: #fff;
+  }
+
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--mono); font-size: 13px; line-height: 1.5;
+    overflow: hidden; overflow-x: hidden;
+  }
+  * { box-sizing: border-box; }
+
+  .app {
+    height: 100%; display: grid; grid-template-rows: auto 1fr;
+    gap: var(--unit); padding: var(--unit) 16px calc(var(--unit) * 1.5);
+    max-width: 760px; margin: 0 auto; min-height: 0;
+  }
+
+  .head {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line); padding-bottom: var(--unit);
+  }
+  .head h1 { font-size: 15px; font-weight: 700; margin: 0; letter-spacing: .02em; }
+  .head h1 .slash { color: var(--ink-accent); }
+  .nav { display: flex; gap: 2px; }
+  .nav button {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; background: none; color: var(--dim);
+    border: 1px solid transparent; padding: 5px 10px; cursor: pointer;
+  }
+  .nav button:hover { color: var(--text); }
+  .nav button[aria-current="page"] {
+    color: var(--text); border-color: var(--ink-accent); box-shadow: 0 0 10px var(--glow);
+  }
+
+  .title { display: flex; flex-direction: column; gap: 1px; }
+  .also { color: var(--dim); font-size: 10px; letter-spacing: .04em; }
+  .headright { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .langs { display: flex; gap: 2px; }
+  .lang {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+    background: none; color: var(--dim); border: 1px solid var(--line);
+    padding: 4px 8px; cursor: pointer;
+  }
+  /* Drawn rather than emoji: Windows has no glyph for a regional-indicator
+   * pair and shows the letters GB and JP instead of a flag. */
+  .flag {
+    width: 16px; height: 11px; flex: none; display: block;
+    outline: 1px solid rgba(255, 255, 255, .25); outline-offset: -1px;
+  }
+  .lang:hover { color: var(--text); }
+  .lang[aria-pressed="true"] {
+    color: var(--on-fill); background: var(--fill); border-color: var(--fill);
+  }
+  .page { min-height: 0; display: none; flex-direction: column; gap: 16px; overflow: auto; }
+  .page.on { display: flex; }
+
+  /* --- a numbered step --- */
+  .step { display: flex; flex-direction: column; gap: 7px; }
+  .step > h2 {
+    margin: 0; font-size: 11px; font-weight: 400; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .step > h2 b { color: var(--ink-accent); font-weight: 700; margin-right: 7px; }
+
+  .chars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .char {
+    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    background: var(--card); color: var(--dim);
+    border: 1px solid var(--line); padding: 10px 4px; cursor: pointer;
+    transition: color .12s, border-color .12s;
+  }
+  .char:hover { color: var(--text); border-color: var(--dim); }
+  .char[aria-pressed="true"] {
+    color: var(--on-fill); background: var(--fill); border-color: var(--fill);
+    box-shadow: 0 0 14px var(--glow);
+  }
+
+  .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .preset {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .04em;
+    background: transparent; color: var(--ink-accent); border: 1px solid var(--ink-accent);
+    padding: 8px 13px; cursor: pointer; transition: background .12s, color .12s;
+  }
+  .preset:hover { box-shadow: 0 0 12px var(--glow); }
+  .preset:active { transform: translateY(1px); }
+  .preset[aria-pressed="true"] {
+    background: var(--fill); color: var(--on-fill); border-color: var(--fill);
+    box-shadow: 0 0 14px var(--glow);
+  }
+
+  /* --- the answer --- */
+  .out {
+    border: 1px solid var(--line); background: var(--card); padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .out.bad { border-color: #5a2222; }
+  .pw {
+    font-size: clamp(20px, 4.4vw, 34px); font-weight: 700; letter-spacing: .2em;
+    font-variant-numeric: tabular-nums; color: var(--hi);
+    text-shadow: 0 0 18px var(--glow);
+  }
+  .pw.small { font-size: 13px; letter-spacing: 0; font-weight: 400; text-shadow: none; }
+  /* --- the buttons to press -----------------------------------------------
+   *
+   * Artwork from the Red Earth notation sheet, recoloured per
+   * character by an exact palette swap: every red in the cap is re-hued to that
+   * character's colour while keeping its own lightness, so the dome and the
+   * shadow under it survive. The yellow legend and its navy shadow are left
+   * alone -- they are the part that has to stay readable on a pale cap.
+   *
+   * Start and Down+Start have no art on the sheet, which only covers attack
+   * notation, so they stay a grey pill. That is useful rather than a
+   * compromise: a special password now looks different at a glance.
+   */
+  .chips { display: flex; flex-wrap: wrap; gap: 4px 3px; align-items: center; }
+  .chip {
+    width: clamp(30px, 8vw, 48px); height: auto; flex: none; display: block;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+  }
+  .chip.s {
+    width: auto; min-width: clamp(44px, 12vw, 58px);
+    height: clamp(19px, 5vw, 27px); border-radius: 999px; padding: 0 9px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: clamp(8px, 2vw, 10px); font-weight: 700; color: #f2f2f2;
+    background: linear-gradient(#5a5a62 0%, #3a3a42 55%, #26262c 100%);
+    box-shadow: 0 2px 0 #16161a, inset 0 1px 0 rgba(255, 255, 255, .18);
+    image-rendering: auto;
+  }
+  .said { color: var(--dim); font-size: 12px; }
+  .said b { color: var(--text); font-weight: 400; }
+
+  /* --- customise ---
+   *
+   * This started as a dim uppercase line with a small + in front, which read as
+   * a caption rather than something to press. It is now shaped like the control
+   * it is: a full-width row with a boxed +, ordinary sentence text, and a border
+   * that takes the character's colour on hover and while open. */
+  details.tune > summary {
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--line); background: var(--card);
+    padding: 10px 12px; cursor: pointer; list-style: none;
+    color: var(--text); font-size: 12px;
+    transition: border-color .12s;
+  }
+  details.tune > summary::-webkit-details-marker { display: none; }
+  details.tune > summary::before {
+    content: '+';
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 17px; height: 17px; flex: none; line-height: 1;
+    border: 1px solid var(--ink-accent); color: var(--ink-accent); font-weight: 700;
+  }
+  details.tune[open] > summary::before { content: '\2212'; }
+  details.tune > summary:hover,
+  details.tune[open] > summary { border-color: var(--ink-accent); }
+  .tuner { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin-top: 12px; }
+  @media (max-width: 600px) { .tuner { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .field label { font-size: 11px; color: var(--dim); }
+  .field output { color: var(--ink-accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+  input[type="range"] { width: 100%; accent-color: var(--fill); margin: 0; }
+  .span2 { grid-column: 1 / -1; }
+  .toggles { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 4px; }
+  .toggle {
+    display: flex; align-items: center; gap: 7px; font-size: 11px;
+    background: var(--card); border: 1px solid var(--line); padding: 7px 9px; cursor: pointer;
+  }
+  .toggle:hover { border-color: var(--dim); }
+  .toggle input { accent-color: var(--fill); margin: 0; flex: none; }
+  .toggle.off { opacity: .4; cursor: not-allowed; }
+  .toggle.off:hover { border-color: var(--line); }
+  /* The nested list gets the same treatment in miniature: a marker that says
+   * it opens, rather than a line of grey text that happens to be clickable. */
+  summary.more {
+    display: flex; align-items: center; gap: 7px;
+    color: var(--dim); font-size: 11px; cursor: pointer; list-style: none;
+  }
+  summary.more::-webkit-details-marker { display: none; }
+  summary.more::before { content: '+'; color: var(--ink-accent); font-weight: 700; }
+  details[open] > summary.more::before { content: '-'; }
+  summary.more:hover { color: var(--text); }
+  .gained { color: var(--dim); font-size: 11px; line-height: 1.45; }
+  .gained b { color: var(--text); font-weight: 400; }
+
+  #dec {
+    width: 100%; font-family: var(--mono); font-size: 18px; letter-spacing: .2em;
+    background: var(--card); color: var(--text); border: 1px solid var(--line);
+    padding: 11px 13px;
+  }
+  #dec::placeholder { color: #444; }
+  :focus-visible { outline: 2px solid var(--ink-accent); outline-offset: 1px; }
+
+  /* --- one character's special codes --- */
+  .codes { display: flex; flex-direction: column; gap: 7px; }
+  .code {
+    border: 1px solid var(--line); background: var(--card); padding: 11px 13px;
+    display: grid; grid-template-columns: 1fr auto; gap: 3px 16px; align-items: baseline;
+  }
+  .code .n { font-weight: 700; }
+  .code .p {
+    font-size: 16px; font-weight: 700; letter-spacing: .16em;
+    font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap;
+  }
+  .code .d { grid-column: 1 / -1; color: var(--dim); font-size: 11px; }
+  @media (max-width: 600px) {
+    .code { grid-template-columns: 1fr; }
+    .code .p { text-align: left; font-size: 18px; }
+  }
+
+  .foot { color: #555; font-size: 11px; line-height: 1.55; }
+  .foot b { color: var(--dim); font-weight: 400; }
+  .all { display: flex; flex-direction: column; max-height: 132px; overflow: auto; }
+  .all div {
+    display: flex; justify-content: space-between; gap: 12px;
+    border-top: 1px solid var(--line); padding: 4px 0; font-size: 11px;
+  }
+  .all .g { color: var(--dim); }
+
+  /* --- narrow and short screens -------------------------------------------
+   *
+   * One window is the right shape for a desktop and the wrong one for a phone:
+   * four character buttons across a 360px screen leaves 70px each, and the
+   * three steps plus a result do not fit a phone's height whatever is done to
+   * them. So below this the page scrolls normally and the controls get bigger
+   * rather than smaller -- a crushed layout would be worse than a scroll.
+   */
+  @media (max-width: 700px), (max-height: 600px) {
+    html, body { height: auto; overflow: auto; }
+    .app { height: auto; padding-bottom: 32px; }
+    .page { overflow: visible; }
+  }
+
+  @media (max-width: 600px) {
+    .head { flex-direction: column; align-items: stretch; gap: 10px; }
+    .headright { flex-direction: column; align-items: stretch; gap: 8px; }
+    .langs { justify-content: flex-start; }
+    .lang { flex: 1 1 0; padding: 8px 6px; }
+    .head h1 { font-size: 16px; }
+    .nav { width: 100%; }
+    .nav button {
+      flex: 1 1 0; min-width: 0; padding: 10px 4px;
+      font-size: 10px; letter-spacing: .04em;
+    }
+
+    /* Two by two, with room for "Mai-Ling" to sit on one line. */
+    .chars { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .char { padding: 13px 6px; font-size: 14px; }
+
+    /* Full-width targets rather than a cramped row. */
+    .preset { flex: 1 1 100%; text-align: center; padding: 12px; font-size: 12px; }
+
+    .pw { letter-spacing: .1em; overflow-wrap: anywhere; }
+    .chip { font-size: 11px; padding: 4px 8px; }
+    .toggle { padding: 10px 10px; font-size: 12px; }
+    details.tune > summary { font-size: 12px; }
+    .all { max-height: none; }
+    .page { gap: 18px; }
+  }
+
+  @media (max-width: 380px) {
+    .app { padding-inline: 12px; }
+    .pw { font-size: 19px; letter-spacing: .06em; }
+    .chars { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app" id="app" data-char="leo">
+  <div class="head">
+    <div class="title">
+      <h1>Red Earth<span class="slash"> / </span>Passwords</h1>
+      <div class="also" id="also">ウォーザード (War-Zard)</div>
+    </div>
+    <div class="headright">
+      <nav class="nav">
+        <button id="n-gen" aria-current="page" data-t="nav.gen">Get a password</button>
+        <button id="n-dec" data-t="nav.dec">Read one</button>
+        <button id="n-codes" data-t="nav.codes">Special passwords</button>
+      </nav>
+      <div class="langs" role="group" aria-label="Language">
+        <button id="l-en" class="lang" aria-pressed="true" lang="en"><svg class="flag" viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" fill="none"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="2" fill="none"/><path d="M30,0 V30 M0,15 H60" stroke="#fff" stroke-width="10" fill="none"/><path d="M30,0 V30 M0,15 H60" stroke="#C8102E" stroke-width="6" fill="none"/></svg><span>English</span></button>
+        <button id="l-ja" class="lang" aria-pressed="false" lang="ja"><svg class="flag" viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#fff"/><circle cx="30" cy="15" r="9" fill="#BC002D"/></svg><span>日本語</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- get a password -->
+  <div class="page on" id="p-gen">
+    <div class="step">
+      <h2><b>1</b><span data-t="gen.s1">Pick your character</span></h2>
+      <div class="chars" id="chars" role="group" aria-label="Character"></div>
+    </div>
+
+    <div class="step">
+      <h2><b>2</b><span data-t="gen.s2">Pick what you want</span></h2>
+      <div class="row" id="presets"></div>
+      <div class="said" id="preset-note"></div>
+    </div>
+
+    <div class="step">
+      <h2><b>3</b><span data-t="gen.s3">Enter this at the password screen</span></h2>
+      <div class="out" id="out"></div>
+    </div>
+
+    <details class="tune">
+      <summary data-t="gen.tune">Customise &mdash; pick a different level, VS points or extras</summary>
+      <div class="tuner">
+        <div class="field">
+          <div class="field-top"><label for="lv" data-t="lbl.level">Level</label><output id="lv-out" for="lv">32</output></div>
+          <input type="range" id="lv" min="1" max="32" value="32" step="1">
+        </div>
+        <div class="field">
+          <div class="field-top"><label for="vs" data-t="lbl.vs">VS points</label><output id="vs-out" for="vs">9990</output></div>
+          <input type="range" id="vs" min="0" max="9990" value="9990" step="10">
+        </div>
+        <div class="span2 gained" id="gained"></div>
+        <div class="span2 toggles" id="toggles"></div>
+        <details class="span2">
+          <summary id="all-sum" class="more">Every combination here</summary>
+          <div class="all" id="all"></div>
+        </details>
+      </div>
+    </details>
+    <div class="foot" id="langnote"></div>
+  </div>
+
+  <!-- read one -->
+  <div class="page" id="p-dec">
+    <div class="step">
+      <h2><b>1</b><span data-t="dec.s1">Whose password is it?</span></h2>
+      <div class="chars" id="dec-chars" role="group" aria-label="Character"></div>
+    </div>
+    <div class="step">
+      <h2><b>2</b><span data-t="dec.s2">Type the ten symbols</span></h2>
+      <input id="dec" type="text" inputmode="text" spellcheck="false" autocomplete="off"
+             placeholder="41545 44153" maxlength="24" aria-label="Password to read">
+    </div>
+    <div class="out" id="verdict"></div>
+    <div class="foot">
+      <b>1</b> LP &middot; <b>2</b> MP &middot; <b>3</b> HP &middot; <b>4</b> LK &middot;
+      <b>5</b> MK &middot; <b>6</b> HK &middot; <b>Y</b> Start &middot;
+      <b>M</b> Down&nbsp;+&nbsp;Start<br>
+      <span data-t="dec.foot">A password belongs to one character. The same ten
+      symbols mean something else, or nothing, for anyone else.</span>
+    </div>
+  </div>
+
+  <!-- special passwords -->
+  <div class="page" id="p-codes">
+    <div class="step">
+      <h2><b>1</b><span data-t="codes.s1">Pick your character</span></h2>
+      <div class="chars" id="code-chars" role="group" aria-label="Character"></div>
+    </div>
+    <div class="step">
+      <h2><b>2</b><span data-t="codes.s2">Enter one of these instead of a normal password</span></h2>
+      <div class="codes" id="codes"></div>
+    </div>
+    <div class="foot" data-t="codes.foot">
+      These four are matched by the game before it tries to read a password at
+      all, which is how they can do things a normal password could not.
+    </div>
+  </div>
+</div>
+
+<script src="password.js"></script>
+<script>
+  (function () {
+    'use strict';
+    var RE = window.RedEarthPassword;
+    var st = { character: 0, level: 32, points: 9990, granted: 0, shield: 0 };
+    var $ = function (id) { return document.getElementById(id); };
+    var CHAR_SLUG = ['leo', 'kenji', 'tessa', 'mai'];
+
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    }
+    /* Digits 1-6 are the attack buttons and get the artwork. 7 and 8 are Start
+     * and Down+Start, which are not attack buttons and do not pretend to be. */
+    var LEGEND = ['', 'LP', 'MP', 'HP', 'LK', 'MK', 'HK', 'START', '\u2193+START'];
+    function chips(digits) {
+      var box = el('div', 'chips');
+      digits.forEach(function (d) {
+        if (d >= 1 && d <= 6) {
+          var img = document.createElement('img');
+          img.className = 'chip';
+          img.src = ART[CHAR_SLUG[st.character]][d];
+          img.alt = LEGEND[d];
+          box.appendChild(img);
+        } else {
+          box.appendChild(el('span', 'chip s', LEGEND[d]));
+        }
+      });
+      return box;
+    }
+
+    function bits(n) { var c = 0; while (n) { c += n & 1; n >>>= 1; } return c; }
+    function namesOf(opts, want) {
+      return opts.filter(function (o) {
+        return o.shield ? !!want.shield : !!(want.granted & o.bit);
+      }).map(function (o) { return o.name; });
+    }
+    function text(digits) {
+      var s = digits.map(function (d) { return RE.SYMBOLS[d]; });
+      return s.slice(0, 5).join('') + ' ' + s.slice(5).join('');
+    }
+
+    /* Recoloured from the notation sheet by make_buttons.py. */
+    var ART = {"leo":{"1":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF8AAAA4CAYAAACbvSQXAAACFUlEQVR42u2aMUvDQBTHX60VAraDDq51yCRVt64Kzg76RQQnwd1J8IsofoBC3UQQQcTFDHZx6NAOVQlYJE6aS3rXXhvTGPv7T5fkkjZ/Xn/v3bsWZIo6cd3g4NTTXrs8Xv8ZVx1n4s/YbNzYT26Gw7NDVzvlyPMKafkxJygzzc/022+Hw4M7z+qXkG/zt4n4xOafuG5gYvQkzE7CeRs55T3tef/1Qnt+a2lJRESu6/XA9MyW72vHtnkC5mcozMd8mD+S7d8cRIN5Sh2reeKq2zWuG4h86vz0pa1qmuEq19mNVkPX9ReYP1ORrzIezidX3D/VXyIf5qcv0wqXOp/In06PhbWBQ+TD/Aw1jToe5ucp8tW+dCr5oCmJ9l7jVctABDf/lsFxP9VjIh/sYD7Kmvm3vV7kuPf5qeWVqZc9ktm76a40037+uPu5qn8iIk/v70Q+2MF8lJUG/l+yv7IS2Ny4XCoZr60a8oE6ruzshJyuViP3l2s17XMX1zbGfsG3x3vt+deHh8ix32qFnG40RrJcROTZsCbq9PtEPthBmD8zzI/MW1hI9AUrxeKvvWy85h5XnY8Pu3kwH+wgzMd8hPmYjzAf8zEfYT7mI8lmD/e83S5M0utBdlL9JfLBDuYjybifb6thuUDt9f/nfr6pbx/Pm0Q+2EGYn3fmJ80Tw/aA1TyRFvOH7ceqLLflN5EPdhDm50BfPbGfJzkEQfIAAAAASUVORK5CYII=","2":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAAA4CAYAAABwip8UAAACJUlEQVR42u2bP0/CQBjG3/IvaSIMOLDiwGSIbl01YXbQL2Li5CdwMvGLyOBMUjdiYoyGuMggiwMDDCBpAiE42R7nvVBq/xz0eabr9SDtk+d+vL2jBkWkm1ptIfddvnTZ8WaRDLnPGdOCG//asNz2cevJ/4XZXvPuqqYcct3tGlH5kiEoVuV0uZBVaQ5Vp8KMu12ecVzikfBdT7jM46ppKtu6ySyeM7Opqew/KZeJiKhtWexs6zmOsu2X+xldTfF7ftsEpMDwFDFcZPUvz+LCivPwl6vmmX444X6/RO4/DodsXY+Ep7UOj6a2b6qfNG31DGpbX2D4ziU8KW5vA6+DSvZR9BgJB8Pje6hCHZ6GhOu0FhJHlZB07Y6Eg+G7PYOQ8LgTLq7pctwJTXZEn7P1MlX2VDxGwoEUGA6FyfDn0cg9GM3nSu7IPA/K96DrJarPiRVHUusw3P6m6CMR0cdkgoQDKTAcikLGRaWy9h9P+/k8e+6A2eOTOV9qNDzmVqtuu1ivK7937/Ao8E19v78p+8edztKx0+t53G211rKZiOiTeW4ZzGZIOJACwfCtY/jSuELhXxdTymZDv0G5Jt5Ug+nU3zgwHEiBYDgMh+EQDIfhEAyH4RAMh+FpUO6+33ffP/GzrgJtLtFjJBxIgeFQiPL1fvgqtotr5WlYD+fWvUVOI+FACgyHdGJ4EMnc5/ZFRe5HzfBV+5Mim/3yGAkHUiAYnrB+AMBAqaqGSXCVAAAAAElFTkSuQmCC","3":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFsAAAA4CAYAAACSVoRtAAACGElEQVR42u2cv07CUBTGD/InaSIMOLDi0MkQ3bpqwuygL0Li5BM4mfgi+gQkdSMmxmiIiwx2cWCAoUiaQAhO0NN6b7nQFtryfdO5l9tCvxx+Pfc0kKMYdafr80Xceuv9e/29aaw8x1n7JfA40etSmW74cKMLl9z2erm4/DggaGsq7NXVXrhh6977TZNlOjI765nN+VvXNBLFSZJWvhLOO6Mn4fx5tUpERB3DmMvOaTmOMFblPDJ7i4LZMHsPmM25vGAYRLTqXsU5/zwcSuv2nZZ+a21IUGcnV8Kqw3R3kdqlt1rpGD9gdqYyG5yOVn4Pub/IbDA7vh3k3pqtYohse53KzE5qbyOLtTmYDWZHr23U0akyOwmGxGo278vKWBOJzJiOM5NlqN9PPgazCS1WmA2FZParbS8H9mwmZU/Y547+LluY4/iNdNPzRslmHnMPiYi+xmNkNjACs6GolLuu1eYqC4+KReH8cQDL+bjSbLqcrdeXcbnRkL7n4cnp2hf0+/khnB91u56xY1kuZ9vtlSwmIvqW7EkG0ykyGxiB2VAqmO1ZUyqF/kCVfD6yi/PXvOtqMJmorQOzgRGYDcFsmA3BbJgNwWyYDbMhmJ1WFR77/eVvPlT7JJC6uL/IbGAEZkMhpfzfGjKe8z531vvZsr415zIyGxiB2VASmL2JOOdlzzD9nI+L2UHPEzmLVfmLzAZGIJi9A/0B8ZKmmwrvLkcAAAAASUVORK5CYII=","4":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF8AAAA4CAYAAACbvSQXAAACKUlEQVR42u2avU/CUBTFLyImTYQBB1YcOhnUuHTVhNkB/xFXoythMvEfkRhnEtyMiQOGuMggiwMDDCBpAiF1k/tKXymlX/DOmfr6lfbk5Hffu22KIlRN163r+47jsae74//toqb5uv/p7dvCvlbVcL+mIV7zcKYL45tOJxWWHzsExaZd1V7YnnQiImqqYv5FxPeubmHya7puyRjth9l+OR+0zvN5YfxqGJbs3K5pOm57rRNgPpgfH+O1ywpL+U+kz4bkJzn5nO12HqouXqf4Nq8TL4OBdN2A5IP50UjLVhL1PEh+kpLPGQ/OB79u4P4i+WB+NDJHddd5PpivcvKT0mNRYW2A5IP50c3tzVFdaD2bz/XY+jxIfpKSz/vSodSD5grdRw9JFhLaTJ7Bdj/5GMkH86NTq2ws/eMB83wVk/8+HArj4WzmyCtZL3sps0NcUfq5d1DPI/uey/0jIvoaj5F8QksZ5kMxaeH/kqtCwfJy4UEmIz12KKkHfDtXLs+5WywK12dLJcf77h+drPyCv58fjvtH7ba48u1255xuNJaynIjoW7Im6k+nSD6wA8F8ZZgvnLe3t9YD5tLpwF7WPudeVf3JxNt5YD6wA8F8mA/BfJgPwXyYD/MhmA/zIYrnG+5jr5fy0+uBvIn7i+QDOzAfopj7+V7lVgt4r3+b+/myvr29biL5wA4E8zed+evWCbdvwLxOhMV8t++xnOVe+Y3kAzsQzN8A/QF+MKkr91ChcQAAAABJRU5ErkJggg==","5":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAAA4CAYAAABwip8UAAACQUlEQVR42u2bPU8CMRzGi7wklwgDDKw4MBkicblVE2YG/CKuhpm4+i2YZHAmwc2YGIMSFxlkcWCAgZdcAiE4Ab1yvSt3tFfweaZ7KaX35Mnv2n8hQiTpPp9fstdu37vc9u2SuXWt2HwVbl+sbrdt10zXMbL9P1zmbed33W5k376cEEipYroMxC3NUr+j9U8ND6xrh2u1A004y+OcYTgeH7qu0mnb+Ytprp+7Z1nE6XhXzofOcCNZCXQfDNdIXsw2yhUqzb9KxoRZSpgJp1nN8kw2Vqynxvb1sj444b23aM4TQsjzcOjKdyQcDA/n5axKSLjqhIfFbZ15va+5PO3tiudIOBguR9a44ToPB8OPNeE61UJUrfbCmLsj4WC4/Lm3NW7Yyrj06lZVXQUJV51wurbrxZ/Aakn8XEsPQ3l1cyQcDJcvkZ1+zMOPLeFvo9H6ZLRYOPKH5blfvvtd2Tl9jp1J+Onb73jcOE17+D2dIuEE5VkYDklU5CabXXo1ysTj3HtnnL0+lvOpUmnDzlxufZwsFBz7PT2/2PlhJl8f3HvjTmezwuz1NsxtNoX4/MNZrwzmc6GxPfb7qIcDKTAc0m6lSbONnoN+Tib2hvW6Z1+paHSvD0ePx48GsxkSDqRAMByGQzAchsNwCIbDcAiGw3CIVmxVpyWEEJHaOCQu2lskHEiB4ZAECf1P3I3t9H5nJpEINBid6+G8vUsnTiPhQAoMh3RiuB+x3Of9toXmvkyG8/YnWTbvymQkHEiBYHiI+gOLyb1RC7K0pQAAAABJRU5ErkJggg==","6":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFsAAAA4CAYAAACSVoRtAAACN0lEQVR42u2cvU/CQBjGrwImTYQBBlYcmAyRuHTVhNkB/xFX4kxc/S+YYHAmwc2YGKMSFzvA4tABhgJpAiE4Wa5nr71Cv3meqW8/juuTt7/evQdIJEDdV6ubv+3bN/Xf8feG4tpGvf/iel39zuactuKp3YeLqiVuqarktx9HBApN2UO5UbsnhAxgtndd2exrJzizaf5WZJnYbSdZl8WiJX5WlA0djw2D8GJRvoPZwEjwjJavm1QW/4TSJ2R2VJlNc5ll2KGLfTfRMc33p+mUy/Js7B51MDvZkvPNWPQDzA4zs8Hp4MbrtLctVZWQ2WC2vzJmPcdx9kGYLfLiMo1KQ2anpbaRhLE5mA1m+48oY9azlGKNx17odZJYmR1WQSiyzGbrtIHVqQcBXjeIj6G0n6y3YDaY7b9EVuQJaiMpyuxXXTcDfb3m8mbfdcddZ2x217Ev0l3a3ncGyWMz7eH3YoHMJiixwmzIR0k35fJG5MRSLme7/9SB5XRcaDS2vKxUzO18rcb9zJOzc883NP/6sN0/Gw63s8fx2HJM7/ddWTzizEcIIWSyWrn2q6tpqGcDIzAbinwGOeKMMQkh5HM+3wadjlB7hUzGt5tj++NVk+USmQ2MQDAbZsNsCGbDbAhmw2wIZsPsdCvb1TTzdx+itW1ITLS3yGxgBGZDPkj4PzV4PKfXJkvHx3t3KK71bKd1RpbNyGxgBGZDUTN7F9Gc533vhOV8UMx2Wk+keSzKX2Q2MALB7Aj0C9yhu3aTFFaDAAAAAElFTkSuQmCC"},"kenji":{"1":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF8AAAA4CAYAAACbvSQXAAACL0lEQVR42u2aMU/CQBiGr0USGYTogBoTdLJhcDFxwI3BkDAwMBv/h7/AX+HmTJxYHDo4OGgYdDCYmCgJQRg0YGJNCtRF6F25wpW2nMj7Llzba0nffDzfd9+hkBkqHS9blYs899rhyfNwnFxfm/o7Lu9WxSfr9nD/uMyd8tjJK2H5oRJImpYW+u2z9rBSzwv9Eubb/Cwi3rf56XjZGoyXVY25Ng2z/XBeRLGVIve88Vnink9tZn4/Pyy3Z7aa78Pxd7/qOU+A+RIF82E+mD+R7QMOQrw8laHyhZ0nao0b13UDIh91fvjiVjW6vcqNFdhqKKeB+YsV+TTjwXn/GvXP9heRD+aHL7cVLup8RD7h9mmgYEX7i8gH82evnHYO5iPyKdF9aUIIaTW1YHvuOvG19+qsWkYiWP9bBtM9f6e/iHxgB+ZDspnfMa+Z426kbfOqkeDWq15ygbN7GPhKtlCUznaa691+m5n31btH5AM7MB+SpZH/l2zFTi2RG6Nq0p27EW1ibjii0LyzG2Hu3zuIcp+b2vb+grVX/vmHW5M5fnnqDcdXpcksJ4QQo1flPtvstxD5wA4E8xeG+cw8ZcPfQkRNBPayzprbq0zrTWwemA/sQDAf5kMwH+ZDMB/mw3wI5sN8iMjZw60bZ8o0vR5ITLS/iHxgB+ZDRHI/X1TjcgHd6//P/Xy3vr0zbyLygR0I5s878/3miXF7wHSeCIv54/ZjaZaL8huRD+xAMH8O9AN0oZo82oWOBAAAAABJRU5ErkJggg==","2":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAAA4CAYAAABwip8UAAACPUlEQVR42u2bv0+DQBzFD9omMtRGh6oxqU4SBxejQ0cH06SDMc7+I/4F/hVuzsQ4dHFgcHDQOOhg6qRNmloGm9ZETOgPF4WD3rWUQoHy3tIDDgIv7z49voBAAtL2YmXgXPdYL3P7S1kiONfpX2TA63+81zLbVw9L7k9MtZq7pxVml5dOWQjKF5FAM1U6KicyKs2+6oAacZf2EcdLPBI+7wl38nhBlM12fmU5shcnZU84o0lhri+sFf9+W9zRpjU/zfZPvzox98WomuJ2e9wEpMDwBDGcZvU/z2aFFf16mKvSUfRwYv/PKlL8t7hfa9xx5/VIeFLn4cHM7RX2nabKHkElGQyfv4SHxe048Nqrhn20PEbCwfDZ3VRhHp6EhNN1kbBVki84W5RYm0x7jISD4WGMIDB8fhNO13S1ZsB1bjWg/dRomUrXzAmx182RcCAFhkN+Mrxj3JoL3VTb4k4jx5xHTsN3r/US1n50ZS+sOgzv+Wa337b1++49IeFACgyHgpCwLp2NfeMpI+b5fE3Jrt5XOaQwu7mVMts7+xnmcQsb3i+q9s5e/3xv2JbfXntm+0YZz2ZCCNF7Veaxjb6GhAMpEAyPHcNt/YTV6W4KxJzvF+icE08qY/Dhrh8YDqRAMByGw3AIhsNwCIbDcAiGw/AkKF3Xz83vT9zUVaDJRXuMhAMpMBzyUa6+Dx/FdrpWnoR6OK/uTXMaCQdSYDgUJYZ7kZP7vOeiNPeDZvio55M0m93yGAkHUiAYHrJ+AXH6pBMqeIcDAAAAAElFTkSuQmCC","3":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFsAAAA4CAYAAACSVoRtAAACK0lEQVR42u2cMU/CQBiGrwUSGZTogBoTdLJxcDE6MDoYEgZjnP0j/gJ/hZszcWJx6ODgoGHQweCkJARhkICJmBSoi7Rfyx20tIVS3nfher07cm8+Hr77GpBYgNpbKeqDdqmaH7p/dtgcu8bt0+rIebz7Qqlm8+CiyB3y2s5LQfkhM2hqii/Ubo/NZunG+kkTRToiO+qRTfm7JCtGf3p9LZQbSy6fc/s73wVuf2Yz+//a1EVrNupfRvu3X3bNeUT2FAWzYfYCMJtyecAwiAm+n7KE9ybnK7UHYd4+09TP1YEEeXZ4xc06VPMUmTy1Zis5BcyOVmSD0/5q2EPTX0Q2mB3cCXJhzXZiiOh4PZeRTesckP+i/oLZYLb/yinXMHu8IRFiNq3LNuoB1qnVgOap4TKU1rwZs9a9wWyGEivMhjwyu63dGxfdWMtkTS0lzBcn4bm9yuZlHq3QTbqun2ymXO72W5ZxP71nRDYwArMhvyRtJS91JwMTcprP1JjC5bqd7ScErTu7MaO9f5QQvmdm2/2GKh/8/pdHzXL9/tYz2neF8SxmjLFOr8xdW+s3ENnACMyG5oLZljHShvfEX075tjl7zutWmv7pbByYDYzAbAhmw2wIZsNsCGbDbJgNwex5VbzauTJ+8+G0TgI5F/UXkQ2MwGzIoxz/t4aI57TOHfV6tqhuTbmMyAZGYDYUBmZPIsp50TNMO+eDYvao54mUxU75i8gGRiCYPQP9Ac5hoNww6AuIAAAAAElFTkSuQmCC","4":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF8AAAA4CAYAAACbvSQXAAACRUlEQVR42u2av07CUBjFP4okMgjRATUk6GTD4GJ0wM3BmDAYwgP4Fg4+gYPP4OZMjAOLA4ODg8ZBB4OJiZIYhEECJNakQJ0s95a2tKW0xZ4z3f67aU9Oft/t10bIQ2UTZeXhIq97bPfoVR2nlpcczX95tjiyr3DcMr/mnr9mK13mtp87+ci0/BAI8k1zYXtgbdKJiKgSFvP3ZnTuIJmfTZSVv/G8IHLHnDDbKefdVmY1p9luKUbnNhtf6vhnULVdJ8B8MN8/xscPi+r4QDz39N6Q/CAnn2W7lodhF1+ncrp1ola/NXxvQPLBfG8UXygG6n6Q/CAln2U8OO/+ewPR0F8kH8z3RlK3ZLrOB/PDnHxtnwZyV6y/SD6Y793aXuqWuNazdFVi+E+e9nmQ/CAln+1LExE1G6K7PfeKje6jhSRzCa0Ez2C256/1F8kH871TYbs19o8HrPPDmPyOfMNt96LtIa/qSd31qp1aMM03Sidzu3U/Rt9ze4M2d953/xHJJ7SUYT7kk0b+L0nHTxQrF8aElDFHo+LY2rDPoHZ9I8pdv7kT0503s2b/AWvv+vuf7mRu++2lr46vS+NZTkQk9au6c8uDJpIP7EAwPzTM586LrEz2IiIkXXtY7ZrbrmTl09p5YD6wA8F8mA/BfJgPwXyYD/MhmA/zIfLnG+6HdBpx0uuBrIn1F8kHdmA+RD73863KrBawvf7/3M836ttr6yaSD+xAMH/WmT9pnTD7BszWiWkx3+x7LMtyq/xG8oEdCObPgH4B5ISjtuGQNxYAAAAASUVORK5CYII=","5":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAAA4CAYAAABwip8UAAACVUlEQVR42u2bPU/CQBzGr7wkMijRATUk6GTj4GJ0YHQwJAyE+F0c/AQOjk4OfoWGOLA4MDg4aBx0MDgpCUEYJIKxJuXFiXItvXK0XFvr80x9uR7Xp09+vf5bJCJI20vloXnbQz3PbF/ca09sK90vc7cvnU22LR63bcdo7n83XTasP3fy0rx9iRDIU8WCMhC7NAv9jco/Ndy1DkKUcDOPFyKyvpxaXQnNNcusZ03rbf28W80PffvPoOqY874zPLF45Go/GB4gTWN2ojC+mDn50pMxYZbiZ8JpVpt5Jhor6pUyub0QHJwY71VZS84TQkitcWvLdyQcDPfn5uyVkHCvE+4Xt4PM6/nN5cfejniOhIPhYqR2Fdt5OBge1oTTdRG/xX7aU/6kuVbeIuFguLi5t9pVDGVc+uk2USCe1FWQcK8TTtd2W03Bde6KwOMqwTCUVTdHwsFw8eJ50495eNgS3tFu9JVe9HPMn0aSOZ90ynenT3ZWx+Vk9307HY8dp3uDsYff/UcknKA8C8MhgZLSiZPhtEbxSIrNwajM9b3KIYXLza2ovryzH7fsN7Mx+8nU3tj7nu40ffn1pa8vXyt8fFb7Vct+tUGLa2x19RT1cCAFhkOBe9Kk2UbPQb/qxnYX5xyDiSTnenL0eJxIG74j4UAKBMNhOATDYTgMh2A4DIdgOAyHaMVGdVpCCOGpjUP8or1FwoEUGA4JENf/xO3YTr/vjEtr7m4oAa6Hs95dWnEaCQdSYDgUJIY7kZn7rG9baO6LZDjr/aSZzbMyGQkHUiAY7qN+AVuatbHA5RPJAAAAAElFTkSuQmCC","6":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFsAAAA4CAYAAACSVoRtAAACSUlEQVR42u2cPU/CQBzGrwUSGZTogBoSdLJxcDE6MDoYEgZj+C4OfgIGRycHv0JDHFgcGBwcNA46EJzUpEEYJIKxJgXqZHstLb1C3yzPM9319e7h399d/wdwxEdtL9XUv/KDVBrbf7zXdbxG9X7Z8bzqmcUxJ11X193N1Qz1Rq/Eee0HT6DAlJyXjlo9IaQOs93rIGaRTfN3gRe07dnVlVh8Xvn1gqneVel6p/1h2P8zarrmO5gNjPjP6PRRWSsXhctA2oTIDiuyaS6bGTbvGh+bCpZ8f2vd2rI8GblHHcz+30ovliPRDjA7yMgGp/2cr+veNnolDpENZnsruS9OnGfPhdksA5dmVBwim85zQN7K7C2YDWZ7jyi5LxpSsfKVSPGbBJIniZTZ1h2NEbPpvGyn7WOeuu7jefXoGErnvWlvwWww2x+xrMgT5EZiFNk95UarDBKfOm9aGds54zQ8n/aNzeq8ojD7tWd9g7Rj82Cke/g9fERkE6RYYTbkobhc+lRlOTDFZ63ZlxBscwE02w8pRG5uJbTyzn7K9p75Dfcdenu13v50p2jll+ehYd+16Mxiedi0vacy6ji2S5IryGcDIzAbCv0NkmYZPcckhJAvSS9fnDM2iM941jlze9xKUd8R2cAIBLNhNsyGYDbMhmA2zIZgNsyOt5KSXNF+98Ga24bYRHuLyAZGYDbkgZj/U8OO5/TaZIpbm30QiWg+e9I6o5nNiGxgBGZDYTN7GtGct/veiZnzfjF70noizWNW/iKygREIZoegXwQRs9Y9biGiAAAAAElFTkSuQmCC"},"tessa":{"1":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF8AAAA4CAYAAACbvSQXAAACM0lEQVR42u2bTUsCURSGj30gpi0SJFvUplUrV22EFrMLF0L+hlaBi5ZthegHCK36DbUQpN0QQYsEwX0JfUDGkEFpIVG2yjmO9453HKfx431X1xkd9eX1OeceNUD/qOJ2tq3t5YXnSoXDzjqyujzwc2zs76rfWWfL46zwLqnzfMArP2YI8k1zU/3uNbbU8kqfhPE2X5McLyD5jvhtMjredW4QZrvhvIpCixnh8c/3U+HxeDJBRETl5Elbds3GwzNb1xzXCTDfR8F8mI9upy/b/zgI9dYpvuZ1onZVke4bkHz0+d5L2NXo5i43lO7uhso5MH+6ks8ZD867l9W/Ipn+IvlgvveS7XDR5yP54jkNNOy9QRzJB/N9VDmXAvORfCLhXNqTmbtOrr57tXYtPQnWR8tgPvO3+ovkAzswH/Kb+ZWXx67b618tk/mMV7xfdVILrNPDoe9k0xnf2c653mD+ERHdvhlIPrAD8yG/1PP7kqPNnbbKA5eCC9Jza5Fo39oQ20pIa0Z4JSa87veP8zc4K4lX88mQMtu4rPRlORHRfaMuvPZr6wPJB3YgmD81U03OwmiV9bnVu87y5uJa6VqR+eDwenFLz+1U9VYTyQd2IJgP8yGYD/MhmA/zIZgP8yGYT6M8zyfF+b7dPJ8rGgy7eoHjONuxm+cflM7wnyxgB+ZDI8t8p7XAWg8mmfkytnOuI/nADgTzJ4H5buuE3T6B1wmvmG/Xs3OWq/IbyQd2IJg/BvoFCW6oMthbaVEAAAAASUVORK5CYII=","2":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAAA4CAYAAABwip8UAAACRUlEQVR42u2bv0sCYRjHn7NCTB0SJBtqaWpyahEa3MIhqL+h1aGx1aWxQWjyPwgMGqTtiKChQHBqKaEfkCEZlCYSZZP6+HbveV533p33/U6v94u7L9/343PP3Slkk0qb2a64LH2cl24fipIiLmt/UFe2/c1hoT9e29s1fmIqGx5lNTfJnOUVu3wJEDRRzbrlRPTSbKnSfDg842SJR8KnPeEijyPLCTZedO3FhaI7ktlU1FyeSCWJiKicKkhnW/PxhY1rY3M/4FZTjK73moAUGO4jhnNW93g2Kay0T/9yNbTlPpzw/yw+5tyvXVakdT0S7tc63J7avqh9p6lqz6ByDgyfvoQ7xW0v8NqsRB9LNPAYCQfDJ3dThTrcDwnnfRGnVc5lJGuKnjaZe4yEg+FOzCAwfHoTznu6sp6BZVJt2k91l6m8Zy72zZFwIAWGQ1YyvPL61P+x+tUZMJxxR6zVzfLdbL9Eaz/e2XOqDyN7vtlkPhIR3b3XkXAgBYZDdkg5WN8e+cbTQnBeum4lEjP0vkp8I6m5LrwU1zzu94/5i5qRxKj1XJcyuH5RGclmIqKHZkPz2G+dTyQcSIFguOe6hZxpsSqrP6v3Q9vdnl+NPFZkLmh9rSzUxOOq0Wkh4UAKBMNhOATDYTgMh2A4DIdgOAyHehr6tlDWG9frh3PFguF/nYyXeyl6/fD96xN84wOkwHDIdobLpPfck/PdDwyXsZpzGgkHUmA45CaGm5HIfVktz7lvN8P1amrOZqM8RsKBFAiGO6xfeP6yxqQqyOUAAAAASUVORK5CYII=","3":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFsAAAA4CAYAAACSVoRtAAACM0lEQVR42u2bvU/CUBTFb/0IQXCQhIiDLk5OTC4kDmyGwUT/BlcGR1cWRwcSJ/4DE92IGzEmDpqQMLkoiR+JGCImChpiFCfobX2vtLQPSjlnery2D3py+PW+S9BIoYqb2U53nD7O/zt+c1jou8ba3q7ldaLjUpXY8CgrPCVzltdU+TFF0NA0M1F3m+ZD4zdNlnQkO+jJ5vyNLidIHy/68sbC8zvC+a+PE+F8IpUkIqJyqtCRrdl8fGHjmmPOI9lDFMyG2RPAbM7lLsMgEj6f+JhzvnZZkdbtIy39HG1IUGf7V8Kqo6TvIsNbxmqlnAOzg5VscNpbmT0sku4vkg1mq9tBTqzZdgyRba/HMtm8zwGpqM0TqEbAbIUq5zIwu78hAWI278vK+gCeqKToupK/DOU9b3PfG8wmtFhhNuSS2ZXXp96L1e+2zmwTy93+7mjusrm5jnfoBl3XSzZzLjeZh0REd+91JBsYgdmQV9IO1rc7dk5cCM0J51eiMSHXzWyPbySF85GluPQ9f36d39C0JD6t57qUufWLSl8WExE9NBvCtd/an0g2MAKzobFoRHGOxarGGpOq973h7fmVrfWisyHvamFTzetUjXYLyQZGIJgNs2E2BLNhNgSzYTYEs2F2sGX4/55Vb1vWz+aKhSKuP9A49kas+tn716cakg2MwGxIBbOtJOM5Z3nQmS1jM+cykg2MwGzID8weRJzzsjrdzHlVzLaqmTmL7fIXyQZGIJg9Av0BGnuvABXkJL8AAAAASUVORK5CYII=","4":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF8AAAA4CAYAAACbvSQXAAACTklEQVR42u2bvUsCYRzHH3tBTBsSJBtqaWqypUVocBOHIKH/oCm4obE1iMYGV/8GgwRpkwgaEkInlxJ6gQzJIDWRqGsIvN+dPufdeW963+90L97D45cvn9/z/Dx9zEYVkoKYOMgMvVfKn/SPQ6vLhsbf2NwfuFYtZ9WfOZQ/U9wTZOepy4zPKj9mGOSY5rz2hZVJ/4+7V8xPcK7nLRq7PIXJLyQFUWJ0VHbPCLONct5sReMx2fldPCvyPtt+fiPHdd11AswH851jfGAnLaX8OGXr3JB8Nyefsl3JQ6+L1il6TOtE/abC3Tcg+WC+PQospl01HyTfTcmnjAfnzd83FJjkL5IP5tujbiunus4H872cfGWfBjJ7bxBF8sF8B9b23VZO1nruXuQI/5mtfR4k303Jp31pS3ruRR3dRw1JliW06D6Dac9f6S+SD+bbp+pZduQbD1jnezH5lfcX2fn6d09iPuEVXa/qqQVW7iiNjG3WfHi/57aJf4wx9vDZQPIZWsowH3JIA++XnG7tiloeXPIvcO+thcIja0NkO8atGcGVyNBxf371f8FZTrw6rw0usxvXlZEsZ4yxp3Zz6NgfvS8kH9iBYL5ndriUheEaWefWHvuH91e3msYKzftNm5dyza1XzV4HyQd2IJgP8yGYD/MhmA/zIZgP8yGYz9zcz2ca+/tq/XyqsD841gQnsbej1s8/Kp3jP1nADsyHXMt8vbVAWQ+mmfk8tlOuI/nADgTzp4H549YJtX0CrRNWMV9tzU5ZrpXfSD6wA8H8CdAfzXyxddq5oIQAAAAASUVORK5CYII=","5":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAAA4CAYAAABwip8UAAACXElEQVR42u2bvU/CQBjGDz9CEBwkIeKgixMTLi4kDmyGgUQT/wNXBkdXFkcHVv4Dk5o4ELfGmDhoQmBiURI/EjFETAQkxChO0GvpHaXttaU+z9SP4zgenvz69i0EiCCVdnMD7bH0WYE5vnZaHDuWODo0PD6xNT62Vily16idXz7IqfYzl4WA3b7MEchRLXhlIbw0C30P+Z8abllpnWOVGU24lseR9Ti1veqb7yyeSqr2y6ni6HN3nt+Ist0wzXnXGR5a3rd0Hgz3kCYxO5RVvsxyPuPImlCluJlwmtVanonGSu9CGj+e9Q5O6GsVvU1znhBCGjdVLt+RcDDcnYuzU0LCnU64W9z2Mq/tquVLRPF2yHMkHAwXo15b4tbhYLhfE073RdwW+25Pmklz9bxFwsFwcbV3ry2p2rj03W0oSxzpqyDhTiec7u2yege2SRb4OtkbhrL65kg4GC5eRp70ow73W8Kr7y+jnc3vvsJwij/aetIs383e2em9rpy3PrfZ9fA43aE8fPhsIuEE7VkYDglU4GR7bzBp0EpwiXluIxI19HuV2E5S91x4LaY778/v9B9mnhOf7mtTl8HN66ohPj91WrrzfvS/DK3t+O4c/XAgBYZDnrvTpNkWrSs1KKk/qsbdX91OnCuyGLS3r0HVxGbU6neRcCAFguEwHILhMByGQzAchkMwHIZDtFT/QWH1xnn9cFrRYNjSYmaxl8Lrhw974Eg4kALDIScYzhLvuSfNdz8znMVqPU4j4UAKDIe8xHAz0nKfVcvT3BfJcFZNrWXztExGwoEUCIa7qD8M1L6qp+Rg3gAAAABJRU5ErkJggg==","6":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFsAAAA4CAYAAACSVoRtAAACTUlEQVR42u2bO0/CUBzFbxVDEBwkIeKgixMTLi4kDmyGwUQSv4ErgyMri6MDK9/ABBIHwtYYEwdJCEwuSuIjEUPEREDSEMVJelt7+6BPyjlTbx+3t4c/v96eAkdsVPUgN/lbTl8U/22/Oy9p9pE4PdE8LrGrsE+zZKhf/jgnaWdqRc5qP5YI5JgCi3KhSt8QwsNs40orrGvOcWXT/I1sxYm4vOGLzyueSkrajVRpQrcHz29E2u4Y5juYDYzYz+jQYVas4kLGkTGhst2qbJrLcoYtuuT3JrpN871z02KyPOC5rzqYPd8KrWU9MQ4w28nKBqftm69XiehtplbkUNlgtrUa9cuq8+yFMFvPjWtqlB8qm845IKvn5nHMRsBsmxE16pclUezoskzxmziSk3jKbOUL9RGz6VxWLQswLd7G43jvGErn3nJvwWww23rpeSNPkI34qLJb7y/Txs5YEJkt443Z946zPrEpHdcomO/b7BMki80DysOHzy4qmyBihdmQheLO9o4menZcD64qrt+ORJlZAM322H5ScX14M8Y85/eP8QtaZpTP8LXL/A1I97qlyeKnQY95zg/hS3Nc+XoFeTYwArMh158gaZZF24J0Y/txunh/daurv8hK0LqcYiyYOr4nDFHZwAgEs2E2zIZgNsyGYDbMhmA2zPa3JP/5UMu2WXk2rWgwbHpA85iNsPLsfL3CobKBEZgN2cVsNbF4TrPcz8xWe88oZzMqGxiB2ZDbzJ5FNOdZ83Q55+1ittqcmeaxXv6isoERCGa7oF8w67zPiDmoqQAAAABJRU5ErkJggg=="},"mai":{"1":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF8AAAA4CAYAAACbvSQXAAACOElEQVR42u2bv0/CQBTHH4oSQo0x1ZgwyKBx0MSZTVgdGBgk8Q9hcDEshjj7BzA7OLIW4+Ji0pDo5CAMJETRGCANoqmT9FruSguU8uP7nY67crTfPD7v3QsEaILKFhN67qfEXbuWz3rjrcjO0J+R2c07v1gxhhfBBPeSq5NSwCs/lgjyTcGFfvqkMcxRydE3YbbNTwrmy4h8V/zuMXo9alqzZzaf+aNw3onCa2nuvNa85c4fRONERFRQ47poz7d21Rh/1VznCTDfR8F8mI9qZyDb/zkI9ecpdszmiefag/DcgMhHne+9uFWNYpxywylzNVRQwfzFinyW8eD86LL6ly2SjsgH8ycn0QkXdT4in9+ngcZ8NmD8ReSD+ZNXQd0H8xH5jNi+tCc9d4U/nUnmh6pa+iJYmS6D2Z6/1V9EPrAD8yG/mf+qfphea3tdg1dSjVuvuskF1u7h2E+yqbTvbGe5rrW6puvqL01EPrAD8yG/1Pf7ktPLI93JG6WNkHBtMxYZmBsO5WNhztiWYvyNO8vunzD0y52utypCZj817gaynIjovdLm7t367CDygR0I5i9MV5NloSYbbK2SMX6ke2d1u7Qytvuy1txu1W58I/KBHQjmw3wI5sN8CObDfAjmw3wI5tM09/PJYX/frp/PKiKvjnSDs9jbsevn35yX8Z8sYAfmQ1PLfLe5wJoP5pn5IrazXEfkAzsQzJ8H5o+aJ+zOCWye8Ir5djU7y3Kn/EbkAzsQzJ8B/QELK6acqHIAzQAAAABJRU5ErkJggg==","2":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAAA4CAYAAABwip8UAAACTElEQVR42u2bP0/CUBTFXxUlBIgxaEwYYNA4aOLMYsTVwcFBvwkxLsbFGD8Fqw4MDqxgXFxMGhOdNBEGEqJoDJAGicEJelvfK6X0D6XnTI+2lPbkvB+3t63EHFKumO3pl51tl4XbR+JM0i9Tmqwn2v7q9XgwPlq9MH9gJXV4GspyN7ncK0tO+TLDIFcVmpQDMUqzrdolM66knXGixCPh055wPY+XF5LqOJoa4efKrp5cJH4gmE0F7vKNZIYxxlhezghn23u7qo6/ayNz3/OEi0wxu95vAlJgeIAYTlnd55lbWFFu/nM1sj95OKH/WXRMuf9cuxfW9Uh4UOtwZ2r7Av9Ks8SfQXkZDJ++hHvFbT/w2qr0PuaK6lU0Eg6Gu3dRhTo8CAmnfRGvlZfXp9Jk6jESDoZP9wxCwt1OOO3pinoGtqlk4/dSNuzXIdGeub5vjoQDKTAcspPhb/Ln4IOy1lW5E6tx68hx+G61X8L7Hu3sedWHEd3fVFpdzXb1lyYSDqTAcMgJSYfnW0OfeIothoXrltJRU8+rbCZ2uOtWYmn+jjuz1s8q/MtdXG9VhAx+atwOZTNjjH1U2tx9t746SDiQAsFw33ULKdOUhMrIKtPy8oHdDa+3Y3O2n6C+Jh5V7cYPEg6kQDAchkMwHIbDcAiGw3AIhsNwqC/Nu4Wi3rhRP5wqmpgf62D83Esx6odfnzziHR8gBYZDjjNcJKP7npTvQWC4iNWU00g4kALDoUliuBXpuS+q5Sn3nWa4UU1N2WyWx0g4kALBcI/1B6GtsYFT3yWwAAAAAElFTkSuQmCC","3":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFsAAAA4CAYAAACSVoRtAAACOklEQVR42u2bv0sCYRzG3ytLxIsIk8BBh6KhoNklsrWhoaH+E4mWcInor3CtodH1jJaW4AhqKkgHQcoiVMQkrsnue9f7nnf6nj/O55le37t79X34+vH7PqDCfFS2kDG649x28d/1y5fjnmscrZ47Pse7LpRmDk9DGe4tF3tFxS8/Zhg0NIWmare75jCnWb9pokpHZQe9sil/44uJv/l4NOlyheJQNxZZOODOt+rX3PmNRJoxxlheTxuiNd+aZXP8VfHMeVT2EAWzYfYUMJtyucswiHF/n+iYcv6pcifs20fa+nk6kKDPHl9xuw7NPEVG9q3dSl4Hs4NV2eC0XNk9zBaYgcoGs/0/QU6t2W4MER2vJ7Kyac4B+dCbE3/BbDBbvvL6OsweN0N8NZvmsqIcQIo0ic8lJazrk2jmbc+9wWyGiBVmQwMy+1X/MA8Qax2TNWpF2C/2w3N7yjbIczSh63ddmWymXG41Opb7qs91VDYwArMhWVIOz7YMNzeqS2Hu/HIqyuW6ne2bsR3u/IqaEr9pe9b7jsI/3OlqoyRk7mPtpieLGWPsvdTkrt34bKOygRGYDU1EEEU51opZuVhm5ut7duuur1bnpG3O3vN6VbP2jcoGRiCYDbNhNgSzYTYEs2E2BLNhdrBl+f+eU7YtyrOporH5gT/QJGYjTnn21cmDgsoGRmA25AeznSTiOWV50JktYjPlMiobGIHZ0Dgwux9Rzov6dDvn/WK2U89MWeyWv6hsYASC2SPQL/eSrb8UrBMjAAAAAElFTkSuQmCC","4":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF8AAAA4CAYAAACbvSQXAAACVklEQVR42u2bv0sCYRzGv/ZLxIsIi8BBh6KhIBrd0rWhwSGhP0SiJVpCmvsDWm1waHDVcGkJJKgpIR0EKYtQOczi2rz3Pe9OT++X3vNM5/14eX14+Hzf9+vpIxuVzseli9+i6rXr0En/eD0YGWv8VC0zcC4bOdV/ZpN/5rwU5z5fHRZ9VvkxR5BjWvDaF1YmnYiICs44Yr/5CY3zTxaNXZnB5KfzcanP6JUwd02f2erMH5fzZmsnHOM+35Rjkta9752afPxdN1wnwHww3znGB46STMq3bZ0bku/m5LNsV/LQ62LrFHvM1omX+oPmvgHJB/PtUWA56ar5IPluSj7LeHDe/H1DOk8Skg/m2yuxldNd54P5Xk6+sk8Dmbw3YPxF8sF8+9b2YivHtZ7Fu5x87769fR4k303JZ/vSlvTcC+qnU4nMWEnmElpwn8Fsz1/pL5IP5tunbIV/myFFGcI6H8kneit/8quDrZ7MK6Guul41Ugus3FGOM7ZZ89H6PVds97j7Gq8tJJ/QUob5kEMaeL/k+HJPGuVBYdWveW0tGhxaG3ZDB5o1Y0OIqg/cnTf+Df1/qqcb7aoms5+b90NZTkT0Ue2ojt3+6iL5wA4E8z2zw2VZKIZkttZIPn6k0mjrcGHRtHkp19xG1Wn+IPnADgTzYT4E82E+BPNhPgTzYT4E88nN/Xwasb+v189nFQwtTTTBaezt6PXzb8+e8J8sYAfmQ65lvtFaoKwHs8x8LbazXEfygR0I5s8C8yetE3r7BLZOWMV8vTU7y/JR+Y3kAzsQzJ8C/QOoa7H5ZuHnhgAAAABJRU5ErkJggg==","5":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFwAAAA4CAYAAABwip8UAAACYUlEQVR42u2bv0sCYRzGX8sS8SLCInDQoWgoiEaXyNYGB4f8T0RaoiWkv8LVBocGVw2XlkCCmhLSQRCzCJXDImzKe+/H+3qed++d8jyTvvf6+t7jw+e+91V9xCFlSomRduzquMKcX6hndWPpnZzp+emmfm4hmuXuUbv+ZTWhen5zVvHZ7csSgYTK75WN8NLs6HuUxbrhX5jonBqM1ec04Voeb61HlMeh6BRvV/H0Z7Yfiaue52vx8Xl3Bs3xeOerZZnzrjM8uJaa6TgY7iFNYnYwmaLSvCdkT6hS3Ew4zWotz5zGinxX1I8nvYMT+lpFP6Y5TwghL60HLt+RcDDcnYuzKCHhohPuFre9zGu7avlMiYy0PEfCwXBnJPeK3DocDF/UhNN9Ebcl6m5PWO1u4C0SDoY7V3vLvaKqjUvf3QaPxPRVkHDRCad7u6zegW0q2/i6qE1r2yxW3xwJB8Odl+6bfpIjqMMXPeFvtQ/lqr37o/BHajHrSat8t3pnZ/S6fG32ta3uh8dpua942H7tIeEE7VkYDjko3/n14WjSJGkjwDy2GQuZ+r3KQfjE8Ni2FDNeeLg8/dkEfpmH2v2GIYOfu/em+PzeGBiu2/8cmtra7cUT+uFACgyHPHenSbNNDiucbJKGat4jqU6ui6UVW0+OromtaND9RsKBFAiGw3AIhsNwGA7BcBgOwXAYDtFS/QeF1Rvn9cNphcKrM21mHnspvH74fw8cCQdSYDgkguEs8b73pPm+yAxnsdqI00g4kALDIS8x3Iq03GfV8jT3nWQ4q6bWsnlaJiPhQAoEw13UH4olvoXZdim9AAAAAElFTkSuQmCC","6":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFsAAAA4CAYAAACSVoRtAAACV0lEQVR42u2bsU/CQBTGi6KEUGMMEhMGGDQOmhhHFiOuDg4M8p8QwmJcDPGvYJWBwYEVDIuLCSHRSRJhICGIxgBp0BicpK+lVwpcWyjfN3HX9nr9eP3d6yu4BBOVyEcH/5+vT4oj2++qybFjxHfTY4+L1zX2CSUnGveqFFW0b8+LLt5+rAiQZXIvy4Vq3SFCwVonnGH2mUZfdYEjm/I3sBkc9gd8IYMjFOf6+zoIRhTtTDkyoO1Wr67Y3vpqTMx3MBvMNp/R3osYieJ9S+aEyLYrsimX1QxbdqnXJtqmfH9pPDJZ7p67Wx3MXmx5N2JzMQ8w28rIBqfNy9cTeWFA+Y3IBrP5SurkdPPspTDbyMI1NMoJkU3rHBDn3FzlLZgNZvNHlNTJKUqx0r2MJ++xNXWSuTLbqoKQbZFN67J6tYCZVeB4XIjT2CaI1r3V3oLZYDZ/jbyRF9KojTg6st/KH/IKvfcj80ZsMHPGaXg+7ROb1nGZ8uxjz/oEyWKz1JU9bL52ENkCSqwwG+Io1+XN0cDIjuKWR7N/O+xj1gIo2w/9p5r9O2KYfdL+6uRX5PnV7G52a8zfgDy3H8ay+L3WY56y+9kfO61sqoJ6NjACsyHbnyApyyR/TbGtLsjtJ6FkLP8V17hdHM15p1Gv/Y3IBkYgmA2zYTYEs2E2BLNhNgSzYbazpfjPh15tm1XPpvL512ee0CLWRlj17Gyq4kJkAyMwGzKL2Xpi8Zyy3MnM1nvPqGYzIhsYgdmQ3cyeRpTzrDxdzXmzmK2XM1MeG+UvIhsYgWC2DfoDRde8qlbE0GkAAAAASUVORK5CYII="}};
+
+    /* --- language ---------------------------------------------------------
+     *
+     * The interface is translated. Item, move and title names are not: they come
+     * from English-language research into the game, and inventing Japanese for
+     * them would be guessing at wording this project has never seen. The note at
+     * the foot of the Japanese page says so.
+     *
+     * The character names are different -- the Japanese release calls them
+     * Mukuro, Tabasa and Tao, which is how the source lists label them too.
+     */
+    var LANG = 'en';
+    var NAMES = {
+      en: ['Leo', 'Kenji', 'Tessa', 'Mai-Ling'],
+      ja: ['Leo', 'Mukuro', 'Tabasa', 'Tao']
+    };
+    var S = {
+      en: {
+        'nav.gen': 'Get a password', 'nav.dec': 'Read one', 'nav.codes': 'Special passwords',
+        'gen.s1': 'Pick your character', 'gen.s2': 'Pick what you want',
+        'gen.s3': 'Enter this at the password screen',
+        'gen.tune': 'Customise \u2014 pick a different level, VS points or extras',
+        'lbl.level': 'Level', 'lbl.vs': 'VS points',
+        'dec.s1': 'Whose password is it?', 'dec.s2': 'Type the ten symbols',
+        'dec.foot': 'A password belongs to one character. The same ten symbols mean something else, or nothing, for anyone else.',
+        'codes.s1': 'Pick your character',
+        'codes.s2': 'Enter one of these instead of a normal password',
+        'codes.foot': 'These four are matched by the game before it tries to read a password at all, which is how they can do things a normal password could not.',
+        'preset.best': 'Best password',
+        'preset.leo0': 'Best \u2014 Legendary Sword & Shield',
+        'preset.leo1': 'Best \u2014 no Legendary Sword',
+        'note.leo': 'Leo plays best on his plain sword, so this is the legendary pair and nothing else. The second drops the Legendary Sword, which some tournaments ban.',
+        'note.other': 'Level 32 with everything this character can carry, on the VS total that types easiest.',
+        'out.none': 'No password can carry exactly that.',
+        'out.untick': 'Untick something \u2014 the game cannot combine every extra. {n} combinations work here.',
+        'out.nothing': 'Nothing at all is accepted at this level and total.',
+        'out.adjusted': 'Adjusted: ',
+        'out.reach': '{x} {v} out of reach at level {lv} with {vs} VS points.',
+        'out.is': 'is', 'out.are': 'are', 'out.and': ' and ',
+        'carry.plus': 'plus ', 'carry.none': 'Nothing beyond the level itself.',
+        'all.sum': 'Every combination here ({n})', 'all.nothing': 'nothing extra',
+        'at.level': 'At level {lv}: ', 'gear.none': 'no gear is recorded for this character',
+        'dec.reading': 'Reading as {who}.', 'dec.try': 'Try',
+        'dec.example': '41545 44153 as Leo',
+        'dec.only': 'Only 1-6, Y and M are symbols.',
+        'dec.ten': 'Ten symbols; that is {n}.',
+        'dec.notmine': 'Not a password {who} accepts.',
+        'dec.why': 'Why',
+        'dec.specialwhy': 'It holds Start or Down+Start, so it can only be a special password, and it is none of {who}\u2019s four.',
+        'dec.rejected': 'Rejected as {who}.', 'dec.accepted': 'Accepted as {who}.',
+        'lbl.character': 'Character', 'lbl.effect': 'Effect',
+        'lbl.gear': 'Gear', 'lbl.extras': 'Extras', 'lbl.none': 'none',
+        'langnote': ''
+      },
+      ja: {
+        'nav.gen': '\u30d1\u30b9\u30ef\u30fc\u30c9\u3092\u4f5c\u308b',
+        'nav.dec': '\u30d1\u30b9\u30ef\u30fc\u30c9\u3092\u8aad\u3080',
+        'nav.codes': '\u7279\u6b8a\u30d1\u30b9\u30ef\u30fc\u30c9',
+        'gen.s1': '\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u3092\u9078\u3076',
+        'gen.s2': '\u6b32\u3057\u3044\u3082\u306e\u3092\u9078\u3076',
+        'gen.s3': '\u30d1\u30b9\u30ef\u30fc\u30c9\u753b\u9762\u3067\u3053\u308c\u3092\u5165\u529b',
+        'gen.tune': '\u30ab\u30b9\u30bf\u30de\u30a4\u30ba \u2014 \u30ec\u30d9\u30eb\u30fbVS\u30dd\u30a4\u30f3\u30c8\u30fb\u8ffd\u52a0\u88c5\u5099\u3092\u5909\u3048\u308b',
+        'lbl.level': '\u30ec\u30d9\u30eb', 'lbl.vs': 'VS\u30dd\u30a4\u30f3\u30c8',
+        'dec.s1': '\u8ab0\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\uff1f',
+        'dec.s2': '10\u500b\u306e\u30b7\u30f3\u30dc\u30eb\u3092\u5165\u529b',
+        'dec.foot': '\u30d1\u30b9\u30ef\u30fc\u30c9\u306f1\u4eba\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u5c02\u7528\u3067\u3059\u3002\u540c\u3058\u30b7\u30f3\u30dc\u30eb\u3067\u3082\u3001\u4ed6\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u3067\u306f\u5225\u306e\u610f\u5473\u306b\u306a\u308b\u304b\u3001\u901a\u308a\u307e\u305b\u3093\u3002',
+        'codes.s1': '\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u3092\u9078\u3076',
+        'codes.s2': '\u901a\u5e38\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u306e\u4ee3\u308f\u308a\u306b\u3053\u308c\u3092\u5165\u529b',
+        'codes.foot': '\u3053\u306e4\u3064\u306f\u3001\u30b2\u30fc\u30e0\u304c\u30d1\u30b9\u30ef\u30fc\u30c9\u3068\u3057\u3066\u8aad\u307f\u53d6\u308b\u524d\u306b\u7167\u5408\u3055\u308c\u307e\u3059\u3002\u3060\u304b\u3089\u901a\u5e38\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u306b\u306f\u3067\u304d\u306a\u3044\u3053\u3068\u304c\u3067\u304d\u307e\u3059\u3002',
+        'preset.best': '\u304a\u3059\u3059\u3081\u306e\u30d1\u30b9\u30ef\u30fc\u30c9',
+        'preset.leo0': '\u304a\u3059\u3059\u3081 \u2014 Legendary Sword \u3068 Shield',
+        'preset.leo1': '\u304a\u3059\u3059\u3081 \u2014 Legendary Sword \u306a\u3057',
+        'note.leo': '\u30ec\u30aa\u306f\u901a\u5e38\u306e\u5263\u304c\u6700\u3082\u5f37\u304f\u3001\u5c5e\u6027\u6b66\u5668\u3084\u65a7\u306f\u5f37\u5316\u3067\u306f\u306a\u304f\u9078\u629e\u3067\u3059\u3002\u305d\u306e\u305f\u3081\u4f1d\u8aac\u306e2\u3064\u3060\u3051\u3092\u9078\u3093\u3067\u3044\u307e\u3059\u30022\u3064\u76ee\u306f\u3001\u5927\u4f1a\u3067\u7981\u6b62\u3055\u308c\u308b\u3053\u3068\u304c\u3042\u308b Legendary Sword \u3092\u5916\u3057\u307e\u3059\u3002',
+        'note.other': '\u30ec\u30d9\u30eb32\u3067\u3001\u3053\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u304c\u6301\u3066\u308b\u3082\u306e\u3059\u3079\u3066\u3002VS\u30dd\u30a4\u30f3\u30c8\u306f\u5165\u529b\u3057\u3084\u3059\u3055\u3067\u9078\u3093\u3067\u3044\u307e\u3059\u3002',
+        'out.none': '\u3053\u306e\u7d44\u307f\u5408\u308f\u305b\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u306f\u3042\u308a\u307e\u305b\u3093\u3002',
+        'out.untick': '\u30c1\u30a7\u30c3\u30af\u3092\u5916\u3057\u3066\u304f\u3060\u3055\u3044 \u2014 \u3059\u3079\u3066\u306e\u8ffd\u52a0\u3092\u7d44\u307f\u5408\u308f\u305b\u308b\u3053\u3068\u306f\u3067\u304d\u307e\u305b\u3093\u3002\u3053\u3053\u3067\u306f {n} \u901a\u308a\u304c\u6709\u52b9\u3067\u3059\u3002',
+        'out.nothing': '\u3053\u306e\u30ec\u30d9\u30eb\u3068VS\u30dd\u30a4\u30f3\u30c8\u3067\u306f\u4f55\u3082\u53d7\u3051\u4ed8\u3051\u3089\u308c\u307e\u305b\u3093\u3002',
+        'out.adjusted': '\u8abf\u6574\u3057\u307e\u3057\u305f: ',
+        'out.reach': '{x} \u306f\u30ec\u30d9\u30eb {lv}\u3001VS\u30dd\u30a4\u30f3\u30c8 {vs} \u3067\u306f\u5165\u624b\u3067\u304d\u307e\u305b\u3093\u3002',
+        'out.is': '', 'out.are': '', 'out.and': '\u3068',
+        'carry.plus': '\u3055\u3089\u306b ', 'carry.none': '\u30ec\u30d9\u30eb\u305d\u306e\u3082\u306e\u4ee5\u5916\u306f\u3042\u308a\u307e\u305b\u3093\u3002',
+        'all.sum': '\u3053\u3053\u3067\u4f5c\u308c\u308b\u7d44\u307f\u5408\u308f\u305b ({n})',
+        'all.nothing': '\u8ffd\u52a0\u306a\u3057',
+        'at.level': '\u30ec\u30d9\u30eb {lv} \u3067\u306f: ',
+        'gear.none': '\u3053\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u306e\u88c5\u5099\u306f\u8a18\u9332\u3055\u308c\u3066\u3044\u307e\u305b\u3093',
+        'dec.reading': '{who} \u3068\u3057\u3066\u8aad\u307f\u307e\u3059\u3002', 'dec.try': '\u4f8b',
+        'dec.example': '41545 44153 (Leo)',
+        'dec.only': '\u4f7f\u3048\u308b\u306e\u306f 1-6\u3001Y\u3001M \u3060\u3051\u3067\u3059\u3002',
+        'dec.ten': '\u30b7\u30f3\u30dc\u30eb\u306f10\u500b\u5fc5\u8981\u3067\u3059\u3002\u4eca\u306f {n} \u500b\u3002',
+        'dec.notmine': '{who} \u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u3067\u306f\u3042\u308a\u307e\u305b\u3093\u3002',
+        'dec.why': '\u7406\u7531',
+        'dec.specialwhy': 'Start \u307e\u305f\u306f Down+Start \u304c\u5165\u3063\u3066\u3044\u308b\u306e\u3067\u7279\u6b8a\u30d1\u30b9\u30ef\u30fc\u30c9\u306e\u306f\u305a\u3067\u3059\u304c\u3001{who} \u306e4\u3064\u306e\u3069\u308c\u3067\u3082\u3042\u308a\u307e\u305b\u3093\u3002',
+        'dec.rejected': '{who} \u3068\u3057\u3066\u62d2\u5426\u3055\u308c\u307e\u3057\u305f\u3002',
+        'dec.accepted': '{who} \u3068\u3057\u3066\u53d7\u3051\u4ed8\u3051\u3089\u308c\u307e\u3057\u305f\u3002',
+        'lbl.character': '\u30ad\u30e3\u30e9\u30af\u30bf\u30fc', 'lbl.effect': '\u52b9\u679c',
+        'lbl.gear': '\u88c5\u5099', 'lbl.extras': '\u8ffd\u52a0', 'lbl.none': '\u306a\u3057',
+        'langnote': '\u88c5\u5099\u30fb\u6280\u30fb\u79f0\u53f7\u306e\u540d\u524d\u306f\u82f1\u8a9e\u306e\u307e\u307e\u3067\u3059\u3002\u3053\u308c\u3089\u306f\u82f1\u8a9e\u570f\u306e\u8abf\u67fb\u306b\u57fa\u3065\u304f\u3082\u306e\u3067\u3001\u30b2\u30fc\u30e0\u5185\u306e\u65e5\u672c\u8a9e\u8868\u8a18\u3068\u306f\u9650\u308a\u307e\u305b\u3093\u3002'
+      }
+    };
+    function T(k, vars) {
+      var t = (S[LANG] && S[LANG][k] !== undefined) ? S[LANG][k] : (S.en[k] || k);
+      if (vars) Object.keys(vars).forEach(function (n) {
+        t = t.split('{' + n + '}').join(vars[n]);
+      });
+      return t;
+    }
+    function who() { return NAMES[LANG][st.character]; }
+
+    function applyLang() {
+      document.documentElement.lang = LANG;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-t]'), function (n) {
+        n.textContent = T(n.getAttribute('data-t'));
+      });
+      ['en', 'ja'].forEach(function (l) {
+        $('l-' + l).setAttribute('aria-pressed', l === LANG ? 'true' : 'false');
+      });
+      $('langnote').textContent = T('langnote');
+      PICKERS.forEach(function (id) {
+        Array.prototype.forEach.call($(id).children, function (c, k) {
+          c.textContent = NAMES[LANG][k];
+        });
+      });
+      render(); decode(); renderCodes();
+    }
+
+    /* --- pages --- */
+    ['en', 'ja'].forEach(function (l) {
+      $('l-' + l).addEventListener('click', function () { LANG = l; applyLang(); });
+    });
+
+    var PAGES = ['gen', 'dec', 'codes'];
+    PAGES.forEach(function (name) {
+      $('n-' + name).addEventListener('click', function () {
+        PAGES.forEach(function (other) {
+          var on = other === name;
+          $('p-' + other).classList.toggle('on', on);
+          if (on) $('n-' + other).setAttribute('aria-current', 'page');
+          else $('n-' + other).removeAttribute('aria-current');
+        });
+        if (name === 'dec') $('dec').focus();
+      });
+    });
+
+    /* --- one character choice, three pickers --- */
+    var PICKERS = ['chars', 'dec-chars', 'code-chars'];
+    PICKERS.forEach(function (id) {
+      var host = $(id);
+      RE.CHAR_NAMES.forEach(function (name, i) {
+        var b = el('button', 'char', NAMES[LANG][i]);
+        b.type = 'button';
+        b.id = id + '-c' + i;
+        b.setAttribute('aria-pressed', i === st.character ? 'true' : 'false');
+        b.addEventListener('click', function () {
+          st.character = i;
+          document.getElementById('app').setAttribute('data-char', CHAR_SLUG[i]);
+          /* Start from that character's own recommendation rather than an empty
+           * loadout, so step 2 is already answered when step 1 changes. */
+          var b0 = best(0);
+          if (b0) {
+            st.level = 32; st.points = b0.points;
+            st.granted = b0.granted; st.shield = b0.shield;
+            $('lv').value = 32; $('vs').value = b0.points;
+          }
+          PICKERS.forEach(function (other) {
+            Array.prototype.forEach.call($(other).children, function (c, k) {
+              c.setAttribute('aria-pressed', k === i ? 'true' : 'false');
+            });
+          });
+          render(); decode(); renderCodes();
+        });
+        host.appendChild(b);
+      });
+    });
+
+    /* --- presets --- */
+    var cache = {};
+    function best(which) {
+      var k = st.character + ':' + which;
+      if (!cache[k]) cache[k] = RE.bestLoadout(st.character, which);
+      return cache[k];
+    }
+    /* A preset is shown as chosen only while every part of what it set is still
+     * on screen -- the VS total included. Changing any of it means the password
+     * is no longer that recommendation, so the button stops claiming it is.
+     * Reads the cache rather than calling best(), so buttons nobody has pressed
+     * do not each trigger a search. */
+    function showing(which) {
+      var t = RE.bestTargets(st.character)[which];
+      var b = cache[st.character + ':' + which];
+      return !!t && !!b && st.level === 32 && st.points === b.points &&
+             st.granted === t.granted && st.shield === t.shield;
+    }
+    function apply(which) {
+      var b = best(which);
+      if (!b) return;
+      st.level = 32; st.points = b.points;
+      st.granted = b.granted; st.shield = b.shield;
+      $('lv').value = 32; $('vs').value = b.points;
+      render();
+    }
+    function renderPresets() {
+      var host = $('presets');
+      host.textContent = '';
+      RE.bestTargets(st.character).forEach(function (t, i) {
+        var b = el('button', 'preset',
+          st.character === 0 ? T(i ? 'preset.leo1' : 'preset.leo0') : T('preset.best'));
+        b.type = 'button';
+        b.setAttribute('aria-pressed', showing(i) ? 'true' : 'false');
+        b.addEventListener('click', function () { apply(i); });
+        host.appendChild(b);
+      });
+      $('preset-note').textContent = T(st.character === 0 ? 'note.leo' : 'note.other');
+    }
+
+    function options() {
+      var out = RE.GRANTS[st.character].map(function (g) {
+        return { bit: g[0], name: g[1], shield: false };
+      });
+      if (st.character === 0) out.push({ bit: 0, name: 'Legendary Shield', shield: true });
+      return out;
+    }
+
+    function render() {
+      $('lv-out').textContent = st.level;
+      $('vs-out').textContent = st.points;
+      renderPresets();
+
+      var list = RE.generate(st.character, st.level, st.points), map = {};
+      list.forEach(function (o) { map[o.granted + ':' + o.shield] = o; });
+
+      var opts = options(), reach = {};
+      list.forEach(function (o) {
+        opts.forEach(function (opt) {
+          if (opt.shield ? o.shield : (o.granted & opt.bit)) reach[opt.name] = true;
+        });
+      });
+
+      /* Lowering the level or the total can put the chosen extras out of reach.
+       * Stranding someone on an error after they moved a slider is no use, so
+       * fall back to the nearest thing the game can actually produce and say
+       * what was dropped. */
+      var asked = { granted: st.granted, shield: st.shield };
+      opts.forEach(function (opt) {
+        if (reach[opt.name]) return;
+        if (opt.shield) st.shield = 0; else st.granted &= ~opt.bit;
+      });
+      if (!map[st.granted + ':' + st.shield]) {
+        var fit = null;
+        list.forEach(function (o) {
+          /* Most of what was asked for, and least of what was not. */
+          var keep = bits(o.granted & st.granted) + ((o.shield && st.shield) ? 1 : 0);
+          var spare = bits(o.granted & ~st.granted) + ((o.shield && !st.shield) ? 1 : 0);
+          if (!fit || keep > fit.keep || (keep === fit.keep && spare < fit.spare)) {
+            fit = { o: o, keep: keep, spare: spare };
+          }
+        });
+        if (fit) { st.granted = fit.o.granted; st.shield = fit.o.shield; }
+      }
+      var dropped = namesOf(opts, asked).filter(function (n) {
+        return namesOf(opts, st).indexOf(n) < 0;
+      });
+
+      var host = $('toggles');
+      host.textContent = '';
+      opts.forEach(function (opt, i) {
+        var lab = el('label', 'toggle' + (reach[opt.name] ? '' : ' off'));
+        var box = el('input');
+        box.type = 'checkbox';
+        box.id = 'g-' + st.character + '-' + i;
+        box.checked = opt.shield ? !!st.shield : !!(st.granted & opt.bit);
+        box.disabled = !reach[opt.name];
+        box.addEventListener('change', function () {
+          if (opt.shield) st.shield = box.checked ? 1 : 0;
+          else if (box.checked) st.granted |= opt.bit;
+          else st.granted &= ~opt.bit;
+          render();
+        });
+        lab.appendChild(box);
+        lab.appendChild(el('span', null, opt.name));
+        host.appendChild(lab);
+      });
+
+      var p = RE.progressionAt(st.character, st.level), bits = [];
+      if (p.title) bits.push(p.title);
+      if (p.sword) bits.push(p.sword);
+      if (p.shield) bits.push(p.shield);
+      var g = $('gained');
+      g.textContent = '';
+      g.appendChild(el('b', null, T('at.level', { lv: st.level })));
+      g.appendChild(document.createTextNode(
+        bits.length ? bits.join(', ') : T('gear.none')));
+
+      renderOut(map, list, dropped);
+
+      $('all-sum').textContent = T('all.sum', { n: list.length });
+      var all = $('all');
+      all.textContent = '';
+      list.forEach(function (o) {
+        var r = el('div');
+        r.appendChild(el('span', 'g', o.description === 'nothing' ? T('all.nothing') : o.description));
+        r.appendChild(el('span', null, text(o.digits)));
+        all.appendChild(r);
+      });
+    }
+
+    /* The whole loadout in a sentence: the gear the level gave, with anything
+     * the password swapped in, then whatever it added on top. Saying only what
+     * the password grants leaves the answer silent about the sword the
+     * character is actually holding. */
+    function carrying(use) {
+      var l = RE.loadout(st.character, st.level, use.granted, use.shield);
+      var parts = [];
+      if (l.gear.length) parts.push(l.gear.join(T('out.and')));
+      if (l.extras.length) parts.push((l.gear.length ? T('carry.plus') : '') + l.extras.join(', '));
+      return parts.length ? parts.join(', ') + '.' : T('carry.none');
+    }
+
+    function renderOut(map, list, dropped) {
+      var outEl = $('out'), hit = map[st.granted + ':' + st.shield];
+      outEl.textContent = '';
+      outEl.className = 'out' + (hit ? '' : ' bad');
+      if (!hit) {
+        outEl.appendChild(el('div', 'pw small', T('out.none')));
+        outEl.appendChild(el('div', 'said', list.length
+          ? T('out.untick', { n: list.length }) : T('out.nothing')));
+        return;
+      }
+      /* Several spellings usually give the same character, because a digit the
+       * rules never consult is free. Show the one that types easiest. */
+      var sp = RE.spellings(st.character, st.level, st.points, st.granted, st.shield);
+      var use = sp ? sp.best : hit;
+      outEl.appendChild(el('div', 'pw', text(use.digits)));
+      outEl.appendChild(chips(use.digits));
+      var said = el('div', 'said');
+      said.appendChild(el('b', null, who() + ' \u00b7 ' + T('lbl.level') + ' ' + st.level + '. '));
+      said.appendChild(document.createTextNode(carrying(use)));
+      outEl.appendChild(said);
+
+      if (dropped && dropped.length) {
+        var note = el('div', 'said');
+        note.appendChild(el('b', null, T('out.adjusted')));
+        note.appendChild(document.createTextNode(T('out.reach', {
+          x: dropped.join(T('out.and')),
+          v: T(dropped.length > 1 ? 'out.are' : 'out.is'),
+          lv: st.level, vs: st.points
+        })));
+        outEl.appendChild(note);
+      }
+    }
+
+    $('lv').addEventListener('input', function () { st.level = +$('lv').value; render(); });
+    $('vs').addEventListener('input', function () { st.points = +$('vs').value; render(); });
+
+    /* --- read one --- */
+    function parse(s) {
+      var out = [], i, c;
+      for (i = 0; i < s.length; i++) {
+        c = s[i];
+        if (c === ' ' || c === '-') continue;
+        if (c >= '1' && c <= '6') out.push(c.charCodeAt(0) - 48);
+        else if (c === 'Y' || c === 'y') out.push(7);
+        else if (c === 'M' || c === 'm') out.push(8);
+        else return null;
+      }
+      return out;
+    }
+    function say(bad, head, lines, digits) {
+      var v = $('verdict');
+      v.className = 'out' + (bad ? ' bad' : '');
+      v.textContent = '';
+      v.appendChild(el('div', 'pw small', head));
+      if (digits) v.appendChild(chips(digits));
+      (lines || []).forEach(function (l) {
+        var d = el('div', 'said');
+        d.appendChild(el('b', null, l[0] + ': '));
+        d.appendChild(document.createTextNode(l[1]));
+        v.appendChild(d);
+      });
+    }
+    function decode() {
+      var s = $('dec').value.trim();
+      if (!s) { say(false, T('dec.reading', { who: who() }), [[T('dec.try'), T('dec.example')]]); return; }
+      var d = parse(s);
+      if (!d) { say(true, T('dec.only')); return; }
+      if (d.length !== 10) { say(false, T('dec.ten', { n: d.length })); return; }
+      var r = RE.decode(st.character, d);
+      if (r.special) {
+        if (r.unknown)
+          say(true, T('dec.notmine', { who: who() }),
+              [[T('dec.why'), T('dec.specialwhy', { who: who() })]], d);
+        else say(false, r.name,
+                 [[T('lbl.character'), who()], [T('lbl.effect'), r.note]], d);
+        return;
+      }
+      if (r.error) { say(true, T('dec.rejected', { who: who() }), [[T('dec.why'), r.error]], d); return; }
+      var l = RE.loadout(st.character, r.level, r.granted, r.shield);
+      var lines = [[T('lbl.level'), String(r.level)], [T('lbl.vs'), String(r.points)]];
+      if (l.gear.length) lines.push([T('lbl.gear'), l.gear.join(T('out.and'))]);
+      lines.push([T('lbl.extras'), l.extras.length ? l.extras.join(', ') : T('lbl.none')]);
+      say(false, T('dec.accepted', { who: who() }), lines, d);
+    }
+    $('dec').addEventListener('input', decode);
+
+    /* --- this character's special passwords --- */
+    var ALL_CODES = RE.specialCodes();
+    function renderCodes() {
+      var host = $('codes');
+      host.textContent = '';
+      ALL_CODES.filter(function (s) { return s.character === st.character; })
+        .forEach(function (s) {
+          var box = el('div', 'code');
+          box.appendChild(el('div', 'n', s.name));
+          box.appendChild(el('div', 'p', text(s.digits)));
+          box.appendChild(el('div', 'd', s.note));
+          host.appendChild(box);
+        });
+    }
+
+    /* Open with the recommendation already on screen. Landing on an empty
+     * result and having to work out what to press is the thing this page is
+     * meant to spare people. */
+    (function () {
+      var b = best(0);
+      if (b) {
+        st.level = 32; st.points = b.points;
+        st.granted = b.granted; st.shield = b.shield;
+        $('lv').value = 32; $('vs').value = b.points;
+      }
+    })();
+
+    render();
+    decode();
+    renderCodes();
+  })();
+</script>
