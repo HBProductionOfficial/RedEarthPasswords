@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Red Earth Passwords</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap">
@@ -119,6 +123,9 @@
     border: 1px solid var(--line); padding: 10px 4px; cursor: pointer;
     transition: color .12s, border-color .12s;
   }
+  /* Twice the label in the same four columns, so it steps down and is allowed
+   * to break at the space before the bracket rather than overflow. */
+  html[lang="ja"] .char { font-size: 11px; letter-spacing: -.01em; }
   .char:hover { color: var(--text); border-color: var(--dim); }
   .char[aria-pressed="true"] {
     color: var(--on-fill); background: var(--fill); border-color: var(--fill);
@@ -294,6 +301,90 @@
   }
   .all .g { color: var(--dim); }
 
+  /* --- movement ------------------------------------------------------------
+   *
+   * Only where something actually happens: a choice being taken, a section
+   * opening, an answer arriving. Everything is short, because the page is a
+   * lookup tool and a person changing the level with the slider sees these
+   * dozens of times a minute.
+   *
+   * Nothing here moves layout. The cascade on the password buttons is opacity
+   * and transform only, so a slow phone cannot make the answer box reflow while
+   * it plays, and the whole block is switched off for anyone who has asked
+   * their system for less motion.
+   */
+  @keyframes take {
+    0%   { transform: scale(.94); }
+    55%  { transform: scale(1.035); }
+    100% { transform: scale(1); }
+  }
+  @keyframes arrive {
+    from { opacity: 0; transform: translateY(5px) scale(.9); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes settle {
+    from { opacity: .25; letter-spacing: .34em; }
+    to   { opacity: 1; letter-spacing: .2em; }
+  }
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(7px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes drop {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Taken, not merely coloured in. The animation runs because the selector
+   * starts matching, so it replays every time the choice moves. */
+  .char[aria-pressed="true"],
+  .preset[aria-pressed="true"],
+  .quick button[aria-pressed="true"],
+  .lang[aria-pressed="true"] { animation: take .26s cubic-bezier(.34, 1.4, .64, 1); }
+
+  .char, .quick button, .lang, .toggle, .nav button {
+    transition: color .14s, background .14s, border-color .14s, box-shadow .2s;
+  }
+  .char:active, .quick button:active, .lang:active { transform: translateY(1px); }
+
+  /* The answer cascades in left to right, the way it is entered. The delay is
+   * set per chip in script, because it depends on how many there are. */
+  .chip { animation: arrive .2s ease-out backwards; }
+  /* Dragging the slider rebuilds this row on every pixel. Without this the
+   * cascade would restart before it finished and the later buttons would never
+   * reach full opacity, so the answer would look like it was missing symbols. */
+  .chips.still .chip, .pw.still { animation: none; }
+  .pw:not(.small):not(.still) { animation: settle .26s ease-out; }
+
+  /* One page at a time, so the switch needs to read as a switch. */
+  .page.on { animation: enter .22s ease-out; }
+
+  /* Opening the customise section. Chromium can interpolate the real height of
+   * a disclosure; everywhere else the contents drop in without it, which is the
+   * part that reads as opening. */
+  .tuner, details.tune[open] > .gained, details[open] > .all {
+    animation: drop .2s ease-out;
+  }
+  @supports (interpolate-size: allow-keywords) {
+    :root { interpolate-size: allow-keywords; }
+    details.tune::details-content {
+      height: 0; overflow: clip;
+      transition: height .24s ease, content-visibility .24s allow-discrete;
+    }
+    details.tune[open]::details-content { height: auto; }
+  }
+
+  /* A ticked extra should look ticked without having to find the box. */
+  .toggle:has(input:checked) { border-color: var(--ink-accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   /* --- smaller screens ----------------------------------------------------
    *
    * Four ranges, and height matters as much as width: a landscape phone is wide
@@ -323,6 +414,7 @@
 
     .chars { grid-template-columns: 1fr 1fr; gap: 6px; }
     .char { padding: 13px 6px; font-size: 14px; }
+    html[lang="ja"] .char { font-size: 12px; }
 
     /* Full-width targets rather than a cramped row. */
     .preset { flex: 1 1 100%; text-align: center; padding: 12px; font-size: 12px; }
@@ -497,16 +589,23 @@
      * and Down+Start, which are not attack buttons and do not pretend to be. */
     var LEGEND = ['', 'LP', 'MP', 'HP', 'LK', 'MK', 'HK', 'START', '\u2193+START'];
     function chips(digits) {
-      var box = el('div', 'chips');
-      digits.forEach(function (d) {
+      var box = el('div', cascade ? 'chips' : 'chips still');
+      digits.forEach(function (d, i) {
+        /* Staggered in script rather than in the stylesheet: a password is ten
+         * symbols, a special password can be shorter, and the last one has to
+         * land inside the same fifth of a second either way. */
+        var delay = cascade ? (i * 18) + 'ms' : '0ms';
         if (d >= 1 && d <= 6) {
           var img = document.createElement('img');
           img.className = 'chip';
           img.src = ART[CHAR_SLUG[st.character]][d];
           img.alt = LEGEND[d];
+          img.style.animationDelay = delay;
           box.appendChild(img);
         } else {
-          box.appendChild(el('span', 'chip s', LEGEND[d]));
+          var pill = el('span', 'chip s', LEGEND[d]);
+          pill.style.animationDelay = delay;
+          box.appendChild(pill);
         }
       });
       return box;
@@ -535,11 +634,14 @@
      *
      * The character names are different -- the Japanese release calls them
      * Mukuro, Tabasa and Tao, which is how the source lists label them too.
+     * Japanese mode carries both spellings: the reading in katakana, and the
+     * Latin form the password lists use, so the page stays usable either way.
      */
     var LANG = 'en';
     var NAMES = {
       en: ['Leo', 'Kenji', 'Tessa', 'Mai-Ling'],
-      ja: ['Leo', 'Mukuro', 'Tabasa', 'Tao']
+      ja: ['Leo (レオ)', 'Mukuro (ムクロ)',
+           'Tabasa (タバサ)', 'Tao (タオ)']
     };
     var S = {
       en: {
@@ -859,7 +961,7 @@
        * rules never consult is free. Show the one that types easiest. */
       var sp = RE.spellings(st.character, st.level, st.points, st.granted, st.shield);
       var use = sp ? sp.best : hit;
-      outEl.appendChild(el('div', 'pw', text(use.digits)));
+      outEl.appendChild(el('div', cascade ? 'pw' : 'pw still', text(use.digits)));
       outEl.appendChild(chips(use.digits));
       var said = el('div', 'said');
       said.appendChild(el('b', null,
@@ -887,6 +989,13 @@
      * makes a four-digit total impossible to enter -- so it is only corrected
      * when it loses focus. */
     var editing = null;
+    /* Continuous controls render without the cascade: see quietly(). */
+    var cascade = true;
+    function quietly() {
+      cascade = false;
+      try { render(); } finally { cascade = true; }
+    }
+
     function clamp(v, lo, hi, step) {
       v = Math.round(v / step) * step;
       return Math.max(lo, Math.min(hi, v));
@@ -895,7 +1004,7 @@
       var slider = $(name), box = $(name + '-num');
       slider.addEventListener('input', function () {
         st[key] = +slider.value;
-        render();
+        quietly();
       });
       box.addEventListener('input', function () {
         var raw = parseInt(box.value, 10);
@@ -906,7 +1015,7 @@
          * the clamped value back on every keystroke lands the next digit on
          * top of it -- typing 7770 arrives at 9990. */
         editing = box;
-        render();
+        quietly();
         editing = null;
       });
       box.addEventListener('blur', function () {
