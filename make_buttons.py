@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
-"""Cut the six attack buttons out of the notation sheet and recolour them.
+"""Recolour the six attack buttons for each character.
 
-The sheet comes from the Red Earth mizuumi wiki. It is pixel
-art in fourteen colours, so recolouring is an exact palette swap rather than a
-filter: every red-family colour is re-hued to the character's own, keeping its
-own lightness step so the cap still reads as domed and the base as shadow. The
-yellow legend and its navy shadow are left alone -- they are the part that has
-to stay legible on every cap.
+Reads the six button sprites in art/buttons/ -- cut from the Red Earth notation
+sheet, which is not kept here: only the buttons are, because only the buttons
+are used. They are pixel art in fourteen colours, so recolouring is an exact
+palette swap rather than a filter: every red-family colour is re-hued to the
+character's own, keeping its own lightness step so the cap still reads as domed
+and the base as shadow.
+
+The legend cannot stay yellow on every cap -- it is fine on Leo's red and
+Kenji's blue and unreadable on Tessa's mauve and Mai-Ling's pale green -- so it
+is recoloured too: bright on a dark cap, near-white with a dark drop shadow on a
+light one.
+
+Writes art/buttons.json, the data URIs the page embeds.
 """
 import base64
 import colorsys
@@ -17,24 +24,13 @@ import pathlib
 from PIL import Image
 
 ROOT = pathlib.Path(__file__).resolve().parent
-sheet = Image.open(ROOT / 'art' / 'RE_Notation.png').convert('RGBA')
+SRC = ROOT / 'art' / 'buttons'
 
-BOX = {
-    1: (492, 307, 587, 363),   # LP
-    2: (600, 307, 692, 363),   # MP
-    3: (703, 307, 794, 363),   # HP
-    4: (492, 371, 587, 427),   # LK
-    5: (600, 371, 692, 427),   # MK
-    6: (703, 371, 794, 427),   # HK
-}
+ORDER = [(1, 'lp'), (2, 'mp'), (3, 'hp'), (4, 'lk'), (5, 'mk'), (6, 'hk')]
 
 # The cap's own specular glint, left alone.
 KEEP = {(247, 243, 0), (247, 178, 0), (0, 0, 82), (247, 243, 247)}
 
-# The legend cannot stay yellow on every cap: it is fine on Leo's red and
-# Kenji's blue and unreadable on Tessa's mauve and Mai-Ling's pale green. So it
-# is recoloured too -- bright on a dark cap, near-white with a dark drop shadow
-# on a light one. Where a character's own second colour serves, it is used.
 #            glyph                shading              drop shadow
 LEGEND = {
     'leo':   {(247, 243, 0): (255, 214, 60), (247, 178, 0): (214, 150, 0),
@@ -87,8 +83,8 @@ def is_red(c):
 art = {}
 for name, target in CHARS.items():
     art[name] = {}
-    for digit, box in BOX.items():
-        im = sheet.crop(box).copy()
+    for digit, base in ORDER:
+        im = Image.open(SRC / (base + '.png')).convert('RGBA')
         px = im.load()
         cache = {}
         for y in range(im.height):
@@ -112,13 +108,12 @@ for name, target in CHARS.items():
 # A contact sheet to look at before it goes anywhere near the page.
 proof = Image.new('RGBA', (6 * 96, 4 * 58), (0, 0, 0, 255))
 for row, name in enumerate(CHARS):
-    for col, digit in enumerate(BOX):
+    for col, (digit, _) in enumerate(ORDER):
         raw = base64.b64decode(art[name][digit].split(',', 1)[1])
         proof.paste(Image.open(io.BytesIO(raw)), (col * 96, row * 58))
 proof.resize((6 * 96 * 2, 4 * 58 * 2), Image.NEAREST).save(ROOT / 'art' / '_proof.png')
 
-out = ROOT / 'art' / 'buttons.json'
-out.write_text(json.dumps(art), encoding='utf-8')
+(ROOT / 'art' / 'buttons.json').write_text(json.dumps(art), encoding='utf-8')
 total = sum(len(v) for d in art.values() for v in d.values())
 print('24 sprites, %.1f KB of data URIs total' % (total / 1024.0))
 print('proof sheet: art/_proof.png')

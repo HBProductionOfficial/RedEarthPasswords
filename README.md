@@ -1,6 +1,6 @@
 # Red Earth Passwords
 
-A generator and reader for the continue passwords in Capcom's Red Earth /
+A generator and reader for the continue passwords in Red Earth /
 ウォーザード (War-Zard).
 
 Pick a character, pick what you want to come back with, and it gives you the ten
@@ -37,6 +37,9 @@ Symbols 7 and 8 — Start and Down + Start — cannot appear in any field. The g
 matches passwords containing them against a short list before it tries to decode
 anything, which is how the sixteen special passwords work.
 
+Most loadouts have several working passwords, because a digit the rules never
+consult is free to be anything. The page picks the one that types easiest.
+
 ## Accuracy
 
 The rules were recovered by disassembling the game. They are checked against
@@ -46,15 +49,20 @@ state a level all decode to that level.
 The level progression — titles, weapons, shields, moves and resistances — is
 research rather than disassembly, and the page says so where it matters.
 
+## The button art
+
+`art/buttons/` holds the six attack buttons, cut from HB Production's Red Earth
+notation sheet. Only the buttons are kept — 3 KB rather than the 182 KB sheet.
+
+`make_buttons.py` recolours them for each character and writes the data URIs the
+page embeds. It is an exact palette swap rather than a filter: the art is
+fourteen colours, so every red in the cap is re-hued while keeping its own
+lightness, and the legend is recoloured separately so it stays readable on a
+pale cap. Needs Pillow.
+
 ## Credits
 
-Password research and the notation artwork: **HB Production**.
+Password research and the button artwork: **HB Production**.
 
 Not affiliated with or endorsed by the rights holder. Red Earth and War-Zard
 belong to Capcom.
-
-## Regenerating the button art
-
-`make_buttons.py` cuts the six attack buttons out of `art/RE_Notation.png` and
-recolours them for each character, then writes the data URIs the page embeds.
-Needs Pillow.
