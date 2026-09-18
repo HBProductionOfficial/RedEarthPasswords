@@ -4,7 +4,7 @@ A generator and reader for the continue passwords in Red Earth /
 ウォーザード (War-Zard).
 
 Pick a character, pick what you want to come back with, and it gives you the ten
-symbols to enter — shown as the buttons you actually press. It also reads a
+symbols to enter, shown as the buttons you actually press. It also reads a
 password back, and lists the sixteen special passwords.
 
 ## Running it
@@ -25,15 +25,15 @@ Ten symbols, each one a button on the panel:
 | LP | MP | HP | LK | MK | HK | Start | Down + Start |
 
 Three fields are interleaved, in a different order for each character: two
-symbols of level, five of VS points, three of variation. There is no checksum —
-the scramble is what binds a password to one character.
+symbols of level, five of VS points, three of variation. There is no checksum,
+so the scramble is what binds a password to one character.
 
 The VS field is not a base-6 number, which is what it looks like. The total
 drops its units digit, the three digits that remain are re-encoded in base 6,
 and a magnitude class records which three they were. A total of zero is not
 encoded at all: it gets two symbols from {4,5} and three the game ignores.
 
-Symbols 7 and 8 — Start and Down + Start — cannot appear in any field. The game
+Symbols 7 and 8, Start and Down + Start, cannot appear in any field. The game
 matches passwords containing them against a short list before it tries to decode
 anything, which is how the sixteen special passwords work.
 
@@ -46,13 +46,13 @@ The rules were recovered by disassembling the game. They are checked against
 real passwords: 225 from published lists all decode, and the 129 of those that
 state a level all decode to that level.
 
-The level progression — titles, weapons, shields, moves and resistances — is
+The level progression, meaning titles, weapons, shields, moves and resistances, is
 research rather than disassembly, and the page says so where it matters.
 
 ## The button art
 
 `art/buttons/` holds the six attack buttons, cut from HB Production's Red Earth
-notation sheet. Only the buttons are kept — 3 KB rather than the 182 KB sheet.
+notation sheet. Only the buttons are kept, 3 KB rather than the 182 KB sheet.
 
 `make_buttons.py` recolours them for each character and writes the data URIs the
 page embeds. It is an exact palette swap rather than a filter: the art is
