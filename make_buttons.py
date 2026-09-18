@@ -80,6 +80,13 @@ def is_red(c):
     return c[3] > 0 and c[:3] not in KEEP and r > g and r > b
 
 
+# The page sets a width and lets the height follow, so sprites of different
+# widths render at different heights and the row visibly wobbles as the password
+# changes. They were 95, 92 and 91 wide when first cut. Checked, not assumed.
+sizes = {Image.open(SRC / (base + '.png')).size for _, base in ORDER}
+if len(sizes) != 1:
+    raise SystemExit('button sprites must all be the same size, found %s' % sorted(sizes))
+
 art = {}
 for name, target in CHARS.items():
     art[name] = {}
