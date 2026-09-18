@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Red Earth Passwords</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap">
 <style>
   /* Three pages, each sized to one window. The default path is three steps and
    * nothing else on screen; level, VS points and individual extras are behind a
@@ -25,7 +25,20 @@
     --glow: #7928ca66;
     --hi: #fff;
     --unit: 8px;
-    --mono: 'Berkeley Mono', 'Roboto Mono', ui-monospace, SFMono-Regular, monospace;
+    /* One family sets the whole page, headings included. Berkeley Mono is
+     * commercial and its files are not ours to ship, so it is named first for
+     * anyone who has licensed it and JetBrains Mono is the free fallback: the
+     * same squared terminal-grotesque build rather than a humanist mono. */
+    --mono: 'Berkeley Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular,
+            Menlo, monospace;
+    /* The weight ladder, and the two tracking values that go with it. Display
+     * text is tightened, small uppercase is opened right out. */
+    --w-body: 400;
+    --w-mid: 600;
+    --w-bold: 700;
+    --w-brand: 800;
+    --track-display: -.04em;
+    --track-eyebrow: .16em;
     color-scheme: dark;
   }
 
@@ -39,12 +52,12 @@
     --fill: #4727ef; --on-fill: #fff; --ink-accent: #efb700;
     --glow: #4727ef88; --hi: #fff;
   }
-  /* Tessa -- her mauve fills, so what sits on it has to be dark. */
+  /* Tessa -- her cape's own purple, dark enough to write white on. */
   [data-char="tessa"] {
     --fill: #a63f8d; --on-fill: #fff; --ink-accent: #e74900;
     --glow: #a63f8d66; --hi: #f7f3f7;
   }
-  /* Mai-Ling -- her fill is pale, so what sits on it has to be dark. */
+  /* Mai-Ling -- the mid-green from her sheet, not the highlight. */
   [data-char="mai"] {
     --fill: #577934; --on-fill: #fff; --ink-accent: #b0e0e0;
     --glow: #57793488; --hi: #fff;
@@ -55,7 +68,16 @@
     background: var(--bg); color: var(--text);
     font-family: var(--mono); font-size: 13px; line-height: 1.5;
     overflow: hidden; overflow-x: hidden;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Selection and scrollbar take the character's colour rather than the
+   * browser's, which is the last place the default theme shows through. */
+  ::selection { background: var(--fill); color: var(--on-fill); }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--dim); }
   * { box-sizing: border-box; }
 
   .app {
@@ -72,11 +94,26 @@
     border-bottom: 1px solid var(--line); padding-bottom: var(--unit);
   }
   .headright { justify-content: space-between; width: 100%; }
-  .head h1 { font-size: 15px; font-weight: 700; margin: 0; letter-spacing: .02em; }
-  .head h1 .slash { color: var(--ink-accent); }
+  /* The one piece of display type on the page, so it gets the display
+   * treatment: heaviest weight, tracking pulled in, and the glyphs filled with
+   * a white-to-grey gradient instead of a flat white. */
+  .head h1 {
+    font-size: 16px; font-weight: var(--w-brand); margin: 0;
+    letter-spacing: var(--track-display); line-height: 1.1;
+    background: linear-gradient(to bottom right, #fff, #888);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  /* The slash keeps the character's colour, so it has to opt out of the fill
+   * the gradient sets on everything inside the heading. */
+  .head h1 .slash {
+    color: var(--ink-accent); -webkit-text-fill-color: var(--ink-accent);
+    background: none;
+  }
   .nav { display: flex; gap: 2px; }
   .nav button {
-    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    font-family: var(--mono); font-size: 11px; font-weight: var(--w-mid);
+    letter-spacing: var(--track-eyebrow);
     text-transform: uppercase; background: none; color: var(--dim);
     border: 1px solid transparent; padding: 5px 10px; cursor: pointer;
   }
@@ -86,12 +123,13 @@
   }
 
   .title { display: flex; flex-direction: column; gap: 1px; }
-  .also { color: var(--dim); font-size: 10px; letter-spacing: .04em; }
+  .also { color: var(--dim); font-size: 10px; letter-spacing: .08em; }
   .headright { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .langs { display: flex; gap: 2px; }
   .lang {
     display: inline-flex; align-items: center; gap: 6px;
-    font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+    font-family: var(--mono); font-size: 10px; font-weight: var(--w-mid);
+    letter-spacing: .12em; text-transform: uppercase;
     background: none; color: var(--dim); border: 1px solid var(--line);
     padding: 4px 8px; cursor: pointer;
   }
@@ -111,14 +149,17 @@
   /* --- a numbered step --- */
   .step { display: flex; flex-direction: column; gap: 7px; }
   .step > h2 {
-    margin: 0; font-size: 11px; font-weight: 400; letter-spacing: .12em;
+    margin: 0; font-size: 11px; font-weight: var(--w-mid);
+    letter-spacing: var(--track-eyebrow);
     text-transform: uppercase; color: var(--dim);
   }
-  .step > h2 b { color: var(--ink-accent); font-weight: 700; margin-right: 7px; }
+  .step > h2 b {
+    color: var(--ink-accent); font-weight: var(--w-bold); margin-right: 7px;
+  }
 
   .chars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
   .char {
-    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    font-family: var(--mono); font-size: 13px; font-weight: var(--w-mid);
     background: var(--card); color: var(--dim);
     border: 1px solid var(--line); padding: 10px 4px; cursor: pointer;
     transition: color .12s, border-color .12s;
@@ -134,7 +175,8 @@
 
   .row { display: flex; flex-wrap: wrap; gap: 6px; }
   .preset {
-    font-family: var(--mono); font-size: 12px; letter-spacing: .04em;
+    font-family: var(--mono); font-size: 12px; font-weight: var(--w-mid);
+    letter-spacing: .02em;
     background: transparent; color: var(--ink-accent); border: 1px solid var(--ink-accent);
     padding: 8px 13px; cursor: pointer; transition: background .12s, color .12s;
   }
@@ -158,8 +200,12 @@
   .out .said { min-height: 2.9em; }
   .out .said.note { min-height: 1.45em; }
   .out.bad { border-color: #5a2222; }
+  /* The one place that goes the other way. Display type is tightened
+   * everywhere else; these are ten separate symbols to be read one at a time
+   * and copied into a cabinet, so they stay held apart. */
   .pw {
-    font-size: clamp(20px, 4.4vw, 34px); font-weight: 700; letter-spacing: .2em;
+    font-size: clamp(20px, 4.4vw, 34px); font-weight: var(--w-bold);
+    letter-spacing: .2em;
     font-variant-numeric: tabular-nums; color: var(--hi);
     text-shadow: 0 0 18px var(--glow);
   }
@@ -190,7 +236,7 @@
     box-shadow: 0 2px 0 #16161a, inset 0 1px 0 rgba(255, 255, 255, .18);
     image-rendering: auto;
   }
-  .said { color: var(--dim); font-size: 12px; }
+  .said { color: var(--dim); font-size: 12px; line-height: 1.6; }
   .said b { color: var(--text); font-weight: 400; }
 
   /* --- customise ---
@@ -268,7 +314,7 @@
   summary.more::before { content: '+'; color: var(--ink-accent); font-weight: 700; }
   details[open] > summary.more::before { content: '-'; }
   summary.more:hover { color: var(--text); }
-  .gained { color: var(--dim); font-size: 11px; line-height: 1.45; }
+  .gained { color: var(--dim); font-size: 11px; line-height: 1.6; }
   .gained b { color: var(--text); font-weight: 400; }
 
   #dec {
@@ -292,7 +338,7 @@
   }
   .code .d { grid-column: 1 / -1; color: var(--dim); font-size: 11px; }
 
-  .foot { color: #555; font-size: 11px; line-height: 1.55; }
+  .foot { color: #555; font-size: 11px; line-height: 1.6; }
   .foot b { color: var(--dim); font-weight: 400; }
   .all { display: flex; flex-direction: column; max-height: 132px; overflow: auto; }
   .all div {

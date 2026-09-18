@@ -60,6 +60,14 @@ fourteen colours, so every red in the cap is re-hued while keeping its own
 lightness, and the legend is recoloured separately so it stays readable on a
 pale cap. Needs Pillow.
 
+## The typeface
+
+Set in **Berkeley Mono** where it is installed, and **JetBrains Mono**
+otherwise. Berkeley Mono is commercial and is not shipped here: it is named
+first in the stack so that anyone who has licensed it sees the page as intended.
+JetBrains Mono is under the SIL Open Font License and is loaded from Google
+Fonts.
+
 ## Credits
 
 Password research and the button artwork: **HB Production**.
