@@ -118,7 +118,6 @@
    * so it is kept apart from the rules above and labelled as such on the page.
    */
   /* Per level: what the game grants. From HB Production's research. */
-  /* Per level: what the game grants. From HB Production's research. */
   var PROGRESSION = [
     /* Leo */ [
       {"title": "Savage", "sword": "Old Sword", "shield": "Old Shield"},
@@ -614,15 +613,28 @@
    * Sword, which some tournaments ban, leaving the Diamond Sword he already has
    * at level 32 plus the Legendary Shield.
    *
-   * The other three take everything they can carry, because for them it is all
-   * extra moves.
+   * Kenji has a pair for the same reason, one argument down: some players rate
+   * Blade Slice a weak move, so the second entry drops it and keeps the other
+   * two. That is his bit 0x04; 0x03 is reachable at level 32 with 800 working
+   * spellings.
+   *
+   * Tessa and Mai-Ling take everything they can carry, because for them it is
+   * all extra moves and nobody has reported a reason not to.
+   *
+   * The key is the page's string id for the label, carried here so the page
+   * does not have to know which character has a choice.
    */
   var BEST_TARGETS = [
-    [{ granted: 0x10, shield: 1, label: 'Best: Legendary Sword and Shield' },
-     { granted: 0x00, shield: 1, label: 'Best without the Legendary Sword' }],
-    [{ granted: 0x07, shield: 0, label: 'Best password' }],
-    [{ granted: 0x0F, shield: 0, label: 'Best password' }],
-    [{ granted: 0x01, shield: 0, label: 'Best password' }]
+    [{ granted: 0x10, shield: 1, key: 'preset.leo0',
+       label: 'Best: Legendary Sword and Shield' },
+     { granted: 0x00, shield: 1, key: 'preset.leo1',
+       label: 'Best without the Legendary Sword' }],
+    [{ granted: 0x07, shield: 0, key: 'preset.kenji0',
+       label: 'Best: everything he can carry' },
+     { granted: 0x03, shield: 0, key: 'preset.kenji1',
+       label: 'Best without Blade Slice' }],
+    [{ granted: 0x0F, shield: 0, key: 'preset.best', label: 'Best password' }],
+    [{ granted: 0x01, shield: 0, key: 'preset.best', label: 'Best password' }]
   ];
 
   /* The easiest-to-type spelling of one target loadout, over every VS total.
