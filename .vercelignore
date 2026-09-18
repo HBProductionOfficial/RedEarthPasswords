@@ -1,0 +1,7 @@
+# The site is index.html and password.js. Everything else in the repository is
+# how the artwork was made, not something the site serves: the recolouring
+# script and the six source sprites, whose output is already embedded in the
+# page as data URIs.
+make_buttons.py
+art/
+README.md
