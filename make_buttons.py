@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """Recolour the six attack buttons for each character.
 
-Reads the six button sprites in art/buttons/ -- cut from the Red Earth notation
-sheet, which is not kept here: only the buttons are, because only the buttons
-are used. They are pixel art in fourteen colours, so recolouring is an exact
-palette swap rather than a filter: every red-family colour is re-hued to the
-character's own, keeping its own lightness step so the cap still reads as domed
-and the base as shadow.
+Reads the six button sprites in art/buttons/. They are pixel art in fourteen
+colours, so recolouring is an exact palette swap rather than a filter: every
+red-family colour is re-hued to the character's own, keeping its own lightness
+step so the cap still reads as domed and the base as shadow.
 
 The legend cannot stay yellow on every cap -- it is fine on Leo's red and
 Kenji's blue and unreadable on Tessa's mauve and Mai-Ling's pale green -- so it

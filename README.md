@@ -51,10 +51,7 @@ research rather than disassembly, and the page says so where it matters.
 
 ## The button art
 
-`art/buttons/` holds the six attack buttons, cut from HB Production's Red Earth
-notation sheet. Only the buttons are kept, 3 KB rather than the 182 KB sheet.
-
-`make_buttons.py` recolours them for each character and writes the data URIs the
+`make_buttons.py` recolours the six attack buttons in `art/buttons/` for each character and writes the data URIs the
 page embeds. It is an exact palette swap rather than a filter: the art is
 fourteen colours, so every red in the cap is re-hued while keeping its own
 lightness, and the legend is recoloured separately so it stays readable on a
@@ -70,7 +67,7 @@ Fonts.
 
 ## Credits
 
-Password research and the button artwork: **HB Production**.
+Password research: **HB Production**.
 
 Not affiliated with or endorsed by the rights holder. Red Earth and War-Zard
 belong to Capcom.
