@@ -1,3 +1,5 @@
 art/_proof.png
 art/buttons.json
 __pycache__/
+.vercel
+.env*
