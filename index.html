@@ -60,11 +60,14 @@
     max-width: 760px; margin: 0 auto; min-height: 0;
   }
 
+  /* Always stacked. Title, three tabs and two language buttons come to about
+   * 734px, and the page is capped at 760 with 32 of padding -- so one row never
+   * fits at any window size, and a breakpoint would only move the wrap. */
   .head {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px;
-    justify-content: space-between;
+    display: flex; flex-direction: column; gap: 9px;
     border-bottom: 1px solid var(--line); padding-bottom: var(--unit);
   }
+  .headright { justify-content: space-between; width: 100%; }
   .head h1 { font-size: 15px; font-weight: 700; margin: 0; letter-spacing: .02em; }
   .head h1 .slash { color: var(--ink-accent); }
   .nav { display: flex; gap: 2px; }
@@ -200,7 +203,6 @@
   details.tune > summary:hover,
   details.tune[open] > summary { border-color: var(--ink-accent); }
   .tuner { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin-top: 12px; }
-  @media (max-width: 600px) { .tuner { grid-template-columns: 1fr; } }
   .field { display: flex; flex-direction: column; gap: 4px; }
   .field-top { display: flex; justify-content: space-between; align-items: baseline; }
   .field label { font-size: 11px; color: var(--dim); }
@@ -249,10 +251,6 @@
     font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap;
   }
   .code .d { grid-column: 1 / -1; color: var(--dim); font-size: 11px; }
-  @media (max-width: 600px) {
-    .code { grid-template-columns: 1fr; }
-    .code .p { text-align: left; font-size: 18px; }
-  }
 
   .foot { color: #555; font-size: 11px; line-height: 1.55; }
   .foot b { color: var(--dim); font-weight: 400; }
@@ -263,52 +261,76 @@
   }
   .all .g { color: var(--dim); }
 
-  /* --- narrow and short screens -------------------------------------------
+  /* --- smaller screens ----------------------------------------------------
    *
-   * One window is the right shape for a desktop and the wrong one for a phone:
-   * four character buttons across a 360px screen leaves 70px each, and the
-   * three steps plus a result do not fit a phone's height whatever is done to
-   * them. So below this the page scrolls normally and the controls get bigger
-   * rather than smaller -- a crushed layout would be worse than a scroll.
+   * Four ranges, and height matters as much as width: a landscape phone is wide
+   * and short, a tablet in portrait is narrow and tall, and the two need
+   * opposite things.
+   *
+   *   <= 860 wide   the header cannot hold the title, three tabs and two
+   *                 language buttons on one row. Stack it.
+   *   <= 620 wide   phone. Controls get bigger, not smaller; two characters to
+   *                 a row so "Mai-Ling" fits on one line.
+   *   <= 820 tall   tighten the vertical rhythm before giving up on one screen.
+   *   <= 700 wide
+   *   or <= 620 tall  genuinely cannot hold three steps and a result. Scroll --
+   *                 a crushed layout is worse than a scrollbar.
    */
-  @media (max-width: 700px), (max-height: 600px) {
-    html, body { height: auto; overflow: auto; }
-    .app { height: auto; padding-bottom: 32px; }
-    .page { overflow: visible; }
-  }
 
-  @media (max-width: 600px) {
-    .head { flex-direction: column; align-items: stretch; gap: 10px; }
+  @media (max-width: 620px) {
     .headright { flex-direction: column; align-items: stretch; gap: 8px; }
-    .langs { justify-content: flex-start; }
-    .lang { flex: 1 1 0; padding: 8px 6px; }
     .head h1 { font-size: 16px; }
     .nav { width: 100%; }
     .nav button {
       flex: 1 1 0; min-width: 0; padding: 10px 4px;
       font-size: 10px; letter-spacing: .04em;
     }
+    .langs { justify-content: flex-start; }
+    .lang { flex: 1 1 0; justify-content: center; padding: 8px 6px; }
 
-    /* Two by two, with room for "Mai-Ling" to sit on one line. */
     .chars { grid-template-columns: 1fr 1fr; gap: 6px; }
     .char { padding: 13px 6px; font-size: 14px; }
 
     /* Full-width targets rather than a cramped row. */
     .preset { flex: 1 1 100%; text-align: center; padding: 12px; font-size: 12px; }
 
+    /* Ten buttons plus nine gaps have to clear a 360px screen's 328px of room. */
+    .chip { width: 29px; }
     .pw { letter-spacing: .1em; overflow-wrap: anywhere; }
-    .chip { font-size: 11px; padding: 4px 8px; }
-    .toggle { padding: 10px 10px; font-size: 12px; }
+    .toggle { padding: 10px; font-size: 12px; }
     details.tune > summary { font-size: 12px; }
+    .tuner { grid-template-columns: 1fr; }
+    .code { grid-template-columns: 1fr; }
+    .code .p { text-align: left; font-size: 18px; }
     .all { max-height: none; }
-    .page { gap: 18px; }
+    .page { gap: 16px; }
+  }
+
+  @media (max-height: 820px) {
+    .app { gap: 6px; padding-block: 6px 10px; }
+    .page { gap: 11px; }
+    .step { gap: 5px; }
+    .out { padding: 11px 12px; gap: 7px; }
+    .pw { font-size: clamp(18px, 3.4vw, 26px); }
+    .chip { width: clamp(26px, 6.4vw, 38px); }
+    .chars { gap: 4px; }
+    .char { padding: 8px 4px; }
+    .preset { padding: 7px 12px; }
+    .all { max-height: 104px; }
+  }
+
+  @media (max-width: 700px), (max-height: 620px) {
+    html, body { height: auto; overflow: auto; }
+    .app { height: auto; padding-bottom: 28px; }
+    .page { overflow: visible; }
   }
 
   @media (max-width: 380px) {
     .app { padding-inline: 12px; }
+    .chip { width: 26px; }
     .pw { font-size: 19px; letter-spacing: .06em; }
-    .chars { grid-template-columns: 1fr; }
   }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
