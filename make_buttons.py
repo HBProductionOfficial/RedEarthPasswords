@@ -28,8 +28,24 @@ BOX = {
     6: (703, 371, 794, 427),   # HK
 }
 
-# Left alone: the legend, its shadow, and the specular white.
+# The cap's own specular glint, left alone.
 KEEP = {(247, 243, 0), (247, 178, 0), (0, 0, 82), (247, 243, 247)}
+
+# The legend cannot stay yellow on every cap: it is fine on Leo's red and
+# Kenji's blue and unreadable on Tessa's mauve and Mai-Ling's pale green. So it
+# is recoloured too -- bright on a dark cap, near-white with a dark drop shadow
+# on a light one. Where a character's own second colour serves, it is used.
+#            glyph                shading              drop shadow
+LEGEND = {
+    'leo':   {(247, 243, 0): (255, 214, 60), (247, 178, 0): (214, 150, 0),
+              (0, 0, 82): (0, 0, 82)},
+    'kenji': {(247, 243, 0): (239, 183, 0), (247, 178, 0): (184, 138, 0),
+              (0, 0, 82): (0, 0, 82)},
+    'tessa': {(247, 243, 0): (247, 243, 247), (247, 178, 0): (201, 174, 187),
+              (0, 0, 82): (59, 16, 32)},
+    'mai':   {(247, 243, 0): (255, 255, 255), (247, 178, 0): (176, 224, 224),
+              (0, 0, 82): (18, 48, 24)},
+}
 
 CHARS = {
     'leo':   (0xC7, 0x37, 0x37),
@@ -78,10 +94,15 @@ for name, target in CHARS.items():
         for y in range(im.height):
             for x in range(im.width):
                 c = px[x, y]
-                if not is_red(c):
+                if c[3] == 0:
                     continue
                 if c not in cache:
-                    cache[c] = remap(c, target) + (c[3],)
+                    if c[:3] in LEGEND[name]:
+                        cache[c] = LEGEND[name][c[:3]] + (c[3],)
+                    elif is_red(c):
+                        cache[c] = remap(c, target) + (c[3],)
+                    else:
+                        cache[c] = c
                 px[x, y] = cache[c]
         buf = io.BytesIO()
         im.save(buf, 'PNG', optimize=True)
