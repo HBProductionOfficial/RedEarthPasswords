@@ -618,8 +618,8 @@
    * extra moves.
    */
   var BEST_TARGETS = [
-    [{ granted: 0x10, shield: 1, label: 'Best — Legendary Sword & Shield' },
-     { granted: 0x00, shield: 1, label: 'Best — no Legendary Sword' }],
+    [{ granted: 0x10, shield: 1, label: 'Best: Legendary Sword and Shield' },
+     { granted: 0x00, shield: 1, label: 'Best without the Legendary Sword' }],
     [{ granted: 0x07, shield: 0, label: 'Best password' }],
     [{ granted: 0x0F, shield: 0, label: 'Best password' }],
     [{ granted: 0x01, shield: 0, label: 'Best password' }]
