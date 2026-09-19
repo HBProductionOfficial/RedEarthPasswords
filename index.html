@@ -127,9 +127,24 @@
     color: var(--text); border-color: var(--ink-accent); box-shadow: 0 0 10px var(--glow);
   }
 
-  .title { display: flex; flex-direction: column; gap: 1px; }
+  /* --- centred ------------------------------------------------------------
+   *
+   * The cabinet centres everything it puts on screen, so this does too. Two
+   * things stay where they are: the language switch, which is not part of what
+   * anyone reads and belongs out of the way at the right, and the list of other
+   * passwords, which is a list and reads down the left.
+   */
+  .title { display: flex; flex-direction: column; gap: 1px; align-items: center;
+           text-align: center; }
   .also { color: var(--dim); font-size: 10px; letter-spacing: .08em; }
-  .headright { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  /* Three tracks, so the tabs are centred on the page rather than centred on
+   * whatever room the language buttons leave. */
+  .headright {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    align-items: center; gap: 10px;
+  }
+  .nav { grid-column: 2; }
+  .langs { grid-column: 3; justify-self: end; }
   .langs { display: flex; gap: 2px; }
   .lang {
     display: inline-flex; align-items: center; gap: 6px;
@@ -164,7 +179,7 @@
   .step > h2 {
     margin: 0; font-size: 12px; font-weight: var(--w-mid);
     letter-spacing: var(--track-eyebrow);
-    text-transform: uppercase; color: var(--dim);
+    text-transform: uppercase; color: var(--dim); text-align: center;
   }
 
 
@@ -291,7 +306,7 @@
     color: #14100a; background: #f2c53d; padding: 1px 6px; line-height: 1.4;
   }
 
-  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
   .preset {
     font-family: var(--mono); font-size: 13px; font-weight: var(--w-mid);
     letter-spacing: .02em;
@@ -313,7 +328,8 @@
    * both lines keep their space whether or not they have anything in them. */
   .out {
     border: 1px solid var(--line); background: var(--card); padding: 18px 20px;
-    display: flex; flex-direction: column; gap: 14px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+    text-align: center;
   }
   .out .said { min-height: 2.9em; }
   .out .said.note { min-height: 1.45em; }
@@ -321,6 +337,9 @@
    * and the one-line "only this one" are the same height, so the box does not
    * change size as the loadout changes. */
   .out .said.onlyone { min-height: 0; color: #8a8a8a; font-size: 12px; }
+  /* The exception. A list of ten-symbol passwords is read down its left edge,
+   * and the line that opens it belongs with them. */
+  .alts, .out .said.onlyone { align-self: stretch; text-align: left; }
   .alts > summary { padding: 0; }
   .alts .all { max-height: clamp(96px, 20vh, 240px); margin-top: 6px; }
   .alts .all div { font-variant-numeric: tabular-nums; letter-spacing: .06em; }
@@ -349,7 +368,8 @@
    * notation, so they stay a grey pill. That is useful rather than a
    * compromise: a special password now looks different at a glance.
    */
-  .chips { display: flex; flex-wrap: wrap; gap: 4px 3px; align-items: center; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px 3px; align-items: center;
+           justify-content: center; }
   .chip {
     width: clamp(30px, 8vw, 48px); height: auto; flex: none; display: block;
     image-rendering: pixelated; image-rendering: crisp-edges;
@@ -369,7 +389,7 @@
     box-shadow: 0 2px 0 #16161a, inset 0 1px 0 rgba(255, 255, 255, .18);
     image-rendering: auto;
   }
-  .said { color: var(--dim); font-size: 13px; line-height: 1.75; }
+  .said { color: var(--dim); font-size: 13px; line-height: 1.75; text-align: center; }
   .said b { color: var(--text); font-weight: 400; }
 
   /* --- customise -----------------------------------------------------------
@@ -542,7 +562,7 @@
   #dec {
     width: 100%; font-family: var(--mono); font-size: 18px; letter-spacing: .2em;
     background: var(--card); color: var(--text); border: 1px solid var(--line);
-    padding: 11px 13px;
+    padding: 11px 13px; text-align: center;
   }
   #dec::placeholder { color: #5f5f5f; }
   :focus-visible { outline: 2px solid var(--ink-accent); outline-offset: 1px; }
@@ -561,21 +581,22 @@
   .code .chips { grid-column: 1 / -1; margin: 4px 0 2px; }
   .code .d { grid-column: 1 / -1; color: var(--dim); font-size: 12px; }
   /* What the two symbols that are not buttons actually are. */
-  .keys { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+  .keys { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center;
+          justify-content: center; }
   .key { display: flex; align-items: center; gap: 7px; }
   .key img { height: 26px; width: auto; display: block; }
   .key b { color: var(--dim); font-weight: 400; }
 
-  .typehint { color: var(--dim); font-size: 12px; line-height: 1.6; }
+  .typehint { color: var(--dim); font-size: 12px; line-height: 1.6; text-align: center; }
   .verdicts { display: flex; flex-direction: column; gap: 10px; }
   /* Each answer carries its own character's colour, so two answers to one
    * password are told apart at a glance rather than by reading the names. */
   .verdicts .out { margin: 0; }
-  .foot { color: #838383; font-size: 12px; line-height: 1.75; }
+  .foot { color: #838383; font-size: 12px; line-height: 1.75; text-align: center; }
   /* Outside the three pages, so it shows whichever one is open, and outside
    * the scrolling area so it stays in view rather than sitting under it. */
   .credits {
-    color: #7a7a7a; font-size: 11px; line-height: 1.6;
+    color: #7a7a7a; font-size: 11px; line-height: 1.6; text-align: center;
     border-top: 1px solid var(--line); padding-top: 10px; margin-top: 2px;
     flex: none;
   }
@@ -738,7 +759,7 @@
    */
 
   @media (max-width: 620px) {
-    .headright { flex-direction: column; align-items: stretch; gap: 8px; }
+    .headright { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
     .head h1 { font-size: 16px; }
     .nav { width: 100%; }
     .nav button {
