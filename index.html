@@ -204,6 +204,14 @@
   .step { display: flex; flex-direction: column; gap: 11px; }
   /* Hidden on the reading page, which has no character to choose. */
   .step.pick { padding-bottom: 0; }
+  /* Wider than the rest of the page, because the cabinet runs the select strip
+   * across the whole screen rather than inside the margins of what is above it
+   * -- and because four plates inside 760 leave the longest name 167 pixels
+   * when it wants 184. Breaks out of .app's cap without touching it. */
+  .step.pick > .chars {
+    width: min(960px, 100vw - 44px);
+    margin-inline: auto;
+  }
   body[data-page="dec"] .pick { display: none; }
   .step > h2 {
     margin: 0; font-size: 12px; font-weight: var(--w-mid);
@@ -305,10 +313,10 @@
    * alternative, which was running the outline twice: that thickens the outline
    * rather than the letter and reads as muddier.
    */
-  .char .nm {
-    font-family: 'Public Pixel', var(--mono);
-    font-size: 16px; font-weight: 700; letter-spacing: .06em;
-    line-height: 1.25;
+  /* The ramp and the outline, worn by both lines on a plate. The kana had
+   * neither, and eight-tenths opacity as well, which is why it looked faded
+   * beside the name rather than part of the same sign. */
+  .char .nm, .char .kana {
     background: linear-gradient(to bottom,
       #f7f3f7 0%, #efeb94 16%, #efe300 32%, #efba00 50%,
       #ef9a00 66%, #ef7100 82%, #e75900 92%, #de3800 100%);
@@ -323,11 +331,23 @@
     filter: drop-shadow(1px 0 0 #00005a) drop-shadow(-1px 0 0 #00005a)
             drop-shadow(0 1px 0 #00005a) drop-shadow(0 -1px 0 #00005a);
   }
+  /* Twenty-four, not sixteen. Only multiples of the face's eight-pixel grid
+   * stay crisp, and the tracking goes with it: a pixel face carries its spacing
+   * in the advance widths, and .06em on top was eleven pixels of the room the
+   * longest name needs. */
+  .char .nm {
+    font-family: 'Public Pixel', var(--mono);
+    font-size: 24px; font-weight: 700; letter-spacing: 0;
+    line-height: 1.2;
+  }
+  /* A size down from the name, in the page's own face because Public Pixel
+   * has no kana, but wearing the same ramp and the same outline. */
   .char .kana {
-    font-size: 11px; letter-spacing: .06em; line-height: 1.2; opacity: .8;
+    font-size: 13px; font-weight: var(--w-bold);
+    letter-spacing: .06em; line-height: 1.25;
   }
   /* What the kana line costs: its own line box, plus the gap above it. */
-  :root { --kana-line: calc(11px * 1.2 + 3px); }
+  :root { --kana-line: calc(13px * 1.25 + 3px); }
   /* The English page has no kana, and the cabinet's plate is the taller one, so
    * it takes the room the kana would have used -- half at each end rather than
    * all of it underneath. Holding an empty line open under the name is what was
@@ -974,6 +994,8 @@
     .langs { justify-content: flex-start; }
     .lang { flex: 1 1 0; justify-content: center; padding: 8px 6px; }
 
+    /* Two to a row, which makes each plate wider again, so the name stays at
+     * twenty-four here -- the band that steps it down stops above this. */
     .chars { grid-template-columns: 1fr 1fr; }
     .char { --plate-pad: 15px; }
 
@@ -1004,7 +1026,6 @@
     .pw { font-size: clamp(18px, 3.4vw, 26px); }
     .chip { width: clamp(26px, 6.4vw, 38px); }
     .char { --plate-pad: 8px; padding-inline: 4px; }
-    .char .nm { font-size: 16px; }
     .preset { padding: 7px 12px; }
     /* The special passwords give up their own spacing rather than letting the
      * page scroll: four blocks of ten symbols is the most there is to fit. */
@@ -1012,6 +1033,19 @@
     #p-codes .codes { gap: 5px; }
     #p-codes .code { padding: 6px 11px; }
     #p-codes .code .chip { max-width: 26px; }
+  }
+
+  /* A band, not a ceiling. Four plates across a window narrower than this
+   * leave the longest name too little room, so it steps down to the other crisp
+   * size; below the band the layout puts two to a row, each one wider again,
+   * and twenty-four fits until the window itself runs out. Written as a range
+   * because the two-across rules are earlier in the file and a bare ceiling
+   * here would override them. */
+  @media (min-width: 621px) and (max-width: 920px) {
+    .char .nm { font-size: 16px; }
+  }
+  @media (max-width: 430px) {
+    .char .nm { font-size: 16px; }
   }
 
   @media (max-width: 380px) {
