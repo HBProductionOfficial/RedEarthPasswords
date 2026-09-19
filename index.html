@@ -16,7 +16,7 @@
     --card: #050505;
     --line: #333;
     --text: #fff;
-    --dim: #888;
+    --dim: #9d9d9d;
     /* The accent belongs to whoever is selected, not to the site. Two roles,
      * because these are the characters' own colours and some are light and some
      * are dark: --fill is a background with --on-fill written on it, --ink is
@@ -26,7 +26,7 @@
     --ink-accent: #7928ca;
     --glow: #7928ca66;
     --hi: #fff;
-    --unit: 8px;
+    --unit: 10px;
     /* One family sets the whole page, headings included. Berkeley Mono is
      * commercial and its files are not ours to ship, so it is named first for
      * anyone who has licensed it and JetBrains Mono is the free fallback: the
@@ -68,7 +68,7 @@
   html, body { height: 100%; }
   body {
     background: var(--bg); color: var(--text);
-    font-family: var(--mono); font-size: 13px; line-height: 1.5;
+    font-family: var(--mono); font-size: 14px; line-height: 1.65;
     overflow: hidden; overflow-x: hidden;
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   }
@@ -95,7 +95,7 @@
    * 734px, and the page is capped at 760 with 32 of padding -- so one row never
    * fits at any window size, and a breakpoint would only move the wrap. */
   .head {
-    display: flex; flex-direction: column; gap: 9px;
+    display: flex; flex-direction: column; gap: 12px;
     border-bottom: 1px solid var(--line); padding-bottom: var(--unit);
   }
   .headright { justify-content: space-between; width: 100%; }
@@ -148,42 +148,76 @@
   .lang[aria-pressed="true"] {
     color: var(--on-fill); background: var(--fill); border-color: var(--fill);
   }
-  .page { min-height: 0; display: none; flex-direction: column; gap: 16px; overflow: auto; }
+  .page { min-height: 0; display: none; flex-direction: column; gap: 24px; overflow: auto; }
   .page.on { display: flex; }
 
   /* --- a numbered step --- */
-  .step { display: flex; flex-direction: column; gap: 7px; }
+  .step { display: flex; flex-direction: column; gap: 11px; }
   .step > h2 {
-    margin: 0; font-size: 11px; font-weight: var(--w-mid);
+    margin: 0; font-size: 12px; font-weight: var(--w-mid);
     letter-spacing: var(--track-eyebrow);
     text-transform: uppercase; color: var(--dim);
   }
   .step > h2 b {
-    color: var(--ink-accent); font-weight: var(--w-bold); margin-right: 7px;
+    color: var(--ink-accent); font-weight: var(--w-bold); margin-right: 9px;
   }
 
-  .chars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  /* --- character select ---------------------------------------------------
+   *
+   * The cabinet draws this as four nameplates in a row with a 1P marker over
+   * whoever is chosen, so this is four nameplates in a row. The Latin name is
+   * the plate, in the size it is actually read at; the kana sits under it, so
+   * the Japanese page is not the same label at a smaller size.
+   *
+   * The frame is the game's gold and the inside is the character's own colour
+   * once chosen, which is how the rest of the page knows who is selected.
+   */
+  .chars {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    padding-top: 11px;
+  }
   .char {
-    font-family: var(--mono); font-size: 13px; font-weight: var(--w-mid);
-    background: var(--card); color: var(--dim);
-    border: 1px solid var(--line); padding: 10px 4px; cursor: pointer;
-    transition: color .12s, border-color .12s;
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-family: var(--mono);
+    background: linear-gradient(#1d1512, #0a0706);
+    color: #d9b45f;
+    border: 2px solid #8a6a26;
+    box-shadow: inset 0 0 0 1px #6b5220;
+    padding: 12px 6px 10px; cursor: pointer;
+    transition: color .14s, border-color .14s, background .14s, box-shadow .14s;
   }
-  /* Twice the label in the same four columns, so it steps down and is allowed
-   * to break at the space before the bracket rather than overflow. */
-  html[lang="ja"] .char { font-size: 11px; letter-spacing: -.01em; }
-  .char:hover { color: var(--text); border-color: var(--dim); }
+  .char .nm {
+    font-size: 16px; font-weight: var(--w-brand); letter-spacing: .07em;
+    line-height: 1.1;
+  }
+  /* Reserved whether or not there is any, so the four plates are one height in
+   * both languages. */
+  .char .kana {
+    font-size: 11px; letter-spacing: .06em; line-height: 1.2;
+    min-height: 1.2em; opacity: .8;
+  }
+  .char:hover {
+    color: #f2d489; border-color: #c8a24a; box-shadow: inset 0 0 0 1px #8a6a26;
+  }
   .char[aria-pressed="true"] {
-    color: var(--on-fill); background: var(--fill); border-color: var(--fill);
-    box-shadow: 0 0 14px var(--glow);
+    color: var(--on-fill); background: var(--fill);
+    border-color: #f0cf74; box-shadow: inset 0 0 0 1px #ffe6a6, 0 0 16px var(--glow);
+  }
+  /* The cabinet's own marker, in the cabinet's own yellow. */
+  .char[aria-pressed="true"]::before {
+    content: '1P';
+    position: absolute; left: 50%; top: -11px; transform: translateX(-50%);
+    font-size: 10px; font-weight: var(--w-brand); letter-spacing: .1em;
+    color: #14100a; background: #f2c53d; padding: 1px 6px; line-height: 1.4;
   }
 
-  .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
   .preset {
-    font-family: var(--mono); font-size: 12px; font-weight: var(--w-mid);
+    font-family: var(--mono); font-size: 13px; font-weight: var(--w-mid);
     letter-spacing: .02em;
     background: transparent; color: var(--ink-accent); border: 1px solid var(--ink-accent);
-    padding: 8px 13px; cursor: pointer; transition: background .12s, color .12s;
+    padding: 11px 16px; cursor: pointer; transition: background .12s, color .12s;
   }
   .preset:hover { box-shadow: 0 0 12px var(--glow); }
   .preset:active { transform: translateY(1px); }
@@ -199,24 +233,27 @@
    * itself the box grew and shrank and shoved everything below it about, so
    * both lines keep their space whether or not they have anything in them. */
   .out {
-    border: 1px solid var(--line); background: var(--card); padding: 14px;
-    display: flex; flex-direction: column; gap: 10px;
+    border: 1px solid var(--line); background: var(--card); padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 14px;
   }
   .out .said { min-height: 2.9em; }
   .out .said.note { min-height: 1.45em; }
   /* The other passwords that decode to the same thing. The collapsed summary
    * and the one-line "only this one" are the same height, so the box does not
    * change size as the loadout changes. */
-  .out .said.onlyone { min-height: 0; color: #555; font-size: 11px; }
+  .out .said.onlyone { min-height: 0; color: #8a8a8a; font-size: 12px; }
   .alts > summary { padding: 0; }
   .alts .all { max-height: clamp(96px, 20vh, 240px); margin-top: 6px; }
   .alts .all div { font-variant-numeric: tabular-nums; letter-spacing: .06em; }
   .out.bad { border-color: #5a2222; }
+  /* The one box that is the answer rather than a control. */
+  .answer .out { border-color: var(--line); background: #070707; padding: 20px 22px; }
+  .answer > h2 { color: var(--ink-accent); }
   /* The one place that goes the other way. Display type is tightened
    * everywhere else; these are ten separate symbols to be read one at a time
    * and copied into a cabinet, so they stay held apart. */
   .pw {
-    font-size: clamp(20px, 4.4vw, 34px); font-weight: var(--w-bold);
+    font-size: clamp(24px, 5vw, 40px); font-weight: var(--w-bold);
     letter-spacing: .2em;
     font-variant-numeric: tabular-nums; color: var(--hi);
     text-shadow: 0 0 18px var(--glow);
@@ -253,36 +290,101 @@
     box-shadow: 0 2px 0 #16161a, inset 0 1px 0 rgba(255, 255, 255, .18);
     image-rendering: auto;
   }
-  .said { color: var(--dim); font-size: 12px; line-height: 1.6; }
+  .said { color: var(--dim); font-size: 13px; line-height: 1.75; }
   .said b { color: var(--text); font-weight: 400; }
 
-  /* --- customise ---
+  /* --- customise -----------------------------------------------------------
    *
-   * This started as a dim uppercase line with a small + in front, which read as
-   * a caption rather than something to press. It is now shaped like the control
-   * it is: a full-width row with a boxed +, ordinary sentence text, and a border
-   * that takes the character's colour on hover and while open. */
-  details.tune > summary {
-    display: flex; align-items: center; gap: 10px;
-    border: 1px solid var(--line); background: var(--card);
-    padding: 10px 12px; cursor: pointer; list-style: none;
-    color: var(--text); font-size: 12px;
-    transition: border-color .12s;
+   * A disclosure under the password, then a second column beside it, and both
+   * of them put a wall of sliders in front of someone who came for the four
+   * buttons above. It is a drawer now: shut on arrival, pulled out from the
+   * right edge by a tab that stays attached to it, and laid out like a settings
+   * panel rather than like more of the page.
+   *
+   * It lives outside .app, because on a wide window .app slides left to make
+   * room and a transform on an ancestor would drag the drawer with it.
+   */
+  :root { --tune-w: min(430px, 100vw - 46px); }
+
+  .tune-tab {
+    position: fixed; right: 0; top: 50%; z-index: 30;
+    display: none; align-items: center; gap: 9px;
+    padding: 16px 10px;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .06em;
+    color: var(--text); background: var(--card);
+    border: 1px solid var(--line); border-right: 0;
+    writing-mode: vertical-rl;
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: transform .28s cubic-bezier(.22, .61, .36, 1),
+                border-color .14s, color .14s;
   }
-  details.tune > summary::-webkit-details-marker { display: none; }
-  details.tune > summary::before {
-    content: '+';
+  body.on-gen .tune-tab { display: flex; }
+  .tune-tab:hover { color: var(--ink-accent); border-color: var(--ink-accent); }
+  .tune-tab .mark {
     display: inline-flex; align-items: center; justify-content: center;
     width: 17px; height: 17px; flex: none; line-height: 1;
+    writing-mode: horizontal-tb;
     border: 1px solid var(--ink-accent); color: var(--ink-accent); font-weight: 700;
   }
-  details.tune[open] > summary::before { content: '\2212'; }
-  details.tune > summary:hover,
-  details.tune[open] > summary { border-color: var(--ink-accent); }
-  .tuner { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin-top: 12px; }
+  body.tuning .tune-tab { transform: translate(calc(0px - var(--tune-w)), -50%); }
+
+  .tune {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 31;
+    width: var(--tune-w);
+    display: flex; flex-direction: column;
+    background: #060606; border-left: 1px solid var(--line);
+    box-shadow: -18px 0 40px rgba(0, 0, 0, .6);
+    transform: translateX(100%); visibility: hidden;
+    transition: transform .28s cubic-bezier(.22, .61, .36, 1),
+                visibility 0s linear .28s;
+  }
+  body.tuning .tune {
+    transform: none; visibility: visible;
+    transition: transform .28s cubic-bezier(.22, .61, .36, 1), visibility 0s;
+  }
+  .tune-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 12px; flex: none;
+    padding: 16px 18px; border-bottom: 1px solid var(--line);
+  }
+  .tune-head h2 {
+    margin: 0; font-size: 13px; font-weight: var(--w-mid);
+    letter-spacing: var(--track-eyebrow); text-transform: uppercase;
+    color: var(--ink-accent);
+  }
+  .tune-head p { margin: 5px 0 0; font-size: 12px; line-height: 1.6; color: var(--dim); }
+  .tune-shut {
+    flex: none; width: 30px; height: 30px; line-height: 1;
+    font-family: var(--mono); font-size: 17px;
+    background: none; color: var(--dim); border: 1px solid var(--line);
+    cursor: pointer; transition: color .14s, border-color .14s;
+  }
+  .tune-shut:hover { color: var(--ink-accent); border-color: var(--ink-accent); }
+  .tune-body {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-gutter: stable;
+    padding: 18px 18px 26px; overscroll-behavior: contain;
+  }
+  /* One column. It is a panel, not a page, and a slider next to a number box
+   * next to another slider is where this stopped being readable. */
+  .tuner { display: grid; grid-template-columns: 1fr; gap: 18px; }
+
+  /* Only where the drawer covers the page. On a wide window the page slides out
+   * from under it instead, so the password stays visible while it is tuned --
+   * which is the whole reason to open it. */
+  .tune-veil {
+    position: fixed; inset: 0; z-index: 29;
+    background: rgba(0, 0, 0, .62);
+    opacity: 0; visibility: hidden;
+    transition: opacity .28s ease, visibility 0s linear .28s;
+  }
+  body.tuning .tune-veil {
+    opacity: 1; visibility: visible;
+    transition: opacity .28s ease, visibility 0s;
+  }
   .field { display: flex; flex-direction: column; gap: 4px; }
   .field-top { display: flex; justify-content: space-between; align-items: baseline; }
-  .field label { font-size: 11px; color: var(--dim); }
+  .field label { font-size: 12px; color: var(--dim); }
   /* Typed, not hunted for. The slider stays for coarse movement; the box is
    * how anyone gets to an exact number. */
   .num {
@@ -302,9 +404,9 @@
   .num:focus { border-color: var(--ink-accent); }
   .quick { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 5px; }
   .quick button {
-    font-family: var(--mono); font-size: 10px; font-variant-numeric: tabular-nums;
+    font-family: var(--mono); font-size: 11px; font-variant-numeric: tabular-nums;
     background: none; color: var(--dim); border: 1px solid var(--line);
-    padding: 3px 7px; cursor: pointer;
+    padding: 5px 9px; cursor: pointer;
   }
   .quick button:hover { color: var(--text); border-color: var(--dim); }
   .quick button[aria-pressed="true"] {
@@ -312,25 +414,27 @@
   }
   input[type="range"] { width: 100%; accent-color: var(--fill); margin: 0; }
   .span2 { grid-column: 1 / -1; }
-  .toggles { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 4px; }
+  .toggles { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 6px; }
   .toggle {
-    display: flex; align-items: center; gap: 7px; font-size: 11px;
-    background: var(--card); border: 1px solid var(--line); padding: 7px 9px; cursor: pointer;
+    display: flex; align-items: center; gap: 9px; font-size: 13px;
+    background: var(--card); border: 1px solid var(--line); padding: 10px 11px; cursor: pointer;
   }
   .toggle:hover { border-color: var(--dim); }
   .toggle input { accent-color: var(--fill); margin: 0; flex: none; }
   /* What the move does, under what it is called. */
   .toggle i.note {
-    display: block; color: #666; font-size: 9px; font-style: normal;
-    letter-spacing: .02em; margin-top: 1px;
+    display: block; color: #909090; font-size: 11px; font-style: normal;
+    letter-spacing: .02em; margin-top: 3px; line-height: 1.5;
   }
   .toggle.off { opacity: .4; cursor: not-allowed; }
   .toggle.off:hover { border-color: var(--line); }
   /* The nested list gets the same treatment in miniature: a marker that says
    * it opens, rather than a line of grey text that happens to be clickable. */
   summary.more {
-    display: flex; align-items: center; gap: 7px;
-    color: var(--dim); font-size: 11px; cursor: pointer; list-style: none;
+    /* baseline, not center: the label wraps to two lines on a phone and a
+     * centred marker then floats beside the gap between them. */
+    display: flex; align-items: baseline; gap: 7px;
+    color: var(--dim); font-size: 12px; cursor: pointer; list-style: none;
   }
   summary.more::-webkit-details-marker { display: none; }
   summary.more::before { content: '+'; color: var(--ink-accent); font-weight: 700; }
@@ -340,10 +444,10 @@
    * them at once, and letting the block grow walked the toggles below it up and
    * down the screen. */
   .gained {
-    color: var(--dim); font-size: 11px; line-height: 1.6;
+    color: var(--dim); font-size: 13px; line-height: 1.75;
     min-height: 6.4em;
   }
-  .gained .research { color: #555; font-size: 10px; margin-top: 2px; }
+  .gained .research { color: #8a8a8a; font-size: 11px; margin-top: 4px; }
   /* The game's own message is wrong on a few of Tessa's levels. Marked, but not
    * as an error: it is a fact about the game like the rest of the block. */
   .gained .wrong { color: var(--ink-accent); }
@@ -351,8 +455,8 @@
   /* Reserved whether or not it says anything, so ticking an extra does not
    * shove everything below it up and down. */
   .combonote {
-    color: var(--ink-accent); font-size: 11px; line-height: 1.45;
-    min-height: 1.45em;
+    color: var(--ink-accent); font-size: 12px; line-height: 1.55;
+    min-height: 1.55em;
   }
   .gained b { color: var(--text); font-weight: 400; }
 
@@ -361,11 +465,11 @@
     background: var(--card); color: var(--text); border: 1px solid var(--line);
     padding: 11px 13px;
   }
-  #dec::placeholder { color: #444; }
+  #dec::placeholder { color: #5f5f5f; }
   :focus-visible { outline: 2px solid var(--ink-accent); outline-offset: 1px; }
 
   /* --- one character's special codes --- */
-  .codes { display: flex; flex-direction: column; gap: 7px; }
+  .codes { display: flex; flex-direction: column; gap: 10px; }
   .code {
     border: 1px solid var(--line); background: var(--card); padding: 11px 13px;
     display: grid; grid-template-columns: 1fr auto; gap: 3px 16px; align-items: baseline;
@@ -376,24 +480,24 @@
     font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap;
   }
   .code .chips { grid-column: 1 / -1; margin: 4px 0 2px; }
-  .code .d { grid-column: 1 / -1; color: var(--dim); font-size: 11px; }
+  .code .d { grid-column: 1 / -1; color: var(--dim); font-size: 12px; }
   /* What the two symbols that are not buttons actually are. */
   .keys { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
   .key { display: flex; align-items: center; gap: 7px; }
   .key img { height: 26px; width: auto; display: block; }
   .key b { color: var(--dim); font-weight: 400; }
 
-  .typehint { color: var(--dim); font-size: 11px; line-height: 1.5; }
-  .verdicts { display: flex; flex-direction: column; gap: 7px; }
+  .typehint { color: var(--dim); font-size: 12px; line-height: 1.6; }
+  .verdicts { display: flex; flex-direction: column; gap: 10px; }
   /* Each answer carries its own character's colour, so two answers to one
    * password are told apart at a glance rather than by reading the names. */
   .verdicts .out { margin: 0; }
-  .foot { color: #555; font-size: 11px; line-height: 1.6; }
+  .foot { color: #838383; font-size: 12px; line-height: 1.75; }
   /* Outside the three pages, so it shows whichever one is open, and outside
    * the scrolling area so it stays in view rather than sitting under it. */
   .credits {
-    color: #4a4a4a; font-size: 10px; line-height: 1.5;
-    border-top: 1px solid var(--line); padding-top: 7px; margin-top: 2px;
+    color: #7a7a7a; font-size: 11px; line-height: 1.6;
+    border-top: 1px solid var(--line); padding-top: 10px; margin-top: 2px;
     flex: none;
   }
   .credits b { color: var(--dim); font-weight: 400; }
@@ -475,16 +579,15 @@
   /* Opening the customise section. Chromium can interpolate the real height of
    * a disclosure; everywhere else the contents drop in without it, which is the
    * part that reads as opening. */
-  .tuner, details.tune[open] > .gained, details[open] > .all {
-    animation: drop .2s ease-out;
-  }
+  details[open] > .all { animation: drop .2s ease-out; }
   @supports (interpolate-size: allow-keywords) {
     :root { interpolate-size: allow-keywords; }
-    details.tune::details-content {
+    .tune-body details::details-content, .alts::details-content {
       height: 0; overflow: clip;
       transition: height .24s ease, content-visibility .24s allow-discrete;
     }
-    details.tune[open]::details-content { height: auto; }
+    .tune-body details[open]::details-content,
+    .alts[open]::details-content { height: auto; }
   }
 
   /* A ticked extra should look ticked without having to find the box. */
@@ -501,33 +604,36 @@
 
   /* --- a wide window ------------------------------------------------------
    *
-   * Two columns, because the customise panel is open from the start now and
-   * one column of it runs off the bottom of a laptop while three hundred
-   * pixels sit unused down each side.
-   *
-   * The steps keep their order on the left; the panel sits beside them rather
-   * than below. Only the generator page splits: reading a password and the
-   * special passwords are each one column of content and look wrong stretched.
+   * The page was two columns because the customise panel was always open and
+   * had to go somewhere. It is a drawer now, so this is one column again --
+   * a little wider, and it slides left out of the drawer's way rather than
+   * being covered by it, so the password stays on screen while it is tuned.
    */
   @media (min-width: 1060px) {
-    .app { max-width: 1180px; }
-    /* .on, or this outranks `.page { display: none }` -- an id beats a class --
-     * and the generator renders underneath every other tab. */
-    #p-gen.on {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      grid-auto-rows: min-content;
-      align-content: start;
-      gap: 14px 26px;
+    .app {
+      max-width: 860px;
+      transition: max-width .28s cubic-bezier(.22, .61, .36, 1),
+                  margin-right .28s cubic-bezier(.22, .61, .36, 1);
     }
-    /* left, in the order they are worked through */
-    #p-gen.on > .step:nth-of-type(1) { grid-column: 1; grid-row: 1; }
-    #p-gen.on > .step:nth-of-type(2) { grid-column: 1; grid-row: 2; }
-    #p-gen.on > .step:nth-of-type(3) { grid-column: 1; grid-row: 3; }
-    /* right, from the top, so it is beside the steps and not under them */
-    #p-gen.on > details.tune { grid-column: 2; grid-row: 1 / span 3; }
-    #p-gen.on > .foot { grid-column: 1 / -1; }
-    /* the panel can breathe now, so the list is not squeezed into 132px */
+    /* Reflowed out of the way rather than slid out of it. Sliding is one line
+     * shorter and pushes the left edge of the page off a 1100px window, which
+     * is most laptops; this narrows the column instead, so everything stays on
+     * screen and the password is still readable while it is being changed --
+     * which is the only reason to have the drawer open. */
+    body.tuning .app {
+      /* The extra 40px is the tab, which hangs off the drawer's left edge and
+       * would otherwise sit on top of the page. */
+      max-width: min(860px, calc(100vw - var(--tune-w) - 72px));
+      margin-right: calc(var(--tune-w) + 40px);
+    }
+    /* Nothing is covered, so nothing needs dimming. */
+    .tune-veil { display: none; }
+  }
+
+  /* The drawer is nearly the whole screen here, so the tab it came out of has
+   * nowhere to sit. The close button and Escape are the way back. */
+  @media (max-width: 720px) {
+    body.tuning .tune-tab { opacity: 0; pointer-events: none; }
   }
 
   /* --- smaller screens ----------------------------------------------------
@@ -557,19 +663,19 @@
     .langs { justify-content: flex-start; }
     .lang { flex: 1 1 0; justify-content: center; padding: 8px 6px; }
 
-    .chars { grid-template-columns: 1fr 1fr; gap: 6px; }
-    .char { padding: 13px 6px; font-size: 14px; }
-    html[lang="ja"] .char { font-size: 12px; }
+    .chars { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .char { padding: 14px 6px 12px; }
 
     /* Full-width targets rather than a cramped row. */
     .preset { flex: 1 1 100%; text-align: center; padding: 12px; font-size: 12px; }
 
-    /* Ten buttons plus nine gaps have to clear a 360px screen's 328px of room. */
-    .chip { width: 29px; }
+    /* Ten buttons plus nine gaps have to clear a 360px screen's 328px of room,
+     * so the answer box gives back the extra margin it takes on a wide one. */
+    .answer .out { padding: 14px 15px; }
+    .chips { gap: 4px 2px; }
+    .chip { width: 28px; }
     .pw { letter-spacing: .1em; overflow-wrap: anywhere; }
     .toggle { padding: 10px; font-size: 12px; }
-    details.tune > summary { font-size: 12px; }
-    .tuner { grid-template-columns: 1fr; }
     .code { grid-template-columns: 1fr; }
     .code .p { text-align: left; font-size: 18px; }
     .page { gap: 16px; }
@@ -580,15 +686,20 @@
     .page { gap: 11px; }
     .step { gap: 5px; }
     .out { padding: 11px 12px; gap: 7px; }
+    .answer .out { padding: 13px 14px; }
     .pw { font-size: clamp(18px, 3.4vw, 26px); }
     .chip { width: clamp(26px, 6.4vw, 38px); }
-    .chars { gap: 4px; }
-    .char { padding: 8px 4px; }
+    .chars { gap: 6px; padding-top: 10px; }
+    .char { padding: 9px 4px 7px; }
+    .char .nm { font-size: 14px; }
     .preset { padding: 7px 12px; }
   }
 
   @media (max-width: 700px), (max-height: 620px) {
-    html, body { height: auto; overflow: auto; }
+    /* overflow-x stays hidden: the drawer is parked just off the right edge
+     * when it is shut, and a browser that counted it would offer a sideways
+     * scroll into empty space. */
+    html, body { height: auto; overflow-y: auto; overflow-x: hidden; }
     .app { height: auto; padding-bottom: 28px; }
     .page { overflow: visible; }
   }
@@ -601,6 +712,8 @@
 
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
+
+<body class="on-gen" data-char="leo">
 
 <div class="app" id="app" data-char="leo">
   <div class="head">
@@ -623,6 +736,13 @@
 
   <!-- get a password -->
   <div class="page on" id="p-gen">
+    <!-- The answer first. It is what the page is for, and it used to be third,
+         under two blocks of controls and off the bottom of a short window. -->
+    <div class="step answer">
+      <h2><span data-t="gen.s3">Enter this at the password screen</span></h2>
+      <div class="out" id="out"></div>
+    </div>
+
     <div class="step">
       <h2><b>1</b><span data-t="gen.s1">Pick your character</span></h2>
       <div class="chars" id="chars" role="group" aria-label="Character"></div>
@@ -634,42 +754,6 @@
       <div class="said" id="preset-note"></div>
     </div>
 
-    <div class="step">
-      <h2><b>3</b><span data-t="gen.s3">Enter this at the password screen</span></h2>
-      <div class="out" id="out"></div>
-    </div>
-
-    <details class="tune" open>
-      <summary data-t="gen.tune">Customise: pick a different level, VS points or extras</summary>
-      <div class="tuner">
-        <div class="field">
-          <div class="field-top">
-            <label for="lv-num" data-t="lbl.level">Level</label>
-            <input class="num" type="number" id="lv-num" min="1" max="32" step="1"
-                   value="32" inputmode="numeric" aria-label="Level">
-          </div>
-          <input type="range" id="lv" min="1" max="32" value="32" step="1"
-                 aria-label="Level slider">
-        </div>
-        <div class="field">
-          <div class="field-top">
-            <label for="vs-num" data-t="lbl.vs">VS points</label>
-            <input class="num" type="number" id="vs-num" min="0" max="9990" step="10"
-                   value="9990" inputmode="numeric" aria-label="VS points">
-          </div>
-          <input type="range" id="vs" min="0" max="9990" value="9990" step="10"
-                 aria-label="VS points slider">
-          <div class="quick" id="vs-quick"></div>
-        </div>
-        <div class="span2 gained" id="gained"></div>
-        <div class="span2 toggles" id="toggles"></div>
-        <div class="span2 combonote" id="combonote"></div>
-        <details class="span2">
-          <summary id="all-sum" class="more">Every combination here</summary>
-          <div class="all" id="all"></div>
-        </details>
-      </div>
-    </details>
     <div class="foot" id="langnote"></div>
   </div>
 
@@ -718,6 +802,56 @@
 </div>
 
 <script src="password.js"></script>
+
+<!-- Customise, shut on arrival. Outside .app so that .app can slide out of its
+     way on a wide window without dragging it along. -->
+<button class="tune-tab" id="tune-tab" type="button"
+        aria-expanded="false" aria-controls="tune">
+  <span class="mark" id="tune-mark" aria-hidden="true">+</span>
+  <span data-t="gen.tab">Customise</span>
+</button>
+<div class="tune-veil" id="tune-veil"></div>
+<aside class="tune" id="tune" aria-hidden="true">
+  <div class="tune-head">
+    <div>
+      <h2 data-t="gen.tab">Customise</h2>
+      <p data-t="gen.tune">Pick a different level, VS points or extras</p>
+    </div>
+    <button class="tune-shut" id="tune-shut" type="button"
+            aria-label="Close">&#215;</button>
+  </div>
+  <div class="tune-body">
+    <div class="tuner">
+      <div class="field">
+        <div class="field-top">
+          <label for="lv-num" data-t="lbl.level">Level</label>
+          <input class="num" type="number" id="lv-num" min="1" max="32" step="1"
+                 value="32" inputmode="numeric" aria-label="Level">
+        </div>
+        <input type="range" id="lv" min="1" max="32" value="32" step="1"
+               aria-label="Level slider">
+      </div>
+      <div class="field">
+        <div class="field-top">
+          <label for="vs-num" data-t="lbl.vs">VS points</label>
+          <input class="num" type="number" id="vs-num" min="0" max="9990" step="10"
+                 value="9990" inputmode="numeric" aria-label="VS points">
+        </div>
+        <input type="range" id="vs" min="0" max="9990" value="9990" step="10"
+               aria-label="VS points slider">
+        <div class="quick" id="vs-quick"></div>
+      </div>
+      <div class="span2 gained" id="gained"></div>
+      <div class="span2 toggles" id="toggles"></div>
+      <div class="span2 combonote" id="combonote"></div>
+      <details class="span2">
+        <summary id="all-sum" class="more">Every combination here</summary>
+        <div class="all" id="all"></div>
+      </details>
+    </div>
+  </div>
+</aside>
+
 <script>
   (function () {
     'use strict';
@@ -815,7 +949,8 @@
         'nav.gen': 'Get a password', 'nav.dec': 'Read one', 'nav.codes': 'Special passwords',
         'gen.s1': 'Pick your character', 'gen.s2': 'Pick what you want',
         'gen.s3': 'Enter this at the password screen',
-        'gen.tune': 'Customise: pick a different level, VS points or extras',
+        'gen.tab': 'Customise', 'gen.shut': 'Close',
+        'gen.tune': 'Pick a different level, VS points or extras.',
         'lbl.level': 'Level', 'lbl.vs': 'VS points',
         'dec.s1': 'Whose password it is', 'dec.s2': 'Type the ten symbols',
         'dec.type': 'Type 1 to 6 for the attack buttons, and Y and M for the two that are not buttons.',
@@ -885,7 +1020,8 @@
         'gen.s1': '\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u3092\u9078\u3076',
         'gen.s2': '\u6b32\u3057\u3044\u3082\u306e\u3092\u9078\u3076',
         'gen.s3': '\u30d1\u30b9\u30ef\u30fc\u30c9\u753b\u9762\u3067\u3053\u308c\u3092\u5165\u529b',
-        'gen.tune': '\u30ab\u30b9\u30bf\u30de\u30a4\u30ba: \u30ec\u30d9\u30eb\u30fbVS\u30dd\u30a4\u30f3\u30c8\u30fb\u8ffd\u52a0\u88c5\u5099\u3092\u5909\u3048\u308b',
+        'gen.tab': '\u30ab\u30b9\u30bf\u30de\u30a4\u30ba', 'gen.shut': '\u9589\u3058\u308b',
+        'gen.tune': '\u30ec\u30d9\u30eb\u30fbVS\u30dd\u30a4\u30f3\u30c8\u30fb\u8ffd\u52a0\u88c5\u5099\u3092\u5909\u3048\u307e\u3059\u3002',
         'lbl.level': '\u30ec\u30d9\u30eb', 'lbl.vs': 'VS\u30dd\u30a4\u30f3\u30c8',
         'dec.s1': '\u3060\u308c\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u304b',
         'dec.type': '\u653b\u6483\u30dc\u30bf\u30f3\u306f 1\uff5e6\u3001\u30dc\u30bf\u30f3\u3067\u306f\u306a\u3044\u4e8c\u3064\u306f Y \u3068 M \u3067\u5165\u529b\u3057\u307e\u3059\u3002',
@@ -977,6 +1113,8 @@
         $('l-' + l).setAttribute('aria-pressed', l === LANG ? 'true' : 'false');
       });
       $('langnote').textContent = T('langnote');
+      /* The only label on the page that lives in an attribute. */
+      $('tune-shut').setAttribute('aria-label', T('gen.shut'));
       var cr = $('credits');
       cr.textContent = '';
       cr.appendChild(document.createTextNode(T('cr.site')));
@@ -987,7 +1125,7 @@
       applyKeys();
       PICKERS.forEach(function (id) {
         Array.prototype.forEach.call($(id).children, function (c, k) {
-          c.textContent = NAMES[LANG][ORDER[k]];
+          plate(c, ORDER[k]);
         });
       });
       render(); decode(); renderCodes();
@@ -1017,6 +1155,26 @@
       });
     }
 
+    /* --- the customise drawer ---
+     *
+     * Shut on arrival. Three ways out of it -- the tab it came from, the close
+     * button and Escape -- because on a phone it covers the page and one of
+     * them is off screen. */
+    var tuning = false;
+    function setTune(on) {
+      tuning = !!on;
+      document.body.classList.toggle('tuning', tuning);
+      $('tune-tab').setAttribute('aria-expanded', tuning ? 'true' : 'false');
+      $('tune').setAttribute('aria-hidden', tuning ? 'false' : 'true');
+      $('tune-mark').textContent = tuning ? '\u2212' : '+';
+    }
+    $('tune-tab').addEventListener('click', function () { setTune(!tuning); });
+    $('tune-shut').addEventListener('click', function () { setTune(false); });
+    $('tune-veil').addEventListener('click', function () { setTune(false); });
+    document.addEventListener('keydown', function (e) {
+      if (tuning && (e.key === 'Escape' || e.key === 'Esc')) setTune(false);
+    });
+
     /* --- pages --- */
     ['en', 'ja'].forEach(function (l) {
       $('l-' + l).addEventListener('click', function () { LANG = l; applyLang(); });
@@ -1031,9 +1189,25 @@
           if (on) $('n-' + other).setAttribute('aria-current', 'page');
           else $('n-' + other).removeAttribute('aria-current');
         });
+        /* It belongs to the generator, so it goes away with it. */
+        setTune(false);
+        document.body.classList.toggle('on-gen', name === 'gen');
         if (name === 'dec') $('dec').focus();
       });
     });
+
+    /* --- the nameplates ---
+     *
+     * NAMES carries the Latin name and the kana in one string because that is
+     * what the rest of the page prints. The plate wants them apart: the name in
+     * the size it is read at, the kana under it. */
+    function plate(b, i) {
+      var full = NAMES[LANG][i];
+      var m = /^(.*?)\s*\((.*)\)$/.exec(full);
+      b.textContent = '';
+      b.appendChild(el('span', 'nm', (m ? m[1] : full).toUpperCase()));
+      b.appendChild(el('span', 'kana', m ? m[2] : ''));
+    }
 
     /* --- one character choice, three pickers --- */
     /* The read page has no picker: it works out whose the password is. */
@@ -1041,13 +1215,17 @@
     PICKERS.forEach(function (id) {
       var host = $(id);
       ORDER.forEach(function (i) {
-        var b = el('button', 'char', NAMES[LANG][i]);
+        var b = el('button', 'char');
+        plate(b, i);
         b.type = 'button';
         b.id = id + '-c' + i;
         b.setAttribute('aria-pressed', i === st.character ? 'true' : 'false');
         b.addEventListener('click', function () {
           st.character = i;
           document.getElementById('app').setAttribute('data-char', CHAR_SLUG[i]);
+          /* The drawer is outside .app, so the colours have to start
+           * higher up than .app does. */
+          document.body.setAttribute('data-char', CHAR_SLUG[i]);
           /* Start from that character's own recommendation rather than an empty
            * loadout, so step 2 is already answered when step 1 changes. */
           var b0 = best(0);
