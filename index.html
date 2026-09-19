@@ -219,7 +219,8 @@
   .chars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
   .char {
     position: relative;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 3px;
     font-family: var(--mono);
     color: #d9b45f;
     /* A dither, the way the sprite makes it: one-pixel checks of #846984
@@ -233,9 +234,14 @@
     background-color: transparent;
     background-image:
       repeating-conic-gradient(var(--check) 0% 25%, transparent 0% 50%);
-    background-size: 2px 2px;
+    /* Four pixels a tile, so two of check and two of gap. The sprite does it in
+     * one, but the sprite is 96 across and a plate here is about twice that --
+     * at one pixel the checks read as a flat grey rather than as a mesh. */
+    background-size: 4px 4px;
     border: 0;
-    padding: 14px 6px 12px; cursor: pointer;
+    /* Even top and bottom: two pixels of difference is two pixels of the
+     * name sitting off the middle of the plate. */
+    padding: 13px 6px; cursor: pointer;
     transition: color .14s, --check .14s;
   }
   /* The chrome bevel, one gradient per edge, measured off the sprite: the top
@@ -290,12 +296,14 @@
     filter: drop-shadow(1px 0 0 #00005a) drop-shadow(-1px 0 0 #00005a)
             drop-shadow(0 1px 0 #00005a) drop-shadow(0 -1px 0 #00005a);
   }
-  /* Reserved whether or not there is any, so the four plates are one height in
-   * both languages. */
   .char .kana {
-    font-size: 11px; letter-spacing: .06em; line-height: 1.2;
-    min-height: 1.2em; opacity: .8;
+    font-size: 11px; letter-spacing: .06em; line-height: 1.2; opacity: .8;
   }
+  /* Nothing at all on the English page rather than an empty line held open.
+   * Holding it open kept the four plates the same height in either language,
+   * which they are anyway within one language -- and it pushed the name up off
+   * the middle of the plate by half a line. */
+  .char .kana:empty { display: none; }
   /* The dither lifts. The name keeps its own colours, which are the cabinet's
    * and do not change under a pointer it does not have. */
   .char:hover { --check: #a8879f; }
@@ -919,7 +927,7 @@
     .lang { flex: 1 1 0; justify-content: center; padding: 8px 6px; }
 
     .chars { grid-template-columns: 1fr 1fr; }
-    .char { padding: 14px 6px 12px; }
+    .char { padding: 15px 6px; }
 
     /* Full-width targets rather than a cramped row. */
     .preset { flex: 1 1 100%; text-align: center; padding: 12px; font-size: 12px; }
@@ -949,7 +957,7 @@
     .answer .out { padding: 13px 14px; }
     .pw { font-size: clamp(18px, 3.4vw, 26px); }
     .chip { width: clamp(26px, 6.4vw, 38px); }
-    .char { padding: 9px 4px 7px; }
+    .char { padding: 8px 4px; }
     .char .nm { font-size: 17px; }
     .preset { padding: 7px 12px; }
     /* The special passwords give up their own spacing rather than letting the
