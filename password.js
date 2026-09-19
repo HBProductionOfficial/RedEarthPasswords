@@ -315,25 +315,25 @@
     ['Legendary Sword', '\u30ec\u30b8\u30a7\u30f3\u30c0\u30ea\u30fc\u30bd\u30fc\u30c9'],  /* guess */
     ['Lightning Sword', '\u30e9\u30a4\u30c8\u30cb\u30f3\u30b0\u30bd\u30fc\u30c9'],  /* guess */
     ['Homura-Tsumuji', '\u7114\u65cb\u98a8'],  /* confirmed; flame glyph 7114 or 7130, same pixels at that size */
-    ['Diamond Shield', '\u30c0\u30a4\u30e4\u30e2\u30f3\u30c9\u30b7\u30fc\u30eb\u30c9'],  /* guess */
-    ['Achilles Rush', '\u30a2\u30ad\u30ec\u30b9\u30fb\u30e9\u30c3\u30b7\u30e5'],  /* guess */
+    ['Diamond Shield', '\u30c0\u30a4\u30e4\u306e\u76fe'],  /* confirmed on screen */
+    ['Achilles Rush', '\u30a2\u30ad\u30ec\u30b9\u30fb\u30e9\u30c3\u30b7\u30e5'],  /* confirmed on screen */
     ['Fiamma Cannon', '\u30d5\u30a3\u30a2\u30de\u30fb\u30ab\u30ce\u30f3'],  /* guess */
     ['Jamming Ghost', '\u30b8\u30e3\u30df\u30f3\u30b0\u30fb\u30b4\u30fc\u30b9\u30c8'],  /* guess */
-    ['Diamond Sword', '\u30c0\u30a4\u30e4\u30e2\u30f3\u30c9\u30bd\u30fc\u30c9'],  /* guess */
-    ['Wooden Shield', '\u30a6\u30c3\u30c9\u30b7\u30fc\u30eb\u30c9'],  /* guess */
+    ['Diamond Sword', '\u30c0\u30a4\u30e4\u306e\u5263'],  /* confirmed on screen */
+    ['Wooden Shield', '\u6728\u306e\u76fe'],  /* confirmed on screen */
     ['Kuugeki-Shou', '\u7a7a\u6483\u638c'],  /* confirmed on screen */
     ['Glace Cannon', '\u30b0\u30e9\u30fc\u30b9\u30fb\u30ab\u30ce\u30f3'],  /* confirmed on screen */
     ['Hyper Cannon', '\u30cf\u30a4\u30d1\u30fc\u30fb\u30ab\u30ce\u30f3'],  /* guess */
-    ['Steel Shield', '\u30b9\u30c1\u30fc\u30eb\u30b7\u30fc\u30eb\u30c9'],  /* guess */
-    ['Bronze Sword', '\u30d6\u30ed\u30f3\u30ba\u30bd\u30fc\u30c9'],  /* guess */
+    ['Steel Shield', '\u92fc\u306e\u76fe'],  /* confirmed on screen */
+    ['Bronze Sword', '\u9752\u9285\u306e\u5263'],  /* confirmed on screen */
     ['Wooden Staff', '\u30a6\u30c3\u30c9\u30b9\u30bf\u30c3\u30d5'],  /* guess */
     ['Baku-Ryusho', '\u7206\u9f8d\u6607'],  /* confirmed on screen */
     ['Kimo-Yaburi', '\u809d\u7834\u308a'],  /* confirmed on screen */
     ['Koukaku-Shu', '\u7d05\u9db4\u8e74'],  /* confirmed on screen */
     ['Kumo-Gakure', '\u96f2\u96a0\u308c'],  /* confirmed on screen */
     ['Rasetsu-Jin', '\u7f85\u5239\u5203'],  /* confirmed on screen */
-    ['Gaia Driver', '\u30ac\u30a4\u30a2\u30fb\u30c9\u30e9\u30a4\u30d0\u30fc'],  /* guess */
-    ['Steel Sword', '\u30b9\u30c1\u30fc\u30eb\u30bd\u30fc\u30c9'],  /* guess */
+    ['Gaia Driver', '\u30ac\u30a4\u30a2\u30fb\u30c9\u30e9\u30a4\u30d0\u30fc'],  /* confirmed on screen */
+    ['Steel Sword', '\u92fc\u306e\u5263'],  /* confirmed on screen */
     ['Tentsui-Ga', '\u5929\u589c\u7259'],  /* confirmed on screen */
     ['Battle Axe', '\u30d0\u30c8\u30eb\u30a2\u30c3\u30af\u30b9'],  /* guess */
     ['Old Shield', '\u30aa\u30fc\u30eb\u30c9\u30b7\u30fc\u30eb\u30c9'],  /* guess */
@@ -387,6 +387,28 @@
     ['nothing', '\u306a\u3057'],
   ];
 
+  /* Equipment takes 手に入れた, obtained, where a move takes 覚えた,
+   * learned. The level text lists a piece of gear as a bare name, so
+   * the verb has to be supplied here. */
+  var JA_GEAR = [
+    '\u9752\u9285\u306e\u5263',
+    '\u6728\u306e\u76fe',
+    '\u92fc\u306e\u5263',
+    '\u92fc\u306e\u76fe',
+    '\u30c0\u30a4\u30e4\u306e\u5263',
+    '\u30c0\u30a4\u30e4\u306e\u76fe',
+    '\u30aa\u30fc\u30eb\u30c9\u30bd\u30fc\u30c9',
+    '\u30aa\u30fc\u30eb\u30c9\u30b7\u30fc\u30eb\u30c9',
+    '\u30ec\u30b8\u30a7\u30f3\u30c0\u30ea\u30fc\u30bd\u30fc\u30c9',
+    '\u30ec\u30b8\u30a7\u30f3\u30c0\u30ea\u30fc\u30b7\u30fc\u30eb\u30c9',
+    '\u30a6\u30c3\u30c9\u30b9\u30bf\u30c3\u30d5',
+    '\u30b5\u30f3\u30b9\u30bf\u30c3\u30d5',
+    '\u30d5\u30a1\u30a4\u30a2\u30bd\u30fc\u30c9',
+    '\u30a2\u30a4\u30b9\u30bd\u30fc\u30c9',
+    '\u30e9\u30a4\u30c8\u30cb\u30f3\u30b0\u30bd\u30fc\u30c9',
+    '\u30d0\u30c8\u30eb\u30a2\u30c3\u30af\u30b9',
+  ];
+
   /* Titles keep their Latin spelling inside the Japanese sentence, because that
    * is what the game prints: ＡＳＳＡＳＳＩＮの称号を得た. */
   var JA_TITLE = /Title ([A-Za-z][A-Za-z ]*?)(?=,|$)/g;
@@ -410,6 +432,18 @@
       if (out.indexOf(JA_PHRASES[i][0]) >= 0)
         out = out.split(JA_PHRASES[i][0]).join(JA_PHRASES[i][1]);
     return out;
+  }
+
+  /* The level text, which is the one place a bare piece of gear means "you were
+   * given this" and so wants a verb. Everywhere else a name is just a name: the
+   * extras, the carrying line, the combination list, the decoder's answer. */
+  function localiseLevel(text) {
+    var out = localise(text);
+    return out.split(',').map(function (part) {
+      var t = part.replace(/^\s+|\s+$/g, '');
+      return JA_GEAR.indexOf(t) >= 0
+        ? part.replace(t, t + '\u3092\u624b\u306b\u5165\u308c\u305f') : part;
+    }).join(',');
   }
 
   /* --- packed BCD, the form these totals are kept in --------------------- */
@@ -920,6 +954,7 @@
   root.RedEarthPassword = {
     progressionAt: progressionAt,
     localise: localise,
+    localiseLevel: localiseLevel,
     bestLoadout: bestLoadout, bestTargets: bestTargets,
     generate: generate, enumerate: enumerate, spellings: spellings,
     decode: decode, specialCodes: specialCodes,

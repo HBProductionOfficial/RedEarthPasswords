@@ -878,6 +878,8 @@
      * safe on whole sentences, so the level text goes through it too. Titles
      * are deliberately not in the table and pass through either way. */
     function jp(text) { return LANG === 'ja' ? RE.localise(text) : text; }
+    /* The level-up lines, where a bare piece of gear means it was granted. */
+    function jpLevel(text) { return LANG === 'ja' ? RE.localiseLevel(text) : text; }
 
     function applyLang() {
       document.documentElement.lang = LANG;
@@ -1132,13 +1134,13 @@
       /* What this particular level gave. Every level but the first has one
        * recorded for every character; the empty line is kept so the block does
        * not change height as the slider moves. */
-      line(T('at.gained'), p.gained ? jp(p.gained) : T('at.nothing'));
+      line(T('at.gained'), p.gained ? jpLevel(p.gained) : T('at.nothing'));
 
       /* The line above is what the level really gives. Where the game says
        * something else, that is the footnote, not the headline. */
       if (p.announced) {
         var wrong = el('div', 'wrong',
-          T('at.announced', { said: jp(p.announced) }));
+          T('at.announced', { said: jpLevel(p.announced) }));
         g.appendChild(wrong);
       }
 
