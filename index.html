@@ -87,7 +87,7 @@
     /* minmax(0, 1fr), not 1fr: a bare 1fr will not shrink below its own
      * content, so a tall page pushed the credits off the bottom. */
     grid-template-rows: auto minmax(0, 1fr) auto;
-    gap: var(--unit); padding: var(--unit) 16px calc(var(--unit) * 1.5);
+    gap: var(--unit); padding: var(--unit) 22px calc(var(--unit) * 1.5);
     max-width: 760px; margin: 0 auto; min-height: 0;
   }
 
@@ -148,19 +148,25 @@
   .lang[aria-pressed="true"] {
     color: var(--on-fill); background: var(--fill); border-color: var(--fill);
   }
-  .page { min-height: 0; display: none; flex-direction: column; gap: 24px; overflow: auto; }
+  /* both-edges, so a scrollbar appearing does not shift the middle of the
+   * page sideways. */
+  .page {
+    min-height: 0; display: none; flex-direction: column; gap: 24px;
+    overflow: auto; scrollbar-gutter: stable both-edges;
+  }
   .page.on { display: flex; }
 
   /* --- a numbered step --- */
   .step { display: flex; flex-direction: column; gap: 11px; }
+  /* Pushed to the foot of whatever room the page has, so it is against the
+   * credits rule rather than wherever the content above happens to end. */
+  .step.pick { margin-top: auto; padding-top: 4px; }
   .step > h2 {
     margin: 0; font-size: 12px; font-weight: var(--w-mid);
     letter-spacing: var(--track-eyebrow);
     text-transform: uppercase; color: var(--dim);
   }
-  .step > h2 b {
-    color: var(--ink-accent); font-weight: var(--w-bold); margin-right: 9px;
-  }
+
 
   /* --- character select ---------------------------------------------------
    *
@@ -185,7 +191,8 @@
     border: 2px solid #8a6a26;
     box-shadow: inset 0 0 0 1px #6b5220;
     padding: 12px 6px 10px; cursor: pointer;
-    transition: color .14s, border-color .14s, background .14s, box-shadow .14s;
+    transition: color .14s, border-color .14s, background .14s,
+                box-shadow .14s, transform .14s;
   }
   .char .nm {
     font-size: 16px; font-weight: var(--w-brand); letter-spacing: .07em;
@@ -204,6 +211,63 @@
     color: var(--on-fill); background: var(--fill);
     border-color: #f0cf74; box-shadow: inset 0 0 0 1px #ffe6a6, 0 0 16px var(--glow);
   }
+
+  /* --- the chase ----------------------------------------------------------
+   *
+   * The cabinet runs a ramp of nine colours around the selected plate and steps
+   * it on every second frame, so the loop is nine steps in three tenths of a
+   * second. These are those nine, read off the screen rather than chosen, in
+   * the order the game plays them.
+   *
+   * On the cabinet the ramp runs from the bottom middle up both sides to the
+   * top middle, mirrored left to right. This runs it straight up: exactly right
+   * on the two long sides, and the chevron on the top and bottom edges becomes
+   * a single band. Same colours, same rate, one fewer dimension.
+   *
+   * The ring is a masked overlay rather than a border, because a border cannot
+   * hold a gradient. Without the mask the overlay would cover the whole plate,
+   * so it is only drawn where the mask is understood; everywhere else the plate
+   * keeps its plain gold edge. */
+  @supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+    .char[aria-pressed="true"]::after {
+      content: ''; position: absolute; inset: -2px; padding: 2px;
+      pointer-events: none;
+      /* Bands of 24 so that three of the nine show down a plate at once, which
+       * is the density the cabinet has: three steps down a 31-pixel plate. */
+      background: repeating-linear-gradient(to bottom,
+        #f70000 0 24px, #f72800 24px 48px, #f75900 48px 72px,
+        #f79200 72px 96px, #f7c300 96px 120px, #f7f300 120px 144px,
+        #f7f34a 144px 168px, #f7f3a5 168px 192px, #f7f3f7 192px 216px);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+      animation: chase .3s steps(9) infinite;
+    }
+  }
+  @keyframes chase { to { background-position: 0 -216px; } }
+
+  /* --- hovering -----------------------------------------------------------
+   *
+   * Nothing moved under the pointer before. A plate lifts, and a band of light
+   * crosses it once -- once, not on a loop, because it is an answer to the
+   * pointer arriving rather than something the page does by itself. */
+  .char:not([aria-pressed="true"])::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(112deg,
+      rgba(247, 243, 247, 0) 42%, rgba(247, 243, 247, .18) 50%,
+      rgba(247, 243, 247, 0) 58%);
+    background-size: 280% 100%; background-position: 140% 0;
+    opacity: 0;
+  }
+  .char:not([aria-pressed="true"]):hover::after {
+    opacity: 1; animation: sheen .45s ease-out;
+  }
+  @keyframes sheen {
+    from { background-position: 140% 0; }
+    to   { background-position: -40% 0; }
+  }
+  .char:hover { transform: translateY(-2px); }
+  .char[aria-pressed="true"]:hover { transform: none; }
   /* The cabinet's own marker, in the cabinet's own yellow. */
   .char[aria-pressed="true"]::before {
     content: '1P';
@@ -563,6 +627,12 @@
     transition: color .14s, background .14s, border-color .14s, box-shadow .2s;
   }
   .char:active, .quick button:active, .lang:active { transform: translateY(1px); }
+  /* Everything that can be pressed answers the pointer, not only the plates. */
+  .preset:hover, .lang:hover, .nav button:hover, .quick button:hover,
+  .toggle:not(.off):hover { transform: translateY(-1px); }
+  .preset, .lang, .nav button, .quick button, .toggle {
+    transition: transform .14s, color .12s, border-color .12s, background .12s;
+  }
 
   /* The answer cascades in left to right, the way it is entered. The delay is
    * set per chip in script, because it depends on how many there are. */
@@ -672,8 +742,11 @@
     /* Ten buttons plus nine gaps have to clear a 360px screen's 328px of room,
      * so the answer box gives back the extra margin it takes on a wide one. */
     .answer .out { padding: 14px 15px; }
-    .chips { gap: 4px 2px; }
-    .chip { width: 28px; }
+    /* Ten buttons on one row whatever the width, rather than a pixel number
+     * that has now been wrong three times: they share the room out and stop
+     * growing at 30. A row of nine and a lonely tenth reads as a mistake. */
+    .chips { gap: 4px 2px; flex-wrap: nowrap; }
+    .chip { width: auto; flex: 1 1 0; min-width: 0; max-width: 30px; }
     .pw { letter-spacing: .1em; overflow-wrap: anywhere; }
     .toggle { padding: 10px; font-size: 12px; }
     .code { grid-template-columns: 1fr; }
@@ -699,13 +772,20 @@
     /* overflow-x stays hidden: the drawer is parked just off the right edge
      * when it is shut, and a browser that counted it would offer a sideways
      * scroll into empty space. */
+    /* both-edges again, and for the same reason: on a window barely wider
+     * than the page, a scrollbar down one side is the whole difference
+     * between centred and shoved against the left. */
     html, body { height: auto; overflow-y: auto; overflow-x: hidden; }
+    /* On html only. Both of them scroll, so setting it on both reserved the
+     * gutter twice and took thirty-two pixels off the width for a scrollbar
+     * eight pixels wide. */
+    html { scrollbar-gutter: stable both-edges; }
     .app { height: auto; padding-bottom: 28px; }
     .page { overflow: visible; }
   }
 
   @media (max-width: 380px) {
-    .app { padding-inline: 12px; }
+    .app { padding-inline: 14px; }
     .chip { width: 26px; }
     .pw { font-size: 19px; letter-spacing: .06em; }
   }
@@ -744,23 +824,25 @@
     </div>
 
     <div class="step">
-      <h2><b>1</b><span data-t="gen.s1">Pick your character</span></h2>
-      <div class="chars" id="chars" role="group" aria-label="Character"></div>
-    </div>
-
-    <div class="step">
-      <h2><b>2</b><span data-t="gen.s2">Pick what you want</span></h2>
+      <h2><span data-t="gen.s2">Pick what you want</span></h2>
       <div class="row" id="presets"></div>
       <div class="said" id="preset-note"></div>
     </div>
 
     <div class="foot" id="langnote"></div>
+
+    <!-- Last, and pushed to the foot of the page: the cabinet runs the select
+         strip along the bottom of the screen under everything else. -->
+    <div class="step pick">
+      <h2><span data-t="gen.s1">Select your warrior</span></h2>
+      <div class="chars" id="chars" role="group" aria-label="Character"></div>
+    </div>
   </div>
 
   <!-- read one -->
   <div class="page" id="p-dec">
     <div class="step">
-      <h2><b>1</b><span data-t="dec.s2">Type the ten symbols</span></h2>
+      <h2><span data-t="dec.s2">Type the ten symbols</span></h2>
       <input id="dec" type="text" inputmode="text" spellcheck="false" autocomplete="off"
              maxlength="24" aria-label="Password to read">
       <div class="typehint" data-t="dec.type">
@@ -769,7 +851,7 @@
       </div>
     </div>
     <div class="step">
-      <h2><b>2</b><span data-t="dec.s1">Whose password it is</span></h2>
+      <h2><span data-t="dec.s1">Whose password it is</span></h2>
       <div class="verdicts" id="verdict"></div>
     </div>
     <div class="keys" id="keys-dec"></div>
@@ -785,17 +867,17 @@
   <!-- special passwords -->
   <div class="page" id="p-codes">
     <div class="step">
-      <h2><b>1</b><span data-t="codes.s1">Pick your character</span></h2>
-      <div class="chars" id="code-chars" role="group" aria-label="Character"></div>
-    </div>
-    <div class="step">
-      <h2><b>2</b><span data-t="codes.s2">Enter one of these instead of a normal password</span></h2>
+      <h2><span data-t="codes.s2">Enter one of these instead of a normal password</span></h2>
       <div class="codes" id="codes"></div>
     </div>
     <div class="keys" id="keys-codes"></div>
     <div class="foot" data-t="codes.foot">
       These four are matched by the game before it tries to read a password at
       all, which is how they can do things a normal password could not.
+    </div>
+    <div class="step pick">
+      <h2><span data-t="codes.s1">Select your warrior</span></h2>
+      <div class="chars" id="code-chars" role="group" aria-label="Character"></div>
     </div>
   </div>
   <div class="credits" id="credits"></div>
@@ -947,7 +1029,7 @@
     var S = {
       en: {
         'nav.gen': 'Get a password', 'nav.dec': 'Read one', 'nav.codes': 'Special passwords',
-        'gen.s1': 'Pick your character', 'gen.s2': 'Pick what you want',
+        'gen.s1': 'Select your warrior', 'gen.s2': 'Pick what you want',
         'gen.s3': 'Enter this at the password screen',
         'gen.tab': 'Customise', 'gen.shut': 'Close',
         'gen.tune': 'Pick a different level, VS points or extras.',
@@ -965,7 +1047,7 @@
         'sp.ultimate.d': 'Harder enemy patterns.',
         'sp.credits': 'Jump to the staff roll',
         'sp.credits.d': 'Skips straight to the credits.',
-        'codes.s1': 'Pick your character',
+        'codes.s1': 'Select your warrior',
         'codes.s2': 'Enter one of these instead of a normal password',
         'codes.foot': 'These four are matched by the game before it tries to read a password at all, which is how they can do things a normal password could not.',
         'preset.best': 'Best password',
@@ -1017,7 +1099,7 @@
         'nav.gen': '\u30d1\u30b9\u30ef\u30fc\u30c9\u3092\u4f5c\u308b',
         'nav.dec': '\u30d1\u30b9\u30ef\u30fc\u30c9\u3092\u8aad\u3080',
         'nav.codes': '\u7279\u6b8a\u30d1\u30b9\u30ef\u30fc\u30c9',
-        'gen.s1': '\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u3092\u9078\u3076',
+        'gen.s1': '\u6226\u58eb\u3092\u9078\u3079',
         'gen.s2': '\u6b32\u3057\u3044\u3082\u306e\u3092\u9078\u3076',
         'gen.s3': '\u30d1\u30b9\u30ef\u30fc\u30c9\u753b\u9762\u3067\u3053\u308c\u3092\u5165\u529b',
         'gen.tab': '\u30ab\u30b9\u30bf\u30de\u30a4\u30ba', 'gen.shut': '\u9589\u3058\u308b',
@@ -1037,7 +1119,7 @@
         'sp.ultimate.d': '\u6575\u306e\u884c\u52d5\u30d1\u30bf\u30fc\u30f3\u304c\u96e3\u3057\u304f\u306a\u308a\u307e\u3059\u3002',
         'sp.credits': '\u30b9\u30bf\u30c3\u30d5\u30ed\u30fc\u30eb\u3078',
         'sp.credits.d': '\u30a8\u30f3\u30c9\u30ed\u30fc\u30eb\u306b\u76f4\u884c\u3057\u307e\u3059\u3002',
-        'codes.s1': '\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u3092\u9078\u3076',
+        'codes.s1': '\u6226\u58eb\u3092\u9078\u3079',
         'codes.s2': '\u901a\u5e38\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u306e\u4ee3\u308f\u308a\u306b\u3053\u308c\u3092\u5165\u529b',
         'codes.foot': '\u3053\u306e4\u3064\u306f\u3001\u30b2\u30fc\u30e0\u304c\u30d1\u30b9\u30ef\u30fc\u30c9\u3068\u3057\u3066\u8aad\u307f\u53d6\u308b\u524d\u306b\u7167\u5408\u3055\u308c\u307e\u3059\u3002\u3060\u304b\u3089\u901a\u5e38\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u306b\u306f\u3067\u304d\u306a\u3044\u3053\u3068\u304c\u3067\u304d\u307e\u3059\u3002',
         'preset.best': '\u304a\u3059\u3059\u3081\u306e\u30d1\u30b9\u30ef\u30fc\u30c9',
