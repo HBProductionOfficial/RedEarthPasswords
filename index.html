@@ -215,9 +215,13 @@
   /* --- the chase ----------------------------------------------------------
    *
    * The cabinet runs a ramp of nine colours around the selected plate and steps
-   * it on every second frame, so the loop is nine steps in three tenths of a
-   * second. These are those nine, read off the screen rather than chosen, in
-   * the order the game plays them.
+   * it on every second frame. These are those nine, read off the screen rather
+   * than chosen, in the order the game plays them.
+   *
+   * The rate is not the cabinet's. Nine steps in three tenths of a second is a
+   * flicker on a web page at this size -- a screen you glance at, not one you
+   * are already staring at from two feet away -- so it runs at a third of that,
+   * one step every six frames.
    *
    * On the cabinet the ramp runs from the bottom middle up both sides to the
    * top middle, mirrored left to right. This runs it straight up: exactly right
@@ -239,7 +243,9 @@
       box-shadow: 0 0 16px var(--glow);
     }
     .char[aria-pressed="true"]::after {
-      content: ''; position: absolute; inset: -2px; padding: 2px;
+      /* Out to the border box and four pixels inward, so the plate stays the
+       * same size as the three beside it while the line itself is heavier. */
+      content: ''; position: absolute; inset: -2px; padding: 4px;
       pointer-events: none;
       /* Bands of 24 so that three of the nine show down a plate at once, which
        * is the density the cabinet has: three steps down a 31-pixel plate. */
@@ -250,7 +256,7 @@
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-      animation: chase .3s steps(9) infinite;
+      animation: chase .9s steps(9) infinite;
     }
   }
   @keyframes chase { to { background-position: 0 -216px; } }
