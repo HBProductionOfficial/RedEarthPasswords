@@ -201,6 +201,13 @@
   }
   .out .said { min-height: 2.9em; }
   .out .said.note { min-height: 1.45em; }
+  /* The other passwords that decode to the same thing. The collapsed summary
+   * and the one-line "only this one" are the same height, so the box does not
+   * change size as the loadout changes. */
+  .out .said.onlyone { min-height: 0; color: #555; font-size: 11px; }
+  .alts > summary { padding: 0; }
+  .alts .all { max-height: 116px; margin-top: 6px; }
+  .alts .all div { font-variant-numeric: tabular-nums; letter-spacing: .06em; }
   .out.bad { border-color: #5a2222; }
   /* The one place that goes the other way. Display type is tightened
    * everywhere else; these are ten separate symbols to be read one at a time
@@ -719,7 +726,9 @@
         'note.other': 'Level 32 with everything this character can carry, on the VS total that types easiest.',
         'out.none': 'No password can carry exactly that.',
         'out.untick': 'Untick something. The game cannot combine every extra, and {n} combinations work here.',
-        'out.same': '{n} different passwords give this exact result. This is the easiest to enter.',
+        'out.same': '{n} different passwords give this exact result',
+        'out.easiest': 'easiest to enter',
+        'out.only': 'Only this password gives this result.',
         'toggle.combo': 'Not alongside what is already ticked. Untick one to reach this.',
         'toggle.blocked': 'Cannot be added to what is ticked: {what}. Untick one to swap.',
         'toggle.level': 'Not at this level or VS total.',
@@ -767,7 +776,9 @@
         'note.other': '\u30ec\u30d9\u30eb32\u3067\u3001\u3053\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u304c\u6301\u3066\u308b\u3082\u306e\u3059\u3079\u3066\u3002VS\u30dd\u30a4\u30f3\u30c8\u306f\u5165\u529b\u3057\u3084\u3059\u3055\u3067\u9078\u3093\u3067\u3044\u307e\u3059\u3002',
         'out.none': '\u3053\u306e\u7d44\u307f\u5408\u308f\u305b\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u306f\u3042\u308a\u307e\u305b\u3093\u3002',
         'out.untick': '\u30c1\u30a7\u30c3\u30af\u3092\u5916\u3057\u3066\u304f\u3060\u3055\u3044\u3002\u3059\u3079\u3066\u306e\u8ffd\u52a0\u3092\u7d44\u307f\u5408\u308f\u305b\u308b\u3053\u3068\u306f\u3067\u304d\u307e\u305b\u3093\u3002\u3053\u3053\u3067\u306f {n} \u901a\u308a\u304c\u6709\u52b9\u3067\u3059\u3002',
-        'out.same': '{n}\u901a\u308a\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u304c\u3053\u306e\u540c\u3058\u7d50\u679c\u306b\u306a\u308a\u307e\u3059\u3002\u3053\u308c\u304c\u6700\u3082\u5165\u529b\u3057\u3084\u3059\u3044\u3082\u306e\u3067\u3059\u3002',
+        'out.same': '{n}\u901a\u308a\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u304c\u3053\u306e\u540c\u3058\u7d50\u679c\u306b\u306a\u308a\u307e\u3059',
+        'out.easiest': '\u6700\u3082\u5165\u529b\u3057\u3084\u3059\u3044',
+        'out.only': '\u3053\u306e\u7d50\u679c\u306b\u306a\u308b\u30d1\u30b9\u30ef\u30fc\u30c9\u306f\u3053\u308c\u3060\u3051\u3067\u3059\u3002',
         'toggle.combo': '\u4ed6\u306b\u30c1\u30a7\u30c3\u30af\u3057\u305f\u3082\u306e\u3068\u4f75\u7528\u3067\u304d\u307e\u305b\u3093\u3002\u3069\u308c\u304b\u3092\u5916\u3057\u3066\u304f\u3060\u3055\u3044\u3002',
         'toggle.blocked': '\u30c1\u30a7\u30c3\u30af\u6e08\u307f\u306e\u3082\u306e\u3068\u306f\u4f75\u7528\u3067\u304d\u307e\u305b\u3093: {what}\u3002\u3069\u308c\u304b\u3092\u5916\u3057\u3066\u304f\u3060\u3055\u3044\u3002',
         'toggle.level': '\u3053\u306e\u30ec\u30d9\u30eb\u3068VS\u30dd\u30a4\u30f3\u30c8\u3067\u306f\u9078\u3079\u307e\u305b\u3093\u3002',
@@ -1060,9 +1071,27 @@
       said.appendChild(el('b', null,
         who() + ', ' + T('lbl.level').toLowerCase() + ' ' + st.level + '. '));
       said.appendChild(document.createTextNode(carrying(use)));
-      if (sp && sp.count > 1)
-        said.appendChild(document.createTextNode(' ' + T('out.same', { n: sp.count })));
       outEl.appendChild(said);
+
+      /* The others that decode to exactly this. Always present, saying "only
+       * this one" when there is only one, so opening it does not move what is
+       * underneath. */
+      if (sp && sp.count > 1) {
+        var alts = el('details', 'alts');
+        var sum = el('summary', 'more', T('out.same', { n: sp.count }));
+        alts.appendChild(sum);
+        var box = el('div', 'all');
+        sp.all.forEach(function (o, i) {
+          var row = el('div');
+          row.appendChild(el('span', null, text(o.digits)));
+          row.appendChild(el('span', 'g', i === 0 ? T('out.easiest') : ''));
+          box.appendChild(row);
+        });
+        alts.appendChild(box);
+        outEl.appendChild(alts);
+      } else {
+        outEl.appendChild(el('div', 'said onlyone', T('out.only')));
+      }
 
       var note = el('div', 'said note');
       if (dropped && dropped.length) {

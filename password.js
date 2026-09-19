@@ -578,7 +578,14 @@
           (ease(matches[i].digits) === ease(best.digits) &&
            matches[i].digits.join('') < best.digits.join('')))
         best = matches[i];
-    return best ? { best: best, count: matches.length } : null;
+    /* Easiest first, then in symbol order, which is the order the page lists
+     * them in and the order the tests expect. */
+    matches.sort(function (p, q) {
+      var ep = ease(p.digits), eq = ease(q.digits);
+      if (ep !== eq) return ep - eq;
+      return p.digits.join('') < q.digits.join('') ? -1 : 1;
+    });
+    return best ? { best: best, count: matches.length, all: matches } : null;
   }
 
   /* --- the easiest password that carries the most ------------------------
