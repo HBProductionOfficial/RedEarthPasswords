@@ -354,10 +354,10 @@
     ['Cho-Enryuu-Kyaku', '\u8d85\u708e\u9f8d\u811a'],  /* confirmed on screen */
     ['Air Chakura Wave', '\u30a8\u30a2\u30c1\u30e3\u30af\u30e9\u30fb\u30a6\u30a7\u30fc\u30d6'],  /* confirmed on screen */
     ['Death Phenomenon', '\u30c7\u30b9\u30fb\u30d5\u30a7\u30ce\u30e1\u30ce\u30f3'],  /* guess */
-    ['Legendary Shield', '\u30ec\u30b8\u30a7\u30f3\u30c0\u30ea\u30fc\u30b7\u30fc\u30eb\u30c9'],  /* guess */
+    ['Legendary Shield', '\u4f1d\u8aac\u306e\u76fe'],  /* predicted: from the confirmed shape */
     ['Electron Cannon', '\u30a8\u30ec\u30af\u30c8\u30ed\u30f3\u30fb\u30ab\u30ce\u30f3'],  /* guess */
-    ['Legendary Sword', '\u30ec\u30b8\u30a7\u30f3\u30c0\u30ea\u30fc\u30bd\u30fc\u30c9'],  /* guess */
-    ['Lightning Sword', '\u30e9\u30a4\u30c8\u30cb\u30f3\u30b0\u30bd\u30fc\u30c9'],  /* guess */
+    ['Legendary Sword', '\u4f1d\u8aac\u306e\u5263'],  /* predicted: from the confirmed shape */
+    ['Lightning Sword', '\u96f7\u306e\u5263'],  /* predicted: from the confirmed element word */
     ['Homura-Tsumuji', '\u7114\u65cb\u98a8'],  /* confirmed; flame glyph 7114 or 7130, same pixels at that size */
     ['Diamond Shield', '\u30c0\u30a4\u30e4\u306e\u76fe'],  /* confirmed on screen */
     ['Achilles Rush', '\u30a2\u30ad\u30ec\u30b9\u30fb\u30e9\u30c3\u30b7\u30e5'],  /* confirmed on screen */
@@ -370,7 +370,7 @@
     ['Hyper Cannon', '\u30cf\u30a4\u30d1\u30fc\u30fb\u30ab\u30ce\u30f3'],  /* guess */
     ['Steel Shield', '\u92fc\u306e\u76fe'],  /* confirmed on screen */
     ['Bronze Sword', '\u9752\u9285\u306e\u5263'],  /* confirmed on screen */
-    ['Wooden Staff', '\u30a6\u30c3\u30c9\u30b9\u30bf\u30c3\u30d5'],  /* guess */
+    ['Wooden Staff', '\u6728\u306e\u6756'],  /* predicted: from the confirmed WoodenShield */
     ['Baku-Ryusho', '\u7206\u9f8d\u6607'],  /* confirmed on screen */
     ['Kimo-Yaburi', '\u809d\u7834\u308a'],  /* confirmed on screen */
     ['Koukaku-Shu', '\u7d05\u9db4\u8e74'],  /* confirmed on screen */
@@ -379,13 +379,13 @@
     ['Gaia Driver', '\u30ac\u30a4\u30a2\u30fb\u30c9\u30e9\u30a4\u30d0\u30fc'],  /* confirmed on screen */
     ['Steel Sword', '\u92fc\u306e\u5263'],  /* confirmed on screen */
     ['Tentsui-Ga', '\u5929\u589c\u7259'],  /* confirmed on screen */
-    ['Battle Axe', '\u30d0\u30c8\u30eb\u30a2\u30c3\u30af\u30b9'],  /* guess */
-    ['Old Shield', '\u30aa\u30fc\u30eb\u30c9\u30b7\u30fc\u30eb\u30c9'],  /* guess */
-    ['Fire Sword', '\u30d5\u30a1\u30a4\u30a2\u30bd\u30fc\u30c9'],  /* guess */
+    ['Battle Axe', '\u6226\u65a7'],  /* predicted: WEAK, may be one word or two */
+    ['Old Shield', '\u53e4\u3073\u305f\u76fe'],  /* predicted: WEAK, the adjective is a guess */
+    ['Fire Sword', '\u708e\u306e\u5263'],  /* predicted: from the confirmed element word */
     ['Enma-Zuki', '\u95bb\u9b54\u7a81\u304d'],  /* confirmed on screen */
-    ['Old Sword', '\u30aa\u30fc\u30eb\u30c9\u30bd\u30fc\u30c9'],  /* guess */
-    ['Sun Staff', '\u30b5\u30f3\u30b9\u30bf\u30c3\u30d5'],  /* guess */
-    ['Ice Sword', '\u30a2\u30a4\u30b9\u30bd\u30fc\u30c9'],  /* guess */
+    ['Old Sword', '\u53e4\u3073\u305f\u5263'],  /* predicted: WEAK, the adjective is a guess */
+    ['Sun Staff', '\u592a\u967d\u306e\u6756'],  /* predicted: from the confirmed shape */
+    ['Ice Sword', '\u6c37\u306e\u5263'],  /* predicted: from the confirmed element word */
     ['Kokuu-Ha', '\u864e\u7a7a\u7834'],  /* confirmed on screen */
     ['Utsusemi', '\u7a7a\u8749'],  /* confirmed on screen */
     ['Kagerou', '\u873b\u86c9'],  /* confirmed on screen */

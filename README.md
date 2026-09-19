@@ -67,7 +67,9 @@ Fonts.
 
 ## Credits
 
-Password research: **HB Production**.
+This site and the password research: **HB Production**.
+
+The level table, which level grants which title, weapon and move: **Yoshin**.
 
 Not affiliated with or endorsed by the rights holder. Red Earth and War-Zard
 belong to Capcom.

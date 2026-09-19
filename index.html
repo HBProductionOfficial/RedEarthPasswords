@@ -83,7 +83,7 @@
   * { box-sizing: border-box; }
 
   .app {
-    height: 100%; display: grid; grid-template-rows: auto 1fr;
+    height: 100%; display: grid; grid-template-rows: auto 1fr auto;
     gap: var(--unit); padding: var(--unit) 16px calc(var(--unit) * 1.5);
     max-width: 760px; margin: 0 auto; min-height: 0;
   }
@@ -381,6 +381,12 @@
   .key b { color: var(--dim); font-weight: 400; }
 
   .foot { color: #555; font-size: 11px; line-height: 1.6; }
+  /* Outside the three pages, so it shows whichever one is open. */
+  .credits {
+    color: #4a4a4a; font-size: 10px; line-height: 1.5;
+    border-top: 1px solid var(--line); padding-top: 7px; margin-top: 2px;
+  }
+  .credits b { color: var(--dim); font-weight: 400; }
   .foot b { color: var(--dim); font-weight: 400; }
   .all { display: flex; flex-direction: column; max-height: 132px; overflow: auto; }
   .all div {
@@ -655,6 +661,7 @@
       all, which is how they can do things a normal password could not.
     </div>
   </div>
+  <div class="credits" id="credits"></div>
 </div>
 
 <script src="password.js"></script>
@@ -810,7 +817,9 @@
         'dec.rejected': 'Rejected as {who}.', 'dec.accepted': 'Accepted as {who}.',
         'lbl.character': 'Character', 'lbl.effect': 'Effect',
         'lbl.gear': 'Gear', 'lbl.extras': 'Extras', 'lbl.none': 'none',
-        'langnote': ''
+        'langnote': '',
+        'cr.site': 'Site and password research: ',
+        'cr.levels': 'Level table: '
       },
       ja: {
         'nav.gen': '\u30d1\u30b9\u30ef\u30fc\u30c9\u3092\u4f5c\u308b',
@@ -879,7 +888,9 @@
         'dec.accepted': '{who} \u3068\u3057\u3066\u53d7\u3051\u4ed8\u3051\u3089\u308c\u307e\u3057\u305f\u3002',
         'lbl.character': '\u30ad\u30e3\u30e9\u30af\u30bf\u30fc', 'lbl.effect': '\u52b9\u679c',
         'lbl.gear': '\u88c5\u5099', 'lbl.extras': '\u8ffd\u52a0', 'lbl.none': '\u306a\u3057',
-        'langnote': '\u79f0\u53f7\u306f\u30b2\u30fc\u30e0\u540c\u69d8\u82f1\u8a9e\u8868\u8a18\u306e\u307e\u307e\u3067\u3059\u3002\u6280\u306e\u540d\u524d\u306f\u30ec\u30d9\u30eb\u30a2\u30c3\u30d7\u753b\u9762\u304b\u3089\u78ba\u8a8d\u3057\u305f\u3082\u306e\u3092\u4f7f\u3063\u3066\u3044\u307e\u3059\u304c\u3001\u672a\u78ba\u8a8d\u306e\u3082\u306e\u3082\u3042\u308a\u307e\u3059\u3002'
+        'langnote': '\u79f0\u53f7\u306f\u30b2\u30fc\u30e0\u540c\u69d8\u82f1\u8a9e\u8868\u8a18\u306e\u307e\u307e\u3067\u3059\u3002\u6280\u306e\u540d\u524d\u306f\u30ec\u30d9\u30eb\u30a2\u30c3\u30d7\u753b\u9762\u304b\u3089\u78ba\u8a8d\u3057\u305f\u3082\u306e\u3092\u4f7f\u3063\u3066\u3044\u307e\u3059\u304c\u3001\u672a\u78ba\u8a8d\u306e\u3082\u306e\u3082\u3042\u308a\u307e\u3059\u3002',
+        'cr.site': '\u30b5\u30a4\u30c8\u3068\u30d1\u30b9\u30ef\u30fc\u30c9\u306e\u89e3\u6790: ',
+        'cr.levels': '\u30ec\u30d9\u30eb\u8868: '
       }
     };
     function T(k, vars) {
@@ -906,6 +917,13 @@
         $('l-' + l).setAttribute('aria-pressed', l === LANG ? 'true' : 'false');
       });
       $('langnote').textContent = T('langnote');
+      var cr = $('credits');
+      cr.textContent = '';
+      cr.appendChild(document.createTextNode(T('cr.site')));
+      cr.appendChild(el('b', null, 'HB Production'));
+      cr.appendChild(document.createTextNode('. ' + T('cr.levels')));
+      cr.appendChild(el('b', null, 'Yoshin'));
+      cr.appendChild(document.createTextNode('.'));
       applyKeys();
       PICKERS.forEach(function (id) {
         Array.prototype.forEach.call($(id).children, function (c, k) {
