@@ -383,6 +383,11 @@
   .key img { height: 26px; width: auto; display: block; }
   .key b { color: var(--dim); font-weight: 400; }
 
+  .typehint { color: var(--dim); font-size: 11px; line-height: 1.5; }
+  .verdicts { display: flex; flex-direction: column; gap: 7px; }
+  /* Each answer carries its own character's colour, so two answers to one
+   * password are told apart at a glance rather than by reading the names. */
+  .verdicts .out { margin: 0; }
   .foot { color: #555; font-size: 11px; line-height: 1.6; }
   /* Outside the three pages, so it shows whichever one is open, and outside
    * the scrolling area so it stays in view rather than sitting under it. */
@@ -497,7 +502,9 @@
    */
   @media (min-width: 1060px) {
     .app { max-width: 1180px; }
-    #p-gen {
+    /* .on, or this outranks `.page { display: none }` -- an id beats a class --
+     * and the generator renders underneath every other tab. */
+    #p-gen.on {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       grid-auto-rows: min-content;
@@ -505,12 +512,12 @@
       gap: 14px 26px;
     }
     /* left, in the order they are worked through */
-    #p-gen > .step:nth-of-type(1) { grid-column: 1; grid-row: 1; }
-    #p-gen > .step:nth-of-type(2) { grid-column: 1; grid-row: 2; }
-    #p-gen > .step:nth-of-type(3) { grid-column: 1; grid-row: 3; }
+    #p-gen.on > .step:nth-of-type(1) { grid-column: 1; grid-row: 1; }
+    #p-gen.on > .step:nth-of-type(2) { grid-column: 1; grid-row: 2; }
+    #p-gen.on > .step:nth-of-type(3) { grid-column: 1; grid-row: 3; }
     /* right, from the top, so it is beside the steps and not under them */
-    #p-gen > details.tune { grid-column: 2; grid-row: 1 / span 3; }
-    #p-gen > .foot { grid-column: 1 / -1; }
+    #p-gen.on > details.tune { grid-column: 2; grid-row: 1 / span 3; }
+    #p-gen.on > .foot { grid-column: 1 / -1; }
     /* the panel can breathe now, so the list is not squeezed into 132px */
     .alts .all { max-height: 150px; }
     .all { max-height: 190px; }
@@ -664,21 +671,25 @@
   <!-- read one -->
   <div class="page" id="p-dec">
     <div class="step">
-      <h2><b>1</b><span data-t="dec.s1">Whose password is it?</span></h2>
-      <div class="chars" id="dec-chars" role="group" aria-label="Character"></div>
-    </div>
-    <div class="step">
-      <h2><b>2</b><span data-t="dec.s2">Type the ten symbols</span></h2>
+      <h2><b>1</b><span data-t="dec.s2">Type the ten symbols</span></h2>
       <input id="dec" type="text" inputmode="text" spellcheck="false" autocomplete="off"
              maxlength="24" aria-label="Password to read">
+      <div class="typehint" data-t="dec.type">
+        Type 1 to 6 for the attack buttons, and Y and M for the two that are not
+        buttons.
+      </div>
     </div>
-    <div class="out" id="verdict"></div>
+    <div class="step">
+      <h2><b>2</b><span data-t="dec.s1">Whose password it is</span></h2>
+      <div class="verdicts" id="verdict"></div>
+    </div>
     <div class="keys" id="keys-dec"></div>
     <div class="foot">
       <b>1</b> LP, <b>2</b> MP, <b>3</b> HP, <b>4</b> LK, <b>5</b> MK,
       <b>6</b> HK<br>
-      <span data-t="dec.foot">A password belongs to one character. The same ten
-      symbols mean something else, or nothing, for anyone else.</span>
+      <span data-t="dec.foot">A password usually belongs to one character. The
+      same ten symbols mean something else, or nothing, for the others, though
+      now and then one works for two.</span>
     </div>
   </div>
 
@@ -724,11 +735,12 @@
      * and Down+Start, which are not attack buttons and do not pretend to be. */
     var LEGEND = ['', 'LP', 'MP', 'HP', 'LK', 'MK', 'HK', 'START', '\u2193+START'];
     /* Symbol 7 is Start, symbol 8 is Down held while Start is pressed. */
-    function symFile(d) {
+    function symFile(d, forChar) {
       return 'sym-' + (d === 7 ? 'start' : 'down') + '-'
-             + CHAR_SLUG[st.character] + '.svg';
+             + CHAR_SLUG[forChar === undefined ? st.character : forChar] + '.svg';
     }
-    function chips(digits) {
+    function chips(digits, forChar) {
+      var who = forChar === undefined ? st.character : forChar;
       var box = el('div', cascade ? 'chips' : 'chips still');
       digits.forEach(function (d, i) {
         /* Staggered in script rather than in the stylesheet: a password is ten
@@ -738,7 +750,7 @@
         if (d >= 1 && d <= 6) {
           var img = document.createElement('img');
           img.className = 'chip';
-          img.src = ART[CHAR_SLUG[st.character]][d];
+          img.src = ART[CHAR_SLUG[who]][d];
           img.alt = LEGEND[d];
           img.style.animationDelay = delay;
           box.appendChild(img);
@@ -748,7 +760,7 @@
            * recoloured like everything else so they belong to the character. */
           var sym = document.createElement('img');
           sym.className = 'chip sym';
-          sym.src = symFile(d);
+          sym.src = symFile(d, who);
           sym.alt = LEGEND[d];
           sym.style.animationDelay = delay;
           box.appendChild(sym);
@@ -800,8 +812,11 @@
         'gen.s3': 'Enter this at the password screen',
         'gen.tune': 'Customise: pick a different level, VS points or extras',
         'lbl.level': 'Level', 'lbl.vs': 'VS points',
-        'dec.s1': 'Whose password is it?', 'dec.s2': 'Type the ten symbols',
-        'dec.foot': 'A password belongs to one character. The same ten symbols mean something else, or nothing, for anyone else.',
+        'dec.s1': 'Whose password it is', 'dec.s2': 'Type the ten symbols',
+        'dec.type': 'Type 1 to 6 for the attack buttons, and Y and M for the two that are not buttons.',
+        'dec.waiting': 'Waiting for ten symbols.',
+        'dec.nobody': 'No character accepts this password.',
+        'dec.foot': 'Most passwords belong to one character: the same ten symbols mean something else, or nothing, for the others. Now and then one is accepted by two, and both are shown.',
         'sp.locked': 'Level locked at 1, score held at zero',
         'sp.locked.d': 'The character cannot level up past 1, and the score stays at zero however many coins are picked up.',
         'sp.power': 'Power Fight Mode',
@@ -867,9 +882,12 @@
         'gen.s3': '\u30d1\u30b9\u30ef\u30fc\u30c9\u753b\u9762\u3067\u3053\u308c\u3092\u5165\u529b',
         'gen.tune': '\u30ab\u30b9\u30bf\u30de\u30a4\u30ba: \u30ec\u30d9\u30eb\u30fbVS\u30dd\u30a4\u30f3\u30c8\u30fb\u8ffd\u52a0\u88c5\u5099\u3092\u5909\u3048\u308b',
         'lbl.level': '\u30ec\u30d9\u30eb', 'lbl.vs': 'VS\u30dd\u30a4\u30f3\u30c8',
-        'dec.s1': '\u8ab0\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\uff1f',
+        'dec.s1': '\u3060\u308c\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u304b',
+        'dec.type': '\u653b\u6483\u30dc\u30bf\u30f3\u306f 1\uff5e6\u3001\u30dc\u30bf\u30f3\u3067\u306f\u306a\u3044\u4e8c\u3064\u306f Y \u3068 M \u3067\u5165\u529b\u3057\u307e\u3059\u3002',
+        'dec.waiting': '10\u500b\u306e\u30b7\u30f3\u30dc\u30eb\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002',
+        'dec.nobody': '\u3069\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u3067\u3082\u901a\u308a\u307e\u305b\u3093\u3002',
         'dec.s2': '10\u500b\u306e\u30b7\u30f3\u30dc\u30eb\u3092\u5165\u529b',
-        'dec.foot': '\u30d1\u30b9\u30ef\u30fc\u30c9\u306f1\u4eba\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u5c02\u7528\u3067\u3059\u3002\u540c\u3058\u30b7\u30f3\u30dc\u30eb\u3067\u3082\u3001\u4ed6\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u3067\u306f\u5225\u306e\u610f\u5473\u306b\u306a\u308b\u304b\u3001\u901a\u308a\u307e\u305b\u3093\u3002',
+        'dec.foot': '\u307b\u3068\u3093\u3069\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u306f1\u4eba\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u5c02\u7528\u3067\u3001\u4ed6\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u3067\u306f\u5225\u306e\u610f\u5473\u306b\u306a\u308b\u304b\u901a\u308a\u307e\u305b\u3093\u3002\u307e\u308c\u306b2\u4eba\u3067\u901a\u308b\u3082\u306e\u304c\u3042\u308a\u3001\u305d\u306e\u5834\u5408\u306f\u4e21\u65b9\u8868\u793a\u3057\u307e\u3059\u3002',
         'sp.locked': '\u30ec\u30d9\u30eb1\u56fa\u5b9a\u3001\u30b9\u30b3\u30a2\u306f0\u306e\u307e\u307e',
         'sp.locked.d': '\u30ec\u30d9\u30eb\u304c1\u304b\u3089\u4e0a\u304c\u3089\u305a\u3001\u30b3\u30a4\u30f3\u3092\u3044\u304f\u3064\u53d6\u3063\u3066\u3082\u30b9\u30b3\u30a2\u306f0\u306e\u307e\u307e\u3067\u3059\u3002',
         'sp.power': 'Power Fight Mode',
@@ -1013,7 +1031,8 @@
     });
 
     /* --- one character choice, three pickers --- */
-    var PICKERS = ['chars', 'dec-chars', 'code-chars'];
+    /* The read page has no picker: it works out whose the password is. */
+    var PICKERS = ['chars', 'code-chars'];
     PICKERS.forEach(function (id) {
       var host = $(id);
       ORDER.forEach(function (i) {
@@ -1412,33 +1431,59 @@
       return EXAMPLES[st.character];
     }
 
+    /* One answer per character that accepts the password, because whose it is
+     * is the question being asked and is not always answerable with one name. */
+    function verdict(bad, head, lines, digits, character) {
+      var v = el('div', 'out' + (bad ? ' bad' : ''));
+      if (character !== undefined) v.setAttribute('data-char', CHAR_SLUG[character]);
+      v.appendChild(el('div', 'pw small', head));
+      if (digits) v.appendChild(chips(digits, character));
+      (lines || []).forEach(function (l) {
+        var d = el('div', 'said');
+        d.appendChild(el('b', null, l[0] + ': '));
+        d.appendChild(document.createTextNode(l[1]));
+        v.appendChild(d);
+      });
+      $('verdict').appendChild(v);
+    }
+
     function decode() {
+      var host = $('verdict');
+      host.textContent = '';
       var s = $('dec').value.trim();
       $('dec').placeholder = example();
       if (!s) {
-        say(false, T('dec.reading', { who: who() }),
-            [[T('dec.try'), T('dec.example', { pw: example(), who: who() })]]);
+        verdict(false, T('dec.waiting'),
+                [[T('dec.try'), T('dec.example', { pw: example(), who: who() })]]);
         return;
       }
       var d = parse(s);
-      if (!d) { say(true, T('dec.only')); return; }
-      if (d.length !== 10) { say(false, T('dec.ten', { n: d.length })); return; }
-      var r = RE.decode(st.character, d);
-      if (r.special) {
-        if (r.unknown)
-          say(true, T('dec.notmine', { who: who() }),
-              [[T('dec.why'), T('dec.specialwhy', { who: who() })]], d);
-        else say(false, r.name,
-                 [[T('lbl.character'), who()], [T('lbl.effect'), r.note]], d);
-        return;
+      if (!d) { verdict(true, T('dec.only')); return; }
+      if (d.length !== 10) { verdict(true, T('dec.ten', { n: d.length })); return; }
+
+      var found = 0, special = null;
+      for (var c = 0; c < 4; c++) {
+        var r = RE.decode(c, d);
+        if (r.error) continue;
+        if (r.special) {
+          if (!r.unknown) special = { c: c, r: r };
+          continue;
+        }
+        found++;
+        var l = RE.loadout(c, r.level, r.granted, r.shield);
+        var lines = [[T('lbl.level'), String(r.level)], [T('lbl.vs'), String(r.points)]];
+        if (l.gear.length) lines.push([T('lbl.gear'), jp(l.gear.join(T('out.and')))]);
+        lines.push([T('lbl.extras'),
+                    l.extras.length ? jp(l.extras.join(', ')) : T('lbl.none')]);
+        verdict(false, T('dec.accepted', { who: NAMES[LANG][c] }), lines, d, c);
       }
-      if (r.error) { say(true, T('dec.rejected', { who: who() }), [[T('dec.why'), r.error]], d); return; }
-      var l = RE.loadout(st.character, r.level, r.granted, r.shield);
-      var lines = [[T('lbl.level'), String(r.level)], [T('lbl.vs'), String(r.points)]];
-      if (l.gear.length) lines.push([T('lbl.gear'), jp(l.gear.join(T('out.and')))]);
-      lines.push([T('lbl.extras'),
-                  l.extras.length ? jp(l.extras.join(', ')) : T('lbl.none')]);
-      say(false, T('dec.accepted', { who: who() }), lines, d);
+      if (special) {
+        verdict(false, special.r.name,
+                [[T('lbl.character'), NAMES[LANG][special.c]],
+                 [T('lbl.effect'), special.r.note]], d, special.c);
+        found++;
+      }
+      if (!found) verdict(true, T('dec.nobody'), null, d);
     }
     $('dec').addEventListener('input', decode);
 
