@@ -291,6 +291,77 @@
     return state;
   }
 
+  /* --- the same names in Japanese ---------------------------------------
+   *
+   * Two kinds. The loanwords have one standard katakana form each, so writing
+   * them is mechanical. The Japanese-origin ones are marked "reading": they are
+   * almost certainly kanji in the game, which kanji is not recoverable from a
+   * romanisation, and these are phonetic until the level-up messages say
+   * otherwise. Correct as a reading, wrong as an orthography.
+   *
+   * Longest first, so that a longer name is matched before a shorter one it
+   * contains.
+   */
+  var JA_NAMES = [
+    ['Super Reverie Sword', '\u30b9\u30fc\u30d1\u30fc\u30ec\u30f4\u30a1\u30ea\u30fc\u30fb\u30bd\u30fc\u30c9'],  /* guess */
+    ['Super Brave Pigeon', '\u30b9\u30fc\u30d1\u30fc\u30d6\u30ec\u30a4\u30d6\u30fb\u30d4\u30b8\u30e7\u30f3'],  /* guess */
+    ['Super Chakura Wave', '\u30b9\u30fc\u30d1\u30fc\u30c1\u30e3\u30af\u30e9\u30fb\u30a6\u30a7\u30fc\u30d6'],  /* guess */
+    ['Super Chakra Wave', '\u30b9\u30fc\u30d1\u30fc\u30c1\u30e3\u30af\u30e9\u30fb\u30a6\u30a7\u30fc\u30d6'],  /* guess */
+    ['Cho-Enryuu-Kyaku', '\u30c1\u30e7\u30a6\u30a8\u30f3\u30ea\u30e5\u30a6\u30ad\u30e3\u30af'],  /* reading */
+    ['Air Chakura Wave', '\u30a8\u30a2\u30c1\u30e3\u30af\u30e9\u30fb\u30a6\u30a7\u30fc\u30d6'],  /* confirmed on screen */
+    ['Death Phenomenon', '\u30c7\u30b9\u30fb\u30d5\u30a7\u30ce\u30e1\u30ce\u30f3'],  /* guess */
+    ['Legendary Shield', '\u30ec\u30b8\u30a7\u30f3\u30c0\u30ea\u30fc\u30b7\u30fc\u30eb\u30c9'],  /* guess */
+    ['Electron Cannon', '\u30a8\u30ec\u30af\u30c8\u30ed\u30f3\u30fb\u30ab\u30ce\u30f3'],  /* guess */
+    ['Legendary Sword', '\u30ec\u30b8\u30a7\u30f3\u30c0\u30ea\u30fc\u30bd\u30fc\u30c9'],  /* guess */
+    ['Lightning Sword', '\u30e9\u30a4\u30c8\u30cb\u30f3\u30b0\u30bd\u30fc\u30c9'],  /* guess */
+    ['Homura-Tsumuji', '\u30db\u30e0\u30e9\u30c4\u30e0\u30b8'],  /* reading */
+    ['Diamond Shield', '\u30c0\u30a4\u30e4\u30e2\u30f3\u30c9\u30b7\u30fc\u30eb\u30c9'],  /* guess */
+    ['Achilles Rush', '\u30a2\u30ad\u30ec\u30b9\u30fb\u30e9\u30c3\u30b7\u30e5'],  /* guess */
+    ['Fiamma Cannon', '\u30d5\u30a3\u30a2\u30de\u30fb\u30ab\u30ce\u30f3'],  /* guess */
+    ['Jamming Ghost', '\u30b8\u30e3\u30df\u30f3\u30b0\u30fb\u30b4\u30fc\u30b9\u30c8'],  /* guess */
+    ['Diamond Sword', '\u30c0\u30a4\u30e4\u30e2\u30f3\u30c9\u30bd\u30fc\u30c9'],  /* guess */
+    ['Wooden Shield', '\u30a6\u30c3\u30c9\u30b7\u30fc\u30eb\u30c9'],  /* guess */
+    ['Kuugeki-Shou', '\u30af\u30a6\u30b2\u30ad\u30b7\u30e7\u30a6'],  /* reading */
+    ['Glace Cannon', '\u30b0\u30e9\u30fc\u30b9\u30fb\u30ab\u30ce\u30f3'],  /* confirmed on screen */
+    ['Hyper Cannon', '\u30cf\u30a4\u30d1\u30fc\u30fb\u30ab\u30ce\u30f3'],  /* guess */
+    ['Steel Shield', '\u30b9\u30c1\u30fc\u30eb\u30b7\u30fc\u30eb\u30c9'],  /* guess */
+    ['Bronze Sword', '\u30d6\u30ed\u30f3\u30ba\u30bd\u30fc\u30c9'],  /* guess */
+    ['Wooden Staff', '\u30a6\u30c3\u30c9\u30b9\u30bf\u30c3\u30d5'],  /* guess */
+    ['Baku-Ryusho', '\u30d0\u30af\u30ea\u30e5\u30a6\u30b7\u30e7\u30a6'],  /* reading */
+    ['Kimo-Yaburi', '\u30ad\u30e2\u30e4\u30d6\u30ea'],  /* reading */
+    ['Koukaku-Shu', '\u30b3\u30a6\u30ab\u30af\u30b7\u30e5'],  /* reading */
+    ['Kumo-Gakure', '\u30af\u30e2\u30ac\u30af\u30ec'],  /* reading */
+    ['Rasetsu-Jin', '\u30e9\u30bb\u30c4\u30b8\u30f3'],  /* reading */
+    ['Gaia Driver', '\u30ac\u30a4\u30a2\u30fb\u30c9\u30e9\u30a4\u30d0\u30fc'],  /* guess */
+    ['Steel Sword', '\u30b9\u30c1\u30fc\u30eb\u30bd\u30fc\u30c9'],  /* guess */
+    ['Tentsui-Ga', '\u30c6\u30f3\u30c4\u30a4\u30ac'],  /* reading */
+    ['Battle Axe', '\u30d0\u30c8\u30eb\u30a2\u30c3\u30af\u30b9'],  /* guess */
+    ['Old Shield', '\u30aa\u30fc\u30eb\u30c9\u30b7\u30fc\u30eb\u30c9'],  /* guess */
+    ['Fire Sword', '\u30d5\u30a1\u30a4\u30a2\u30bd\u30fc\u30c9'],  /* guess */
+    ['Enma-Zuki', '\u30a8\u30f3\u30de\u30c5\u30ad'],  /* reading */
+    ['Old Sword', '\u30aa\u30fc\u30eb\u30c9\u30bd\u30fc\u30c9'],  /* guess */
+    ['Sun Staff', '\u30b5\u30f3\u30b9\u30bf\u30c3\u30d5'],  /* guess */
+    ['Ice Sword', '\u30a2\u30a4\u30b9\u30bd\u30fc\u30c9'],  /* guess */
+    ['Kokuu-Ha', '\u30b3\u30af\u30a6\u30cf'],  /* reading */
+    ['Utsusemi', '\u30a6\u30c4\u30bb\u30df'],  /* reading */
+    ['Kagerou', '\u30ab\u30b2\u30ed\u30a6'],  /* reading */
+    ['Tsumuji', '\u30c4\u30e0\u30b8'],  /* reading */
+    ['Idaten', '\u30a4\u30c0\u30c6\u30f3'],  /* reading */
+    ['Ashura', '\u30a2\u30b7\u30e5\u30e9'],  /* reading */
+    ['Koen', '\u30b3\u30a6\u30a8\u30f3'],  /* reading */
+  ];
+
+  /* Every name in a string, swapped for its Japanese form. Applied to whole
+   * sentences as well as single names, because the level text is prose with
+   * names embedded in it. */
+  function localise(text) {
+    var i, out = String(text == null ? '' : text);
+    for (i = 0; i < JA_NAMES.length; i++)
+      if (out.indexOf(JA_NAMES[i][0]) >= 0)
+        out = out.split(JA_NAMES[i][0]).join(JA_NAMES[i][1]);
+    return out;
+  }
+
   /* --- packed BCD, the form these totals are kept in --------------------- */
 
   function binToBcd(v) {
@@ -798,6 +869,7 @@
 
   root.RedEarthPassword = {
     progressionAt: progressionAt,
+    localise: localise,
     bestLoadout: bestLoadout, bestTargets: bestTargets,
     generate: generate, enumerate: enumerate, spellings: spellings,
     decode: decode, specialCodes: specialCodes,
