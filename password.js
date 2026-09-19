@@ -272,24 +272,68 @@
   ];
 
   /* Everything true of a character at a level, accumulated from level 1. */
-  function progressionAt(character, level) {
+  function progressionAt(character, level, build) {
     var rows = PROGRESSION[character], state = { moves: [], gained: '' }, i, e;
+    var ladder = TITLES[build === 'ja' ? 'ja' : 'eu'][character];
+    var other = TITLES[build === 'ja' ? 'eu' : 'ja'][character];
     for (i = 0; i < level && i < rows.length; i++) {
       e = rows[i];
       if (!e) continue;
-      if (e.title) state.title = e.title;
+      /* The title comes from the ladder, not from this row: the level table
+       * records one only where the research happened to note it, which is why
+       * three of the four had no level 1 title at all. */
       if (e.sword) state.sword = e.sword;
       if (e.shield) state.shield = e.shield;
       if (e.move) state.moves.push({ name: e.move, level: i + 1 });
     }
+    /* Whichever title level this level has reached. */
+    for (i = TITLE_LEVELS.length - 1; i >= 0; i--) {
+      if (level >= TITLE_LEVELS[i]) { state.title = ladder[i]; break; }
+    }
+
     e = rows[level - 1];
     state.gained = (e && e.text) ? e.text : '';
+    /* And inside the level text, which names the title too. Without this the
+     * line would read "Title Summoner" beside a title field saying Witch. */
+    var here = TITLE_LEVELS.indexOf(level);
+    if (here >= 0 && other[here] !== ladder[here]) {
+      state.gained = state.gained.split('Title ' + other[here])
+                                 .join('Title ' + ladder[here]);
+    }
     /* A few of the game's own level-up messages are wrong. `gained` is always
      * what the level really gives; `announced` is what the game claims instead,
      * and is empty everywhere the two agree. */
     state.announced = (e && e.announced) ? e.announced : '';
     return state;
   }
+
+  /* --- titles, per build -------------------------------------------------
+   *
+   * The same eight levels in both, 1 3 6 10 14 19 25 32, and different names on
+   * them. Read out of the program ROM at 0x69AF38, thirty-eight strings, and
+   * confirmed cell by cell against both builds: all thirty-two Japanese and the
+   * level-1 titles of the European.
+   *
+   * The two ladders draw from one pool and share twenty-six of the thirty-eight
+   * entries, six being Japanese only and six European only. FIGHTER belongs to
+   * Leo in Japan and to Mai-Ling in Europe, which is why English-language
+   * research files it under her.
+   */
+  var TITLE_LEVELS = [1, 3, 6, 10, 14, 19, 25, 32];
+  var TITLES = {
+    ja: [
+    ['Soldier', 'Swordman', 'Fighter', 'Revenger', 'Victor', 'Warrior', 'Hero', 'Warlord'],
+    ['Stalker', 'Sniper', 'Commando', 'Stinger', 'Executor', 'Stealth', 'Shadow', 'Assassin'],
+    ['Magician', 'Sorcerer', 'Witch', 'Phantasm', 'Summoner', 'Sage', 'Archmage', 'Magelord'],
+    ['Grappler', 'Striker', 'Buster', 'Martian', 'Champion', 'Ironfist', 'Godfist', 'Asura'],
+    ],
+    eu: [
+    ['Savage', 'Brave Heart', 'Revenger', 'Victor', 'Soldier', 'Hero', 'Warrior', 'Warlord'],
+    ['Stinger', 'Sniper', 'Stalker', 'Executor', 'Stealth', 'Commando', 'Shadow', 'Assassin'],
+    ['Disciple', 'Sorcerer', 'Summoner', 'Phantasm', 'Witch', 'Sage', 'Archmage', 'Magelord'],
+    ['Grappler', 'Striker', 'Buster', 'Slammer', 'Fighter', 'Tiger Claw', 'Ironfist', 'Ashura'],
+    ]
+  };
 
   /* --- the same names in Japanese ---------------------------------------
    *
@@ -961,6 +1005,7 @@
     describe: describe, requirements: requirements, loadout: loadout,
     encodeVs: encodeVs, decodeVs: decodeVs, binToBcd: binToBcd,
     CHAR_NAMES: CHAR_NAMES, BUTTONS: BUTTONS, SYMBOLS: SYMBOLS,
+    TITLES: TITLES, TITLE_LEVELS: TITLE_LEVELS,
     PATTERN: PATTERN, GRANTS: GRANTS, LEVEL_TABLE: LEVEL_TABLE,
     LEO_RULES: LEO_RULES, KENJI_RULES: KENJI_RULES, TESSA_RULES: TESSA_RULES,
     REJECT: REJECT
