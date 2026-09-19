@@ -65,11 +65,15 @@
     --glow: #57793488; --hi: #fff;
   }
 
-  html, body { height: 100%; }
+  html, body { min-height: 100%; }
+  /* On html, and on both edges: this is the only scrollbar on the page now, and
+   * reserving it on one side only would shift everything sideways by half a bar
+   * the moment it appeared. */
+  html { scrollbar-gutter: stable both-edges; }
   body {
     background: var(--bg); color: var(--text);
     font-family: var(--mono); font-size: 14px; line-height: 1.65;
-    overflow: hidden; overflow-x: hidden;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   }
 
@@ -83,10 +87,11 @@
   * { box-sizing: border-box; }
 
   .app {
-    height: 100%; display: grid;
-    /* minmax(0, 1fr), not 1fr: a bare 1fr will not shrink below its own
-     * content, so a tall page pushed the credits off the bottom. */
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    /* min-height, and a middle row that fills what is spare but is never
+     * squeezed below its contents. A fixed height with a capped middle row is
+     * what made each page a scrolling box of its own. */
+    min-height: 100vh; display: grid;
+    grid-template-rows: auto 1fr auto;
     gap: var(--unit); padding: var(--unit) 22px calc(var(--unit) * 1.5);
     max-width: 760px; margin: 0 auto; min-height: 0;
   }
@@ -163,12 +168,7 @@
   .lang[aria-pressed="true"] {
     color: var(--on-fill); background: var(--fill); border-color: var(--fill);
   }
-  /* both-edges, so a scrollbar appearing does not shift the middle of the
-   * page sideways. */
-  .page {
-    min-height: 0; display: none; flex-direction: column; gap: 24px;
-    overflow: auto; scrollbar-gutter: stable both-edges;
-  }
+  .page { min-height: 0; display: none; flex-direction: column; gap: 24px; }
   .page.on { display: flex; }
 
   /* --- a numbered step --- */
@@ -193,21 +193,49 @@
    * The frame is the game's gold and the inside is the character's own colour
    * once chosen, which is how the rest of the page knows who is selected.
    */
-  .chars {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-    padding-top: 11px;
-  }
+  /* One strip, no gaps: the cabinet runs the plates along the bottom of the
+   * screen touching each other, and with a bevel drawn round each one they need
+   * no space between them to be told apart. They take what the gaps were using
+   * and come out wider. */
+  .chars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
   .char {
     position: relative;
     display: flex; flex-direction: column; align-items: center; gap: 3px;
     font-family: var(--mono);
-    background: linear-gradient(#1d1512, #0a0706);
     color: #d9b45f;
-    border: 2px solid #8a6a26;
-    box-shadow: inset 0 0 0 1px #6b5220;
-    padding: 12px 6px 10px; cursor: pointer;
-    transition: color .14s, border-color .14s, background .14s,
-                box-shadow .14s, transform .14s;
+    /* A dither, the way the sprite makes it: one-pixel checks of #846984
+     * against black. Two pixels square of repeating conic gradient is the same
+     * checkerboard, so this is the sprite's own fill rather than a colour that
+     * looks like it. */
+    --check: #846984;
+    background-color: #000;
+    background-image:
+      repeating-conic-gradient(var(--check) 0% 25%, #000 0% 50%);
+    background-size: 2px 2px;
+    /* The gold sits on the dither rather than on a flat colour, so it is given
+     * an edge to hold against it. */
+    text-shadow: 0 0 3px #000, 0 1px 0 #000;
+    border: 0;
+    padding: 14px 6px 12px; cursor: pointer;
+    transition: color .14s, --check .14s;
+  }
+  /* The chrome bevel, one gradient per edge, measured off the sprite: the top
+   * is white at the corners and white again in the middle with #7b797b between;
+   * the bottom is that shape inverted; the sides run white at the head to
+   * nearly black at the foot, the right darker than the left because the light
+   * is coming from the top left. */
+  .char::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: 100% 2px, 100% 2px, 2px 100%, 2px 100%;
+    background-position: 0 0, 0 100%, 0 0, 100% 0;
+    background-image:
+      linear-gradient(to right, #f7f3f7 0%, #7b797b 19%, #f7f3f7 47%,
+                      #f7f3f7 53%, #7b797b 81%, #f7f3f7 100%),
+      linear-gradient(to right, #313031 0%, #7b797b 22%, #f7f3f7 47%,
+                      #f7f3f7 53%, #7b797b 78%, #313031 100%),
+      linear-gradient(to bottom, #f7f3f7 0%, #9c9a9c 30%, #525152 78%, #181818 100%),
+      linear-gradient(to bottom, #f7f3f7 0%, #8c8a8c 25%, #424142 78%, #181818 100%);
   }
   .char .nm {
     font-size: 16px; font-weight: var(--w-brand); letter-spacing: .07em;
@@ -219,13 +247,17 @@
     font-size: 11px; letter-spacing: .06em; line-height: 1.2;
     min-height: 1.2em; opacity: .8;
   }
-  .char:hover {
-    color: #f2d489; border-color: #c8a24a; box-shadow: inset 0 0 0 1px #8a6a26;
-  }
+  /* The dither lifts and the gold goes to white. Nothing moves. */
+  .char:hover { color: #f7f3f7; --check: #a8879f; }
+  /* Chosen: the character's own colour instead of the dither, and the chase
+   * instead of the bevel. */
   .char[aria-pressed="true"] {
-    color: var(--on-fill); background: var(--fill);
-    border-color: #f0cf74; box-shadow: inset 0 0 0 1px #ffe6a6, 0 0 16px var(--glow);
+    color: var(--on-fill);
+    background-color: var(--fill); background-image: none;
+    text-shadow: none;
+    box-shadow: 0 0 16px var(--glow);
   }
+  .char[aria-pressed="true"]::before { display: none; }
 
   /* --- the chase ----------------------------------------------------------
    *
@@ -257,12 +289,8 @@
    * cut. The first frame is also set on the rule itself, so that a reader who
    * has asked for no animation gets a still ring rather than none.
    */
-  .char[aria-pressed="true"] {
-    border-color: transparent;
-    box-shadow: 0 0 16px var(--glow);
-  }
   .char[aria-pressed="true"]::after {
-    content: ''; position: absolute; inset: -2px; pointer-events: none;
+    content: ''; position: absolute; inset: 0; pointer-events: none;
     background-repeat: no-repeat;
     background-size: 100% 4px, 100% 4px, 4px 100%, 4px 100%;
     background-position: 0 0, 0 100%, 0 0, 100% 0;
@@ -339,35 +367,9 @@
     }
   }
 
-  /* --- hovering -----------------------------------------------------------
-   *
-   * Nothing moved under the pointer before. A plate lifts, and a band of light
-   * crosses it once -- once, not on a loop, because it is an answer to the
-   * pointer arriving rather than something the page does by itself. */
-  .char:not([aria-pressed="true"])::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(112deg,
-      rgba(247, 243, 247, 0) 42%, rgba(247, 243, 247, .18) 50%,
-      rgba(247, 243, 247, 0) 58%);
-    background-size: 280% 100%; background-position: 140% 0;
-    opacity: 0;
-  }
-  .char:not([aria-pressed="true"]):hover::after {
-    opacity: 1; animation: sheen .45s ease-out;
-  }
-  @keyframes sheen {
-    from { background-position: 140% 0; }
-    to   { background-position: -40% 0; }
-  }
-  .char:hover { transform: translateY(-2px); }
-  .char[aria-pressed="true"]:hover { transform: none; }
-  /* The cabinet's own marker, in the cabinet's own yellow. */
-  .char[aria-pressed="true"]::before {
-    content: '1P';
-    position: absolute; left: 50%; top: -11px; transform: translateX(-50%);
-    font-size: 10px; font-weight: var(--w-brand); letter-spacing: .1em;
-    color: #14100a; background: #f2c53d; padding: 1px 6px; line-height: 1.4;
-  }
+  /* A plate answers the pointer by changing colour and nothing else. It lifted
+   * and a band of light crossed it, which moved the thing about to be clicked
+   * and competed with the chase for the same attention. */
 
   .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
   .preset {
@@ -468,28 +470,24 @@
    */
   :root { --tune-w: min(430px, 100vw - 46px); }
 
+  /* Customise sits in the row with the two recommendations, because it is the
+   * third answer to the same question. It was a tab stuck to the right edge of
+   * the window, which is a long way from where anyone is deciding what they
+   * want, and it sat on top of the page at every width. */
   .tune-tab {
-    position: fixed; right: 0; top: 50%; z-index: 30;
-    display: none; align-items: center; gap: 9px;
-    padding: 16px 10px;
-    font-family: var(--mono); font-size: 12px; letter-spacing: .06em;
-    color: var(--text); background: var(--card);
-    border: 1px solid var(--line); border-right: 0;
-    writing-mode: vertical-rl;
-    cursor: pointer;
-    transform: translateY(-50%);
-    transition: transform .28s cubic-bezier(.22, .61, .36, 1),
-                border-color .14s, color .14s;
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: var(--mono); font-size: 13px; font-weight: var(--w-mid);
+    letter-spacing: .02em;
+    background: transparent; color: var(--dim); border: 1px solid var(--line);
+    padding: 11px 16px; cursor: pointer;
+    transition: color .14s, border-color .14s;
   }
-  body.on-gen .tune-tab { display: flex; }
   .tune-tab:hover { color: var(--ink-accent); border-color: var(--ink-accent); }
   .tune-tab .mark {
     display: inline-flex; align-items: center; justify-content: center;
     width: 17px; height: 17px; flex: none; line-height: 1;
-    writing-mode: horizontal-tb;
-    border: 1px solid var(--ink-accent); color: var(--ink-accent); font-weight: 700;
+    border: 1px solid currentColor; font-weight: 700;
   }
-  body.tuning .tune-tab { transform: translate(calc(0px - var(--tune-w)), -50%); }
 
   .tune {
     position: fixed; top: 0; right: 0; bottom: 0; z-index: 31;
@@ -631,17 +629,30 @@
   :focus-visible { outline: 2px solid var(--ink-accent); outline-offset: 1px; }
 
   /* --- one character's special codes --- */
-  .codes { display: flex; flex-direction: column; gap: 10px; }
+  /* Two up wherever there is width for it. Four of these stacked is the one
+   * page with more on it than a window has room for, and the width beside them
+   * was going spare -- so the page stops being taller than the screen by using
+   * what it already had. */
+  .codes {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+    gap: 8px; align-content: start;
+  }
   .code {
-    border: 1px solid var(--line); background: var(--card); padding: 11px 13px;
-    display: grid; grid-template-columns: 1fr auto; gap: 3px 16px; align-items: baseline;
+    border: 1px solid var(--line); background: var(--card); padding: 9px 13px;
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; align-items: baseline;
   }
   .code .n { font-weight: 700; }
   .code .p {
     font-size: 16px; font-weight: 700; letter-spacing: .16em;
     font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap;
   }
-  .code .chips { grid-column: 1 / -1; margin: 4px 0 2px; }
+  .code .chips { grid-column: 1 / -1; margin: 3px 0 0; }
+  /* Ten on a row inside half the page's width, at whatever size that leaves:
+   * a number here would be wrong at some column width, and it has been wrong
+   * three times already elsewhere. They are read once and typed at a cabinet
+   * rather than studied, so they can be smaller than the answer box's. */
+  .code .chips { flex-wrap: nowrap; gap: 4px 2px; }
+  .code .chip { width: auto; flex: 1 1 0; min-width: 0; max-width: 32px; }
   .code .d { grid-column: 1 / -1; color: var(--dim); font-size: 12px; }
   /* What the two symbols that are not buttons actually are. */
   .keys { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center;
@@ -725,7 +736,7 @@
   .char, .quick button, .lang, .toggle, .nav button {
     transition: color .14s, background .14s, border-color .14s, box-shadow .2s;
   }
-  .char:active, .quick button:active, .lang:active { transform: translateY(1px); }
+  .quick button:active, .lang:active { transform: translateY(1px); }
   /* Everything that can be pressed answers the pointer, not only the plates. */
   .preset:hover, .lang:hover, .nav button:hover, .quick button:hover,
   .toggle:not(.off):hover { transform: translateY(-1px); }
@@ -778,6 +789,10 @@
    * a little wider, and it slides left out of the drawer's way rather than
    * being covered by it, so the password stays on screen while it is tuned.
    */
+  /* The four special passwords are the one page with more on it than room, so
+   * it keeps its own tighter rhythm rather than everything else losing space. */
+  #p-codes.on { gap: 18px; }
+
   @media (min-width: 1060px) {
     .app {
       max-width: 860px;
@@ -832,7 +847,7 @@
     .langs { justify-content: flex-start; }
     .lang { flex: 1 1 0; justify-content: center; padding: 8px 6px; }
 
-    .chars { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .chars { grid-template-columns: 1fr 1fr; }
     .char { padding: 14px 6px 12px; }
 
     /* Full-width targets rather than a cramped row. */
@@ -861,26 +876,21 @@
     .answer .out { padding: 13px 14px; }
     .pw { font-size: clamp(18px, 3.4vw, 26px); }
     .chip { width: clamp(26px, 6.4vw, 38px); }
-    .chars { gap: 6px; padding-top: 10px; }
     .char { padding: 9px 4px 7px; }
     .char .nm { font-size: 14px; }
     .preset { padding: 7px 12px; }
+    /* The special passwords give up their own spacing rather than letting the
+     * page scroll: four blocks of ten symbols is the most there is to fit. */
+    #p-codes.on { gap: 8px; }
+    #p-codes .codes { gap: 5px; }
+    #p-codes .code { padding: 6px 11px; }
+    #p-codes .code .chip { max-width: 26px; }
   }
 
-  @media (max-width: 700px), (max-height: 620px) {
-    /* overflow-x stays hidden: the drawer is parked just off the right edge
-     * when it is shut, and a browser that counted it would offer a sideways
-     * scroll into empty space. */
-    /* both-edges again, and for the same reason: on a window barely wider
-     * than the page, a scrollbar down one side is the whole difference
-     * between centred and shoved against the left. */
-    html, body { height: auto; overflow-y: auto; overflow-x: hidden; }
-    /* On html only. Both of them scroll, so setting it on both reserved the
-     * gutter twice and took thirty-two pixels off the width for a scrollbar
-     * eight pixels wide. */
-    html { scrollbar-gutter: stable both-edges; }
-    .app { height: auto; padding-bottom: 28px; }
-    .page { overflow: visible; }
+  /* Room under the credits on a phone, where the bottom of the window is
+   * where the browser puts its own furniture. */
+  @media (max-width: 700px) {
+    .app { padding-bottom: 28px; }
   }
 
   @media (max-width: 380px) {
@@ -892,7 +902,7 @@
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
-<body class="on-gen" data-char="leo">
+<body data-char="leo">
 
 <div class="app" id="app" data-char="leo">
   <div class="head">
@@ -984,13 +994,9 @@
 
 <script src="password.js"></script>
 
-<!-- Customise, shut on arrival. Outside .app so that .app can slide out of its
-     way on a wide window without dragging it along. -->
-<button class="tune-tab" id="tune-tab" type="button"
-        aria-expanded="false" aria-controls="tune">
-  <span class="mark" id="tune-mark" aria-hidden="true">+</span>
-  <span data-t="gen.tab">Customise</span>
-</button>
+<!-- Customise, shut on arrival, opened from the row of recommendations.
+     Outside .app so that .app can slide out of its way on a wide window without
+     dragging it along. -->
 <div class="tune-veil" id="tune-veil"></div>
 <aside class="tune" id="tune" aria-hidden="true">
   <div class="tune-head">
@@ -1342,14 +1348,38 @@
      * button and Escape -- because on a phone it covers the page and one of
      * them is off screen. */
     var tuning = false;
+    /* One button, kept between renders so its handler is attached once and its
+       open/shut state survives the row being rebuilt. */
+    var tuneBtn = null;
+    function tuneButton() {
+      if (!tuneBtn) {
+        tuneBtn = el('button', 'tune-tab');
+        tuneBtn.type = 'button';
+        tuneBtn.id = 'tune-tab';
+        tuneBtn.setAttribute('aria-controls', 'tune');
+        var mark = el('span', 'mark', '+');
+        mark.id = 'tune-mark';
+        mark.setAttribute('aria-hidden', 'true');
+        tuneBtn.appendChild(mark);
+        tuneBtn.appendChild(el('span', null, ''));
+        tuneBtn.addEventListener('click', function () { setTune(!tuning); });
+      }
+      tuneBtn.children[1].textContent = T('gen.tab');
+      tuneBtn.setAttribute('aria-expanded', tuning ? 'true' : 'false');
+      tuneBtn.children[0].textContent = tuning ? '\u2212' : '+';
+      return tuneBtn;
+    }
     function setTune(on) {
       tuning = !!on;
       document.body.classList.toggle('tuning', tuning);
-      $('tune-tab').setAttribute('aria-expanded', tuning ? 'true' : 'false');
       $('tune').setAttribute('aria-hidden', tuning ? 'false' : 'true');
-      $('tune-mark').textContent = tuning ? '\u2212' : '+';
+      /* The button itself rather than a lookup by id: it is built into the row
+       * of recommendations and this code already holds it. */
+      if (tuneBtn) {
+        tuneBtn.setAttribute('aria-expanded', tuning ? 'true' : 'false');
+        tuneBtn.children[0].textContent = tuning ? '\u2212' : '+';
+      }
     }
-    $('tune-tab').addEventListener('click', function () { setTune(!tuning); });
     $('tune-shut').addEventListener('click', function () { setTune(false); });
     $('tune-veil').addEventListener('click', function () { setTune(false); });
     document.addEventListener('keydown', function (e) {
@@ -1372,7 +1402,6 @@
         });
         /* It belongs to the generator, so it goes away with it. */
         setTune(false);
-        document.body.classList.toggle('on-gen', name === 'gen');
         if (name === 'dec') $('dec').focus();
       });
     });
@@ -1464,6 +1493,9 @@
         b.addEventListener('click', function () { apply(i); });
         host.appendChild(b);
       });
+      /* Third in the row, after the recommendations: same question, and this
+       * is the answer for anyone the recommendations do not suit. */
+      host.appendChild(tuneButton());
       $('preset-note').textContent = T(NOTE[st.character]);
     }
 
