@@ -351,14 +351,65 @@
     ['Koen', '\u30b3\u30a6\u30a8\u30f3'],  /* reading */
   ];
 
+  /* --- the level text in Japanese --------------------------------------
+   *
+   * The sentences are a closed vocabulary and the screenshots show the game's
+   * own wording for every one: 炎に強くなった, 攻撃力があがった, the title line,
+   * and 必殺技 X を覚えた. Longest first, so "Become Resistant to Fire" is
+   * matched before "Resistant to Fire".
+   *
+   * The English notes say both Lightning and Thunder for what the game writes
+   * 雷, and once say "Become Resistant Ice" for "to Ice". Both forms are listed
+   * rather than corrected: which spelling is right is the research's to settle,
+   * and the Japanese is the same either way.
+   */
+  var JA_PHRASES = [
+    ['Become Resistant to Lightning', '\u96f7\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Become Resistant to Thunder', '\u96f7\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Become Resistant Lightning', '\u96f7\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Become Resistant to Poison', '\u6bd2\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Attacking Power Increased', '\u653b\u6483\u529b\u304c\u3042\u304c\u3063\u305f'],
+    ['Defensive Power Increased', '\u9632\u5fa1\u529b\u304c\u3042\u304c\u3063\u305f'],
+    ['Become Resistant to Fire', '\u708e\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Become Resistant Thunder', '\u96f7\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Become Resistant to Wind', '\u98a8\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Become Resistant to Ice', '\u6c37\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Become Resistant Poison', '\u6bd2\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Resistant to Lightning', '\u96f7\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Become Resistant Fire', '\u708e\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Become Resistant Wind', '\u98a8\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Become Resistant Ice', '\u6c37\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Resistant to Thunder', '\u96f7\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['(VS Point Exclusive)', '\uff08VS\u30dd\u30a4\u30f3\u30c8\u9650\u5b9a\uff09'],
+    ['Resistant to Poison', '\u6bd2\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Resistant to Fire', '\u708e\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Resistant to Wind', '\u98a8\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['Resistant to Ice', '\u6c37\u306b\u5f37\u304f\u306a\u3063\u305f'],
+    ['nothing', '\u306a\u3057'],
+  ];
+
+  /* Titles keep their Latin spelling inside the Japanese sentence, because that
+   * is what the game prints: ＡＳＳＡＳＳＩＮの称号を得た. */
+  var JA_TITLE = /Title ([A-Za-z][A-Za-z ]*?)(?=,|$)/g;
+  /* The capture stops before the VS-exclusive marker, so that lands after
+   * the verb instead of inside the move's name. */
+  var JA_MOVE = /New Move -\s*(.+?)(?=\s*\(VS Point|,|$)/g;
+
   /* Every name in a string, swapped for its Japanese form. Applied to whole
    * sentences as well as single names, because the level text is prose with
    * names embedded in it. */
   function localise(text) {
     var i, out = String(text == null ? '' : text);
+    /* Names first: they sit inside the sentences, and the sentence patterns
+     * match on the English scaffolding, which survives either order. */
     for (i = 0; i < JA_NAMES.length; i++)
       if (out.indexOf(JA_NAMES[i][0]) >= 0)
         out = out.split(JA_NAMES[i][0]).join(JA_NAMES[i][1]);
+    out = out.replace(JA_MOVE, '\u5fc5\u6bba\u6280 $1\u3092\u899a\u3048\u305f');
+    out = out.replace(JA_TITLE, '$1\u306e\u79f0\u53f7\u3092\u5f97\u305f');
+    for (i = 0; i < JA_PHRASES.length; i++)
+      if (out.indexOf(JA_PHRASES[i][0]) >= 0)
+        out = out.split(JA_PHRASES[i][0]).join(JA_PHRASES[i][1]);
     return out;
   }
 
