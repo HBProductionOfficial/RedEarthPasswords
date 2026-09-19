@@ -235,6 +235,12 @@
     width: clamp(30px, 8vw, 48px); height: auto; flex: none; display: block;
     image-rendering: pixelated; image-rendering: crisp-edges;
   }
+  /* He is a tall drawing where the buttons are wide ones, so he is sized by
+   * height to sit on the same line rather than tower over them. */
+  .chip.mob {
+    width: auto; height: clamp(26px, 6.4vw, 38px);
+    image-rendering: auto;
+  }
   .chip.s {
     width: auto; min-width: clamp(44px, 12vw, 58px);
     height: clamp(19px, 5vw, 27px); border-radius: 999px; padding: 0 9px;
@@ -335,6 +341,10 @@
     min-height: 6.4em;
   }
   .gained .research { color: #555; font-size: 10px; margin-top: 2px; }
+  /* The game's own message is wrong on a few of Tessa's levels. Marked, but not
+   * as an error: it is a fact about the game like the rest of the block. */
+  .gained .wrong { color: var(--ink-accent); }
+  .gained .wrong b { color: var(--ink-accent); }
   /* Reserved whether or not it says anything, so ticking an extra does not
    * shove everything below it up and down. */
   .combonote {
@@ -362,7 +372,13 @@
     font-size: 16px; font-weight: 700; letter-spacing: .16em;
     font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap;
   }
+  .code .chips { grid-column: 1 / -1; margin: 4px 0 2px; }
   .code .d { grid-column: 1 / -1; color: var(--dim); font-size: 11px; }
+  /* What the two symbols that are not buttons actually are. */
+  .keys { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+  .key { display: flex; align-items: center; gap: 7px; }
+  .key img { height: 26px; width: auto; display: block; }
+  .key b { color: var(--dim); font-weight: 400; }
 
   .foot { color: #555; font-size: 11px; line-height: 1.6; }
   .foot b { color: var(--dim); font-weight: 400; }
@@ -614,9 +630,10 @@
              maxlength="24" aria-label="Password to read">
     </div>
     <div class="out" id="verdict"></div>
+    <div class="keys" id="keys-dec"></div>
     <div class="foot">
       <b>1</b> LP, <b>2</b> MP, <b>3</b> HP, <b>4</b> LK, <b>5</b> MK,
-      <b>6</b> HK, <b>Y</b> Start, <b>M</b> Down&nbsp;+&nbsp;Start<br>
+      <b>6</b> HK<br>
       <span data-t="dec.foot">A password belongs to one character. The same ten
       symbols mean something else, or nothing, for anyone else.</span>
     </div>
@@ -632,6 +649,7 @@
       <h2><b>2</b><span data-t="codes.s2">Enter one of these instead of a normal password</span></h2>
       <div class="codes" id="codes"></div>
     </div>
+    <div class="keys" id="keys-codes"></div>
     <div class="foot" data-t="codes.foot">
       These four are matched by the game before it tries to read a password at
       all, which is how they can do things a normal password could not.
@@ -675,6 +693,16 @@
           img.alt = LEGEND[d];
           img.style.animationDelay = delay;
           box.appendChild(img);
+        } else if (d === 8) {
+          /* Mobster-chan, who is not a button: Down held while Start is
+           * pressed. Drawn rather than lettered, because the special passwords
+           * are mostly made of him. */
+          var mob = document.createElement('img');
+          mob.className = 'chip mob';
+          mob.src = 'mobster.svg';
+          mob.alt = LEGEND[d];
+          mob.style.animationDelay = delay;
+          box.appendChild(mob);
         } else {
           var pill = el('span', 'chip s', LEGEND[d]);
           pill.style.animationDelay = delay;
@@ -753,12 +781,15 @@
         'at.level': 'At level {lv}: ', 'gear.none': 'no gear is recorded for this character',
         'at.gained': 'Gained here: ',
         'at.nothing': 'nothing recorded for this level',
+        'at.actually': 'But actually gives: ',
         'at.moves': 'Moves: ',
         'at.nomoves': 'none recorded yet',
         'at.research': 'Levels, gear and moves are research, not read out of the game.',
         'dec.reading': 'Reading as {who}.', 'dec.try': 'Try',
         'dec.example': '{pw} as {who}',
         'dec.only': 'Only 1-6, Y and M are symbols.',
+        'key.y': 'the yashichi, symbol Y: press Start',
+        'key.m': 'Mobster-chan, symbol M: hold Down and press Start',
         'dec.ten': 'Ten symbols; that is {n}.',
         'dec.notmine': 'Not a password {who} accepts.',
         'dec.why': 'Why',
@@ -811,11 +842,14 @@
         'at.gained': '\u3053\u306e\u30ec\u30d9\u30eb\u3067\u306e\u7fd2\u5f97: ',
         'at.nothing': '\u3053\u306e\u30ec\u30d9\u30eb\u306e\u8a18\u9332\u306f\u3042\u308a\u307e\u305b\u3093',
         'at.moves': '\u6280: ',
+        'at.actually': '\u5b9f\u969b\u306b\u5f97\u3089\u308c\u308b\u306e\u306f: ',
         'at.nomoves': '\u307e\u3060\u3042\u308a\u307e\u305b\u3093',
         'at.research': '\u30ec\u30d9\u30eb\u3001\u88c5\u5099\u3001\u6280\u306f\u8abf\u67fb\u306b\u3088\u308b\u3082\u306e\u3067\u3001\u30b2\u30fc\u30e0\u306e\u30b3\u30fc\u30c9\u304b\u3089\u8aad\u307f\u53d6\u3063\u305f\u3082\u306e\u3067\u306f\u3042\u308a\u307e\u305b\u3093\u3002',
         'dec.reading': '{who} \u3068\u3057\u3066\u8aad\u307f\u307e\u3059\u3002', 'dec.try': '\u4f8b',
         'dec.example': '{pw} ({who})',
         'dec.only': '\u4f7f\u3048\u308b\u306e\u306f 1-6\u3001Y\u3001M \u3060\u3051\u3067\u3059\u3002',
+        'key.y': '\u3084\u3057\u3061\uff08\u8a18\u53f7 Y\uff09: \u30b9\u30bf\u30fc\u30c8',
+        'key.m': '\u30e2\u30d6\u30b9\u30bf\u30fc\u3061\u3083\u3093\uff08\u8a18\u53f7 M\uff09: \u4e0b\u3092\u5165\u308c\u306a\u304c\u3089\u30b9\u30bf\u30fc\u30c8',
         'dec.ten': '\u30b7\u30f3\u30dc\u30eb\u306f10\u500b\u5fc5\u8981\u3067\u3059\u3002\u4eca\u306f {n} \u500b\u3002',
         'dec.notmine': '{who} \u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u3067\u306f\u3042\u308a\u307e\u305b\u3093\u3002',
         'dec.why': '\u7406\u7531',
@@ -845,12 +879,37 @@
         $('l-' + l).setAttribute('aria-pressed', l === LANG ? 'true' : 'false');
       });
       $('langnote').textContent = T('langnote');
+      applyKeys();
       PICKERS.forEach(function (id) {
         Array.prototype.forEach.call($(id).children, function (c, k) {
           c.textContent = NAMES[LANG][ORDER[k]];
         });
       });
       render(); decode(); renderCodes();
+    }
+
+    /* Neither of these is a button on the panel, so the page says what to
+     * press. Built into both places the symbols can turn up. */
+    ['keys-codes', 'keys-dec'].forEach(function (id) {
+      var host = $(id);
+      var y = el('div', 'key');
+      y.appendChild(el('span', 'chip s', LEGEND[7]));
+      y.appendChild(el('b', null, ''));
+      host.appendChild(y);
+      var m = el('div', 'key');
+      var img = document.createElement('img');
+      img.src = 'mobster.svg';
+      img.alt = LEGEND[8];
+      m.appendChild(img);
+      m.appendChild(el('b', null, ''));
+      host.appendChild(m);
+    });
+    function applyKeys() {
+      ['keys-codes', 'keys-dec'].forEach(function (id) {
+        var k = $(id).children;
+        k[0].children[1].textContent = T('key.y');
+        k[1].children[1].textContent = T('key.m');
+      });
     }
 
     /* --- pages --- */
@@ -1065,6 +1124,12 @@
        * recorded for every character; the empty line is kept so the block does
        * not change height as the slider moves. */
       line(T('at.gained'), p.gained || T('at.nothing'));
+
+      /* Where the game's message is wrong, say so straight after it. */
+      if (p.actually) {
+        var wrong = line(T('at.actually'), p.actually);
+        wrong.className = 'wrong';
+      }
 
       /* And what has been learned by now, each with the level it came at. */
       line(T('at.moves'), p.moves.length
@@ -1291,6 +1356,9 @@
           var box = el('div', 'code');
           box.appendChild(el('div', 'n', s.name));
           box.appendChild(el('div', 'p', text(s.digits)));
+          var row = chips(s.digits);
+          row.className = 'chips still';
+          box.appendChild(row);
           box.appendChild(el('div', 'd', s.note));
           host.appendChild(box);
         });
@@ -1308,6 +1376,7 @@
       }
     })();
 
+    applyKeys();
     render();
     decode();
     renderCodes();

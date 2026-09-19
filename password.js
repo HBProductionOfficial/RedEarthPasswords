@@ -203,7 +203,8 @@
       {"text": "Resistant to Poison"},
       {"text": "Title Summoner, New Move - Glace Cannon", "title": "Summoner", "move": "Glace Cannon"},
       {"text": "Attacking Power Increased"},
-      {"text": "Attacking Power Increased, Defensive Power Increased LIE SHE ACTUALLY GAINS NOTHING"},
+      {"text": "Attacking Power Increased, Defensive Power Increased",
+       "actually": "nothing at all"},
       {"text": "Resistant to Lightning"},
       {"text": "Title Phantasm, New Move - Fiamma Cannon", "title": "Phantasm", "move": "Fiamma Cannon"},
       {"text": "Resistant to Poison"},
@@ -211,13 +212,18 @@
       {"text": "Resistant Ice"},
       {"text": "Title Witch, New Move - Electron Cannon", "title": "Witch", "move": "Electron Cannon"},
       {"text": "Attacking Power Increased"},
-      {"text": "Attacking Power Increased, Defensive Power Increased LIE SHE ACTUALLY GAINS NOTHING"},
+      {"text": "Attacking Power Increased, Defensive Power Increased",
+       "actually": "nothing at all"},
       {"text": "Resistant to Lightning"},
       {"text": "Defensive Power Increased"},
-      {"text": "Title Sage, New Move - Hyper Cannon, New Move - Super Chakura Wave Lie, instead it Unlocks Super Brave Pigeon", "title": "Sage", "move": "Hyper Cannon"},
+      {"text": "Title Sage, New Move - Hyper Cannon, New Move - Super Chakura Wave",
+       "actually": "Super Brave Pigeon, not Super Chakura Wave",
+       "title": "Sage", "move": "Hyper Cannon"},
       {"text": "Resistant to Ice"},
       {"text": "Resistant to Lightning"},
-      {"text": "New Move - Super Brave Pigeon Lie, instead it unlocks Super Chakura Wave + Defensive Power Increased", "move": "Super Brave Pigeon Lie"},
+      {"text": "New Move - Super Brave Pigeon",
+       "actually": "Super Chakura Wave and Defensive Power Increased, not Super Brave Pigeon",
+       "move": "Super Chakura Wave"},
       {"text": "Resistant to Ice"},
       {"text": "Attacking Power Increased"},
       {"text": "Title Archmage, New Move - Jamming Ghost", "title": "Archmage", "move": "Jamming Ghost"},
@@ -278,6 +284,10 @@
     }
     e = rows[level - 1];
     state.gained = (e && e.text) ? e.text : '';
+    /* Some of the game's own level-up messages are wrong. Where that is
+     * recorded, `actually` is what it really gives, and the page shows it as a
+     * correction rather than letting the wrong text stand on its own. */
+    state.actually = (e && e.actually) ? e.actually : '';
     return state;
   }
 
