@@ -209,7 +209,7 @@
    * change size as the loadout changes. */
   .out .said.onlyone { min-height: 0; color: #555; font-size: 11px; }
   .alts > summary { padding: 0; }
-  .alts .all { max-height: 116px; margin-top: 6px; }
+  .alts .all { max-height: clamp(96px, 20vh, 240px); margin-top: 6px; }
   .alts .all div { font-variant-numeric: tabular-nums; letter-spacing: .06em; }
   .out.bad { border-color: #5a2222; }
   /* The one place that goes the other way. Display type is tightened
@@ -398,7 +398,16 @@
   }
   .credits b { color: var(--dim); font-weight: 400; }
   .foot b { color: var(--dim); font-weight: 400; }
-  .all { display: flex; flex-direction: column; max-height: 132px; overflow: auto; }
+  /* A fraction of the window rather than a fixed number: three different fixed
+   * heights were in here and none of them knew how much room there was. The
+   * gutter is reserved so the scrollbar is always visible, because a row
+   * clipped through the middle with no bar reads as broken rather than as
+   * scrollable. */
+  .all {
+    display: flex; flex-direction: column;
+    max-height: clamp(96px, 24vh, 300px);
+    overflow-y: auto; scrollbar-gutter: stable;
+  }
   .all div {
     display: flex; justify-content: space-between; gap: 12px;
     border-top: 1px solid var(--line); padding: 4px 0; font-size: 11px;
@@ -519,8 +528,6 @@
     #p-gen.on > details.tune { grid-column: 2; grid-row: 1 / span 3; }
     #p-gen.on > .foot { grid-column: 1 / -1; }
     /* the panel can breathe now, so the list is not squeezed into 132px */
-    .alts .all { max-height: 150px; }
-    .all { max-height: 190px; }
   }
 
   /* --- smaller screens ----------------------------------------------------
@@ -565,7 +572,6 @@
     .tuner { grid-template-columns: 1fr; }
     .code { grid-template-columns: 1fr; }
     .code .p { text-align: left; font-size: 18px; }
-    .all { max-height: none; }
     .page { gap: 16px; }
   }
 
@@ -579,7 +585,6 @@
     .chars { gap: 4px; }
     .char { padding: 8px 4px; }
     .preset { padding: 7px 12px; }
-    .all { max-height: 104px; }
   }
 
   @media (max-width: 700px), (max-height: 620px) {
