@@ -8,6 +8,19 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap">
 <style>
+  /* The one face this project ships. Public Pixel carries its licence in its
+   * own name table rather than in a readme -- nameID 13 is "Creative Commons
+   * Zero v1.0 Universal" and nameID 14 is the deed -- so unlike the other two
+   * families named here, it can be included. Built to woff2 from the TTF with
+   * fontTools: 25KB against 129. */
+  @font-face {
+    font-family: 'Public Pixel';
+    src: url('publicpixel.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
   /* Three pages, each sized to one window. The default path is three steps and
    * nothing else on screen; level, VS points and individual extras are behind a
    * disclosure, because almost nobody arriving here wants to tune them. */
@@ -273,15 +286,15 @@
    * and takes half its width out of letters this size, while shadows sit behind
    * and leave the shape alone.
    *
-   * ArcadeClassic is named first and is not shipped -- its licence says not to
-   * distribute it without the author's permission -- so it is treated the way
-   * Berkeley Mono is: whoever has it sees it, and everyone else gets the page's
-   * own face at the same size.
+   * Public Pixel at sixteen: its design grid is eight pixels, and a pixel face
+   * set at a size that is not a multiple of its grid comes out with some rows a
+   * pixel taller than others. Weight 400 because it has one weight, and asking
+   * for more gets a synthesised bold that smears the pixels it is made of.
    */
   .char .nm {
-    font-family: 'ArcadeClassic', var(--mono);
-    font-size: 19px; font-weight: var(--w-brand); letter-spacing: .09em;
-    line-height: 1.15;
+    font-family: 'Public Pixel', var(--mono);
+    font-size: 16px; font-weight: 400; letter-spacing: .06em;
+    line-height: 1.25;
     background: linear-gradient(to bottom,
       #f7f3f7 0%, #efeb94 16%, #efe300 32%, #efba00 50%,
       #ef9a00 66%, #ef7100 82%, #e75900 92%, #de3800 100%);
@@ -312,11 +325,13 @@
    * instead of the bevel. */
   /* Chosen: the character's own colour behind the same lettering. The cabinet
    * does not change the name when a plate is picked, it changes what is behind
-   * it. */
+   * it -- and it does not light a halo round the plate either. This had a
+   * sixteen-pixel glow, and box-shadow was in the transition list above, so the
+   * halo grew in over a seventh of a second and the plate looked like it was
+   * swelling. The chase says the same thing without moving. */
   .char[aria-pressed="true"] {
     color: var(--on-fill);
     background-color: var(--fill); background-image: none;
-    box-shadow: 0 0 16px var(--glow);
   }
   .char[aria-pressed="true"]::before { display: none; }
 
@@ -811,7 +826,11 @@
   .quick button[aria-pressed="true"],
   .lang[aria-pressed="true"] { animation: take .26s cubic-bezier(.34, 1.4, .64, 1); }
 
-  .char, .quick button, .lang, .toggle, .nav button {
+  /* Not .char. This rule comes after the plate's own transition and has the
+   * same weight, so it was the one that applied -- which meant the plate was
+   * animating box-shadow over a fifth of a second, and a chosen plate grew its
+   * halo rather than simply having one. The halo is gone now and so is this. */
+  .quick button, .lang, .toggle, .nav button {
     transition: color .14s, background .14s, border-color .14s, box-shadow .2s;
   }
   .quick button:active, .lang:active { transform: translateY(1px); }
@@ -958,7 +977,7 @@
     .pw { font-size: clamp(18px, 3.4vw, 26px); }
     .chip { width: clamp(26px, 6.4vw, 38px); }
     .char { padding: 8px 4px; }
-    .char .nm { font-size: 17px; }
+    .char .nm { font-size: 16px; }
     .preset { padding: 7px 12px; }
     /* The special passwords give up their own spacing rather than letting the
      * page scroll: four blocks of ten symbols is the most there is to fit. */
