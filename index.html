@@ -119,10 +119,9 @@
      * can actually be seen. */
     min-height: 100dvh;
     display: grid;
-    /* head, page, credits, select strip -- and no padding under the last of
-     * them, because the strip ends where the window does. */
+    /* head, page, select strip, credits. */
     grid-template-rows: auto 1fr auto auto;
-    gap: var(--unit); padding: var(--unit) 22px 0;
+    gap: var(--unit); padding: var(--unit) 22px var(--unit);
     max-width: 760px; margin: 0 auto;
   }
 
@@ -203,9 +202,7 @@
 
   /* --- a numbered step --- */
   .step { display: flex; flex-direction: column; gap: 11px; }
-  /* It is the bottom row of the page, so it needs no pushing; the room under
-   * it is gone rather than shared out. Hidden on the reading page, which has no
-   * character to choose. */
+  /* Hidden on the reading page, which has no character to choose. */
   .step.pick { padding-bottom: 0; }
   body[data-page="dec"] .pick { display: none; }
   .step > h2 {
@@ -247,14 +244,16 @@
     background-color: transparent;
     background-image:
       repeating-conic-gradient(var(--check) 0% 25%, transparent 0% 50%);
-    /* Four pixels a tile, so two of check and two of gap. The sprite does it in
-     * one, but the sprite is 96 across and a plate here is about twice that --
-     * at one pixel the checks read as a flat grey rather than as a mesh. */
-    background-size: 4px 4px;
+    /* Six pixels a tile, so three of check and three of gap. The sprite does it
+     * in one, but the sprite is 96 across and a plate here is more than twice
+     * that: at one pixel the checks averaged into a flat grey, and at two they
+     * were a mesh you had to look for. */
+    background-size: 6px 6px;
     border: 0;
     /* Even top and bottom: two pixels of difference is two pixels of the
      * name sitting off the middle of the plate. */
-    padding: 13px 6px; cursor: pointer;
+    --plate-pad: 13px;
+    padding: var(--plate-pad) 6px; cursor: pointer;
     transition: color .14s, --check .14s;
   }
   /* The chrome bevel, one gradient per edge, measured off the sprite: the top
@@ -288,12 +287,18 @@
    *
    * Public Pixel at sixteen: its design grid is eight pixels, and a pixel face
    * set at a size that is not a multiple of its grid comes out with some rows a
-   * pixel taller than others. Weight 400 because it has one weight, and asking
-   * for more gets a synthesised bold that smears the pixels it is made of.
+   * pixel taller than others.
+   *
+   * Bold, from the browser, although the face has only one weight. Synthesised
+   * bold usually smears a pixel font, which is why this started at 400 -- but
+   * these glyphs are rectangles on the pixel grid, so the stroke lands on the
+   * grid too and comes out a clean pixel thicker. Checked against the
+   * alternative, which was running the outline twice: that thickens the outline
+   * rather than the letter and reads as muddier.
    */
   .char .nm {
     font-family: 'Public Pixel', var(--mono);
-    font-size: 16px; font-weight: 400; letter-spacing: .06em;
+    font-size: 16px; font-weight: 700; letter-spacing: .06em;
     line-height: 1.25;
     background: linear-gradient(to bottom,
       #f7f3f7 0%, #efeb94 16%, #efe300 32%, #efba00 50%,
@@ -311,6 +316,15 @@
   }
   .char .kana {
     font-size: 11px; letter-spacing: .06em; line-height: 1.2; opacity: .8;
+  }
+  /* What the kana line costs: its own line box, plus the gap above it. */
+  :root { --kana-line: calc(11px * 1.2 + 3px); }
+  /* The English page has no kana, and the cabinet's plate is the taller one, so
+   * it takes the room the kana would have used -- half at each end rather than
+   * all of it underneath. Holding an empty line open under the name is what was
+   * pushing the name up off the middle of the plate. */
+  html[lang="en"] .char {
+    padding-block: calc(var(--plate-pad) + var(--kana-line) / 2);
   }
   /* Nothing at all on the English page rather than an empty line held open.
    * Holding it open kept the four plates the same height in either language,
@@ -946,7 +960,7 @@
     .lang { flex: 1 1 0; justify-content: center; padding: 8px 6px; }
 
     .chars { grid-template-columns: 1fr 1fr; }
-    .char { padding: 15px 6px; }
+    .char { --plate-pad: 15px; }
 
     /* Full-width targets rather than a cramped row. */
     .preset { flex: 1 1 100%; text-align: center; padding: 12px; font-size: 12px; }
@@ -967,16 +981,14 @@
   }
 
   @media (max-height: 820px) {
-    /* No bottom padding here either: the strip is the last row and it ends
-     * where the window does. */
-    .app { gap: 6px; padding-block: 6px 0; }
+    .app { gap: 6px; padding-block: 6px; }
     .page { gap: 11px; }
     .step { gap: 5px; }
     .out { padding: 11px 12px; gap: 7px; }
     .answer .out { padding: 13px 14px; }
     .pw { font-size: clamp(18px, 3.4vw, 26px); }
     .chip { width: clamp(26px, 6.4vw, 38px); }
-    .char { padding: 8px 4px; }
+    .char { --plate-pad: 8px; padding-inline: 4px; }
     .char .nm { font-size: 16px; }
     .preset { padding: 7px 12px; }
     /* The special passwords give up their own spacing rather than letting the
@@ -1072,16 +1084,17 @@
       all, which is how they can do things a normal password could not.
     </div>
   </div>
-  <div class="credits" id="credits"></div>
-
-  <!-- Along the very bottom, the way the cabinet runs it, and under everything
-       including the credits. One strip rather than one per page: it chooses the
-       same character either way, and the reading page works out whose the
-       password is rather than asking. -->
+  <!-- Along the bottom of the page, above the credits line, the way the
+       cabinet runs it. One strip rather than one per page: it chooses the same
+       character either way, and the reading page works out whose the password
+       is rather than asking. -->
   <div class="step pick" id="pick">
     <h2><span data-t="gen.s1">Select your warrior</span></h2>
     <div class="chars" id="chars" role="group" aria-label="Character"></div>
   </div>
+
+  <div class="credits" id="credits"></div>
+
 </div>
 
 <script src="password.js"></script>
