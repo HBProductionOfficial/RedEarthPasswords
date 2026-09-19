@@ -1014,7 +1014,13 @@
   <div class="head">
     <div class="title">
       <h1>Red Earth<span class="slash"> / </span>Passwords</h1>
-      <div class="also" id="also">ウォーザード (War-Zard)</div>
+      <!-- lang on the text itself, not just on the document. No font in the
+           stack covers katakana, so it falls through to whatever the system
+           offers -- and which one the browser reaches for depends on the
+           language in force, which the page changes under the reader's feet
+           when they press a flag. Saying this line is Japanese in both
+           languages pins it to one font. -->
+      <div class="also" id="also" lang="ja">ウォーザード (War-Zard)</div>
     </div>
     <div class="headright">
       <nav class="nav">
@@ -1024,7 +1030,7 @@
       </nav>
       <div class="langs" role="group" aria-label="Language">
         <button id="l-en" class="lang" aria-pressed="true" lang="en"><svg class="flag" viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" fill="none"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="2" fill="none"/><path d="M30,0 V30 M0,15 H60" stroke="#fff" stroke-width="10" fill="none"/><path d="M30,0 V30 M0,15 H60" stroke="#C8102E" stroke-width="6" fill="none"/></svg><span>English</span></button>
-        <button id="l-ja" class="lang" aria-pressed="false" lang="ja"><svg class="flag" viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#fff"/><circle cx="30" cy="15" r="9" fill="#BC002D"/></svg><span>日本語</span></button>
+        <button id="l-ja" class="lang" aria-pressed="false" lang="ja"><svg class="flag" viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#fff"/><circle cx="30" cy="15" r="9" fill="#BC002D"/></svg><span lang="ja">日本語</span></button>
       </div>
     </div>
   </div>
@@ -1524,7 +1530,11 @@
       var m = /^(.*?)\s*\((.*)\)$/.exec(full);
       b.textContent = '';
       b.appendChild(el('span', 'nm', (m ? m[1] : full).toUpperCase()));
-      b.appendChild(el('span', 'kana', m ? m[2] : ''));
+      var kana = el('span', 'kana', m ? m[2] : '');
+      /* Same reason as the subtitle: this is Japanese whatever the page is set
+       * to, and saying so keeps it in one font. */
+      kana.setAttribute('lang', 'ja');
+      b.appendChild(kana);
     }
 
     /* --- one character choice, one strip --- */
