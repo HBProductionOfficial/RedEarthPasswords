@@ -101,10 +101,18 @@
   var GRANTS = [
     [[0x01, 'Fire Sword'], [0x02, 'Ice Sword'], [0x04, 'Lightning Sword'],
      [0x08, 'Battle Axe'], [0x10, 'Legendary Sword']],
-    [[0x01, 'Fire Breath super'], [0x02, 'Kick Ultimate Counter'], [0x04, 'Blade Slice special']],
+    /* Named from the level table, which records what the game announces when
+     * the move is learned. Each bit's first reachable level matches the level
+     * the table marks VS Point Exclusive: 16, 28, 32. The third was confirmed
+     * by the owner. The third entry is the description the page used to show,
+     * kept as a subtitle in English. */
+    [[0x01, 'Homura-Tsumuji', 'Fire Breath super'],
+     [0x02, 'Kimo-Yaburi', 'Kick Ultimate Counter'],
+     [0x04, 'Rasetsu-Jin', 'Blade Slice special']],
     [[0x01, 'Super Brave Pigeon'], [0x02, 'Super Chakra Wave'],
      [0x04, 'Super Reverie Sword'], [0x08, 'Sun Staff']],
-    [[0x01, 'Kick Ultimate Counter']]
+    /* Level 22, where the table records Kokuu-Ha. */
+    [[0x01, 'Kokuu-Ha', 'Kick Ultimate Counter']]
   ];
 
   /* --- what each level itself gives you ---------------------------------
@@ -621,7 +629,7 @@
    * at level 32 plus the Legendary Shield.
    *
    * Kenji has a pair for the same reason, one argument down: some players rate
-   * Blade Slice a weak move, so the second entry drops it and keeps the other
+   * Rasetsu-Jin a weak move, so the second entry drops it and keeps the other
    * two. That is his bit 0x04; 0x03 is reachable at level 32 with 800 working
    * spellings.
    *
@@ -639,7 +647,7 @@
     [{ granted: 0x07, shield: 0, key: 'preset.kenji0',
        label: 'Best: everything he can carry' },
      { granted: 0x03, shield: 0, key: 'preset.kenji1',
-       label: 'Best without Blade Slice' }],
+       label: 'Best without Rasetsu-Jin' }],
     [{ granted: 0x0F, shield: 0, key: 'preset.best', label: 'Best password' }],
     [{ granted: 0x01, shield: 0, key: 'preset.best', label: 'Best password' }]
   ];
@@ -770,7 +778,7 @@
   /* What a character can reach at all, for the level/VS guidance on the page. */
   function requirements(character) {
     if (character === 3)
-      return [{ what: 'Kick Ultimate Counter', level: 22, points: 1000 }];
+      return [{ what: 'Kokuu-Ha', level: 22, points: 1000 }];
     var rules = character === 1 ? KENJI_RULES : character === 2 ? TESSA_RULES : LEO_RULES;
     var out = [], i;
     for (i = 2; i < rules.length; i++)
