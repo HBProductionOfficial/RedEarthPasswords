@@ -229,6 +229,15 @@
    * so it is only drawn where the mask is understood; everywhere else the plate
    * keeps its plain gold edge. */
   @supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+    /* The ramp is the frame, not something laid over it. The plate gives up its
+     * gold edge and the pale highlight just inside it while the chase is
+     * running, because keeping them left two rings -- a moving one outside a
+     * gold one -- which reads as an overlay rather than as the frame itself.
+     * Outside this block there is no chase, so the gold edge stays. */
+    .char[aria-pressed="true"] {
+      border-color: transparent;
+      box-shadow: 0 0 16px var(--glow);
+    }
     .char[aria-pressed="true"]::after {
       content: ''; position: absolute; inset: -2px; padding: 2px;
       pointer-events: none;
