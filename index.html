@@ -229,52 +229,115 @@
 
   /* --- the chase ----------------------------------------------------------
    *
-   * The cabinet runs a ramp of nine colours around the selected plate and steps
-   * it on every second frame. These are those nine, read off the screen rather
-   * than chosen, in the order the game plays them.
+   * Taken frame by frame off a 96x32 recording of one plate: nine frames, 30ms
+   * each, a ring two pixels thick in nine colours.
    *
-   * The rate is not the cabinet's. Nine steps in three tenths of a second is a
-   * flicker on a web page at this size -- a screen you glance at, not one you
-   * are already staring at from two feet away -- so it runs at a third of that,
-   * one step every six frames.
+   * The pattern is exact and it is worth writing down, because it is not the
+   * obvious one. A band's colour depends only on how far round the perimeter it
+   * is from the middle of the TOP edge, and it is mirrored left to right -- so
+   * the two sides always match, and the top and bottom edges each carry a
+   * chevron rather than a single colour. The bands are sixteen pixels of
+   * perimeter each, with the band at the top middle and the one at the bottom
+   * middle halved by the mirror. Every frame the whole pattern moves one band
+   * further from the top middle: the colours flow outwards along the top, down
+   * both sides and inwards along the bottom, and after nine frames they are
+   * back where they began.
    *
-   * On the cabinet the ramp runs from the bottom middle up both sides to the
-   * top middle, mirrored left to right. This runs it straight up: exactly right
-   * on the two long sides, and the chevron on the top and bottom edges becomes
-   * a single band. Same colours, same rate, one fewer dimension.
+   * From the top middle outwards that is A, A+1, A+2, A+3 along the top half;
+   * A+3, A+4, A+5 down the side; A+5, A+6, A+7, A+8 in along the bottom half.
+   * A counts down from 8 by one a frame.
    *
-   * The ring is a masked overlay rather than a border, because a border cannot
-   * hold a gradient. Without the mask the overlay would cover the whole plate,
-   * so it is only drawn where the mask is understood; everywhere else the plate
-   * keeps its plain gold edge. */
-  @supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
-    /* The ramp is the frame, not something laid over it. The plate gives up its
-     * gold edge and the pale highlight just inside it while the chase is
-     * running, because keeping them left two rings -- a moving one outside a
-     * gold one -- which reads as an overlay rather than as the frame itself.
-     * Outside this block there is no chase, so the gold edge stays. */
-    .char[aria-pressed="true"] {
-      border-color: transparent;
-      box-shadow: 0 0 16px var(--glow);
+   * Four background layers, one per edge, because a border cannot hold a
+   * gradient and four gradients need no mask. The boundaries are percentages,
+   * so the plate keeps the cabinet's proportions at whatever size it ends up.
+   * The corners agree by construction: the band is continuous round them, so
+   * it does not matter which layer wins.
+   *
+   * step-end, or the browser interpolates between two frames that are meant to
+   * cut. The first frame is also set on the rule itself, so that a reader who
+   * has asked for no animation gets a still ring rather than none.
+   */
+  .char[aria-pressed="true"] {
+    border-color: transparent;
+    box-shadow: 0 0 16px var(--glow);
+  }
+  .char[aria-pressed="true"]::after {
+    content: ''; position: absolute; inset: -2px; pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: 100% 4px, 100% 4px, 4px 100%, 4px 100%;
+    background-position: 0 0, 0 100%, 0 0, 100% 0;
+    background-image:
+      linear-gradient(to right, #f75900 0% 8.3333%, #f72800 8.3333% 25%, #f70000 25% 41.6667%, #f7f3f7 41.6667% 58.3333%, #f70000 58.3333% 75%, #f72800 75% 91.6667%, #f75900 91.6667% 100%),
+        linear-gradient(to right, #f7c300 0% 8.3333%, #f7f300 8.3333% 25%, #f7f34a 25% 41.6667%, #f7f3a5 41.6667% 58.3333%, #f7f34a 58.3333% 75%, #f7f300 75% 91.6667%, #f7c300 91.6667% 100%),
+        linear-gradient(to bottom, #f75900 0% 25%, #f79200 25% 75%, #f7c300 75% 100%),
+        linear-gradient(to bottom, #f75900 0% 25%, #f79200 25% 75%, #f7c300 75% 100%);
+    animation: chase .27s step-end infinite;
+  }
+  @keyframes chase {
+    0% {
+      background-image:
+        linear-gradient(to right, #f75900 0% 8.3333%, #f72800 8.3333% 25%, #f70000 25% 41.6667%, #f7f3f7 41.6667% 58.3333%, #f70000 58.3333% 75%, #f72800 75% 91.6667%, #f75900 91.6667% 100%),
+        linear-gradient(to right, #f7c300 0% 8.3333%, #f7f300 8.3333% 25%, #f7f34a 25% 41.6667%, #f7f3a5 41.6667% 58.3333%, #f7f34a 58.3333% 75%, #f7f300 75% 91.6667%, #f7c300 91.6667% 100%),
+        linear-gradient(to bottom, #f75900 0% 25%, #f79200 25% 75%, #f7c300 75% 100%),
+        linear-gradient(to bottom, #f75900 0% 25%, #f79200 25% 75%, #f7c300 75% 100%);
     }
-    .char[aria-pressed="true"]::after {
-      /* Out to the border box and four pixels inward, so the plate stays the
-       * same size as the three beside it while the line itself is heavier. */
-      content: ''; position: absolute; inset: -2px; padding: 4px;
-      pointer-events: none;
-      /* Bands of 24 so that three of the nine show down a plate at once, which
-       * is the density the cabinet has: three steps down a 31-pixel plate. */
-      background: repeating-linear-gradient(to bottom,
-        #f70000 0 24px, #f72800 24px 48px, #f75900 48px 72px,
-        #f79200 72px 96px, #f7c300 96px 120px, #f7f300 120px 144px,
-        #f7f34a 144px 168px, #f7f3a5 168px 192px, #f7f3f7 192px 216px);
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-      animation: chase .9s steps(9) infinite;
+    11.111% {
+      background-image:
+        linear-gradient(to right, #f72800 0% 8.3333%, #f70000 8.3333% 25%, #f7f3f7 25% 41.6667%, #f7f3a5 41.6667% 58.3333%, #f7f3f7 58.3333% 75%, #f70000 75% 91.6667%, #f72800 91.6667% 100%),
+        linear-gradient(to right, #f79200 0% 8.3333%, #f7c300 8.3333% 25%, #f7f300 25% 41.6667%, #f7f34a 41.6667% 58.3333%, #f7f300 58.3333% 75%, #f7c300 75% 91.6667%, #f79200 91.6667% 100%),
+        linear-gradient(to bottom, #f72800 0% 25%, #f75900 25% 75%, #f79200 75% 100%),
+        linear-gradient(to bottom, #f72800 0% 25%, #f75900 25% 75%, #f79200 75% 100%);
+    }
+    22.222% {
+      background-image:
+        linear-gradient(to right, #f70000 0% 8.3333%, #f7f3f7 8.3333% 25%, #f7f3a5 25% 41.6667%, #f7f34a 41.6667% 58.3333%, #f7f3a5 58.3333% 75%, #f7f3f7 75% 91.6667%, #f70000 91.6667% 100%),
+        linear-gradient(to right, #f75900 0% 8.3333%, #f79200 8.3333% 25%, #f7c300 25% 41.6667%, #f7f300 41.6667% 58.3333%, #f7c300 58.3333% 75%, #f79200 75% 91.6667%, #f75900 91.6667% 100%),
+        linear-gradient(to bottom, #f70000 0% 25%, #f72800 25% 75%, #f75900 75% 100%),
+        linear-gradient(to bottom, #f70000 0% 25%, #f72800 25% 75%, #f75900 75% 100%);
+    }
+    33.333% {
+      background-image:
+        linear-gradient(to right, #f7f3f7 0% 8.3333%, #f7f3a5 8.3333% 25%, #f7f34a 25% 41.6667%, #f7f300 41.6667% 58.3333%, #f7f34a 58.3333% 75%, #f7f3a5 75% 91.6667%, #f7f3f7 91.6667% 100%),
+        linear-gradient(to right, #f72800 0% 8.3333%, #f75900 8.3333% 25%, #f79200 25% 41.6667%, #f7c300 41.6667% 58.3333%, #f79200 58.3333% 75%, #f75900 75% 91.6667%, #f72800 91.6667% 100%),
+        linear-gradient(to bottom, #f7f3f7 0% 25%, #f70000 25% 75%, #f72800 75% 100%),
+        linear-gradient(to bottom, #f7f3f7 0% 25%, #f70000 25% 75%, #f72800 75% 100%);
+    }
+    44.444% {
+      background-image:
+        linear-gradient(to right, #f7f3a5 0% 8.3333%, #f7f34a 8.3333% 25%, #f7f300 25% 41.6667%, #f7c300 41.6667% 58.3333%, #f7f300 58.3333% 75%, #f7f34a 75% 91.6667%, #f7f3a5 91.6667% 100%),
+        linear-gradient(to right, #f70000 0% 8.3333%, #f72800 8.3333% 25%, #f75900 25% 41.6667%, #f79200 41.6667% 58.3333%, #f75900 58.3333% 75%, #f72800 75% 91.6667%, #f70000 91.6667% 100%),
+        linear-gradient(to bottom, #f7f3a5 0% 25%, #f7f3f7 25% 75%, #f70000 75% 100%),
+        linear-gradient(to bottom, #f7f3a5 0% 25%, #f7f3f7 25% 75%, #f70000 75% 100%);
+    }
+    55.556% {
+      background-image:
+        linear-gradient(to right, #f7f34a 0% 8.3333%, #f7f300 8.3333% 25%, #f7c300 25% 41.6667%, #f79200 41.6667% 58.3333%, #f7c300 58.3333% 75%, #f7f300 75% 91.6667%, #f7f34a 91.6667% 100%),
+        linear-gradient(to right, #f7f3f7 0% 8.3333%, #f70000 8.3333% 25%, #f72800 25% 41.6667%, #f75900 41.6667% 58.3333%, #f72800 58.3333% 75%, #f70000 75% 91.6667%, #f7f3f7 91.6667% 100%),
+        linear-gradient(to bottom, #f7f34a 0% 25%, #f7f3a5 25% 75%, #f7f3f7 75% 100%),
+        linear-gradient(to bottom, #f7f34a 0% 25%, #f7f3a5 25% 75%, #f7f3f7 75% 100%);
+    }
+    66.667% {
+      background-image:
+        linear-gradient(to right, #f7f300 0% 8.3333%, #f7c300 8.3333% 25%, #f79200 25% 41.6667%, #f75900 41.6667% 58.3333%, #f79200 58.3333% 75%, #f7c300 75% 91.6667%, #f7f300 91.6667% 100%),
+        linear-gradient(to right, #f7f3a5 0% 8.3333%, #f7f3f7 8.3333% 25%, #f70000 25% 41.6667%, #f72800 41.6667% 58.3333%, #f70000 58.3333% 75%, #f7f3f7 75% 91.6667%, #f7f3a5 91.6667% 100%),
+        linear-gradient(to bottom, #f7f300 0% 25%, #f7f34a 25% 75%, #f7f3a5 75% 100%),
+        linear-gradient(to bottom, #f7f300 0% 25%, #f7f34a 25% 75%, #f7f3a5 75% 100%);
+    }
+    77.778% {
+      background-image:
+        linear-gradient(to right, #f7c300 0% 8.3333%, #f79200 8.3333% 25%, #f75900 25% 41.6667%, #f72800 41.6667% 58.3333%, #f75900 58.3333% 75%, #f79200 75% 91.6667%, #f7c300 91.6667% 100%),
+        linear-gradient(to right, #f7f34a 0% 8.3333%, #f7f3a5 8.3333% 25%, #f7f3f7 25% 41.6667%, #f70000 41.6667% 58.3333%, #f7f3f7 58.3333% 75%, #f7f3a5 75% 91.6667%, #f7f34a 91.6667% 100%),
+        linear-gradient(to bottom, #f7c300 0% 25%, #f7f300 25% 75%, #f7f34a 75% 100%),
+        linear-gradient(to bottom, #f7c300 0% 25%, #f7f300 25% 75%, #f7f34a 75% 100%);
+    }
+    88.889% {
+      background-image:
+        linear-gradient(to right, #f79200 0% 8.3333%, #f75900 8.3333% 25%, #f72800 25% 41.6667%, #f70000 41.6667% 58.3333%, #f72800 58.3333% 75%, #f75900 75% 91.6667%, #f79200 91.6667% 100%),
+        linear-gradient(to right, #f7f300 0% 8.3333%, #f7f34a 8.3333% 25%, #f7f3a5 25% 41.6667%, #f7f3f7 41.6667% 58.3333%, #f7f3a5 58.3333% 75%, #f7f34a 75% 91.6667%, #f7f300 91.6667% 100%),
+        linear-gradient(to bottom, #f79200 0% 25%, #f7c300 25% 75%, #f7f300 75% 100%),
+        linear-gradient(to bottom, #f79200 0% 25%, #f7c300 25% 75%, #f7f300 75% 100%);
     }
   }
-  @keyframes chase { to { background-position: 0 -216px; } }
 
   /* --- hovering -----------------------------------------------------------
    *
