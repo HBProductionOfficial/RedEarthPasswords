@@ -208,9 +208,14 @@
    * across the whole screen rather than inside the margins of what is above it
    * -- and because four plates inside 760 leave the longest name 167 pixels
    * when it wants 184. Breaks out of .app's cap without touching it. */
+  .step.pick { --strip: min(960px, 100vw - 44px); }
   .step.pick > .chars {
-    width: min(960px, 100vw - 44px);
-    margin-inline: auto;
+    width: var(--strip);
+    /* Half the difference, on each side. margin-inline: auto cannot go
+     * negative, so when the strip is wider than the column it sits in the auto
+     * margins collapse to nothing and the whole thing overhangs to the right --
+     * which is what put the page off centre. */
+    margin-inline: calc(50% - var(--strip) / 2);
   }
   body[data-page="dec"] .pick { display: none; }
   .step > h2 {
@@ -792,7 +797,26 @@
   .key img { height: 26px; width: auto; display: block; }
   .key b { color: var(--dim); font-weight: 400; }
 
-  .typehint { color: var(--dim); font-size: 12px; line-height: 1.6; text-align: center; }
+  /* What to type for each symbol: the cap above, the key below it. This
+   * replaced a sentence describing the pictures, so the pictures are the
+   * whole of it. */
+  .typekeys {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 14px;
+  }
+  .tk { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  /* Sized by height, not width: a button cap is wider than it is tall and the
+   * two that are not buttons are square, so setting the width left them
+   * different heights and the keys under them on two different lines. */
+  .tk img {
+    height: clamp(26px, 2.6vw, 34px); width: auto; display: block;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+  }
+  /* A little air before the two that are not buttons. */
+  .tk:nth-child(7) { margin-left: 10px; }
+  .tk b {
+    font-size: 13px; font-weight: var(--w-bold); color: var(--ink-accent);
+    font-variant-numeric: tabular-nums;
+  }
   .verdicts { display: flex; flex-direction: column; gap: 10px; }
   /* Each answer carries its own character's colour, so two answers to one
    * password are told apart at a glance rather than by reading the names. */
@@ -1108,19 +1132,16 @@
       <h2><span data-t="dec.s2">Type the ten symbols</span></h2>
       <input id="dec" type="text" inputmode="text" spellcheck="false" autocomplete="off"
              maxlength="24" aria-label="Password to read">
-      <div class="typehint" data-t="dec.type">
-        Type 1 to 6 for the attack buttons, and Y and M for the two that are not
-        buttons.
-      </div>
+      <!-- What to type for each symbol, in place of a sentence describing a
+           picture that was not being shown. -->
+      <div class="typekeys" id="typekeys" role="group"
+           aria-label="What to type for each symbol"></div>
     </div>
     <div class="step">
       <h2><span data-t="dec.s1">Whose password it is</span></h2>
       <div class="verdicts" id="verdict"></div>
     </div>
-    <div class="keys" id="keys-dec"></div>
     <div class="foot">
-      <b>1</b> LP, <b>2</b> MP, <b>3</b> HP, <b>4</b> LK, <b>5</b> MK,
-      <b>6</b> HK<br>
       <span data-t="dec.foot">A password usually belongs to one character. The
       same ten symbols mean something else, or nothing, for the others, though
       now and then one works for two.</span>
@@ -1300,7 +1321,6 @@
         'gen.tune': 'Pick a different level, VS points or extras.',
         'lbl.level': 'Level', 'lbl.vs': 'VS points',
         'dec.s1': 'Whose password it is', 'dec.s2': 'Type the ten symbols',
-        'dec.type': 'Type 1 to 6 for the attack buttons, and Y and M for the two that are not buttons.',
         'dec.waiting': 'Waiting for ten symbols.',
         'dec.nobody': 'No character accepts this password.',
         'dec.foot': 'Most passwords belong to one character: the same ten symbols mean something else, or nothing, for the others. Now and then one is accepted by two, and both are shown.',
@@ -1371,7 +1391,6 @@
         'gen.tune': '\u30ec\u30d9\u30eb\u30fbVS\u30dd\u30a4\u30f3\u30c8\u30fb\u8ffd\u52a0\u88c5\u5099\u3092\u5909\u3048\u307e\u3059\u3002',
         'lbl.level': '\u30ec\u30d9\u30eb', 'lbl.vs': 'VS\u30dd\u30a4\u30f3\u30c8',
         'dec.s1': '\u3060\u308c\u306e\u30d1\u30b9\u30ef\u30fc\u30c9\u304b',
-        'dec.type': '\u653b\u6483\u30dc\u30bf\u30f3\u306f 1\uff5e6\u3001\u30dc\u30bf\u30f3\u3067\u306f\u306a\u3044\u4e8c\u3064\u306f Y \u3068 M \u3067\u5165\u529b\u3057\u307e\u3059\u3002',
         'dec.waiting': '10\u500b\u306e\u30b7\u30f3\u30dc\u30eb\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002',
         'dec.nobody': '\u3069\u306e\u30ad\u30e3\u30e9\u30af\u30bf\u30fc\u3067\u3082\u901a\u308a\u307e\u305b\u3093\u3002',
         'dec.s2': '10\u500b\u306e\u30b7\u30f3\u30dc\u30eb\u3092\u5165\u529b',
@@ -1479,8 +1498,10 @@
     }
 
     /* Neither of these is a button on the panel, so the page says what to
-     * press. Built into both places the symbols can turn up. */
-    ['keys-codes', 'keys-dec'].forEach(function (id) {
+     * press. Only on the special passwords page now: that is where a reader is
+     * about to press Start on a machine, and the page for reading a password
+     * asks a different question, answered below. */
+    ['keys-codes'].forEach(function (id) {
       var host = $(id);
       [7, 8].forEach(function (d) {
         var k = el('div', 'key');
@@ -1493,8 +1514,25 @@
     });
     /* Both the wording and the artwork, since the artwork follows the
      * character and the wording follows the language. */
+    /* What to type for each of the eight symbols. The caps carry their own
+     * names, so the only thing missing is the key that stands for each one. */
+    var TYPED = ['', '1', '2', '3', '4', '5', '6', 'Y', 'M'];
+    function applyTypeKeys() {
+      var host = $('typekeys');
+      host.textContent = '';
+      for (var d = 1; d <= 8; d++) {
+        var k = el('div', 'tk');
+        var img = document.createElement('img');
+        img.src = d <= 6 ? ART[CHAR_SLUG[st.character]][d] : symFile(d);
+        img.alt = LEGEND[d];
+        k.appendChild(img);
+        k.appendChild(el('b', null, TYPED[d]));
+        host.appendChild(k);
+      }
+    }
     function applyKeys() {
-      ['keys-codes', 'keys-dec'].forEach(function (id) {
+      applyTypeKeys();
+      ['keys-codes'].forEach(function (id) {
         Array.prototype.forEach.call($(id).children, function (k, i) {
           k.children[0].src = symFile(i === 0 ? 7 : 8);
           k.children[1].textContent = T(i === 0 ? 'key.y' : 'key.m');
