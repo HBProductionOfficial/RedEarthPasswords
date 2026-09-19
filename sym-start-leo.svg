@@ -1,1 +1,12 @@
-<svg role="img" aria-label="Start" xmlns="http://www.w3.org/2000/svg" viewBox="46 40 1162 1162" width="1162" height="1162" style="shape-rendering:geometricPrecision; fill-rule:evenodd; clip-rule:evenodd"><title>Start</title><ellipse cx="615.66" cy="615.87" rx="489.715" ry="489.717" fill="#c14a4d"/><g fill="#f0eef0" stroke="#f0eef0" stroke-width="0.5"><path d="M 617 616 L 1207 616 C 1207 616 987.525 809.502 846.922 829.806 C 706.319 850.11 617 616 617 616 Z"/><path d="M 617 616 L 1207 616 C 1207 616 987.525 809.502 846.922 829.806 C 706.319 850.11 617 616 617 616 Z" transform="rotate(90 617 616)"/><path d="M 617 616 L 1207 616 C 1207 616 987.525 809.502 846.922 829.806 C 706.319 850.11 617 616 617 616 Z" transform="rotate(180 617 616)"/><path d="M 617 616 L 1207 616 C 1207 616 987.525 809.502 846.922 829.806 C 706.319 850.11 617 616 617 616 Z" transform="rotate(270 617 616)"/></g></svg>
+<svg role="img" aria-label="Start" xmlns="http://www.w3.org/2000/svg" viewBox="32.9 40 1208 1208" width="1162" height="1162" style="shape-rendering:geometricPrecision; fill-rule:evenodd; clip-rule:evenodd" xmlns:bx="https://boxy-svg.com">
+  <bx:title>Start</bx:title>
+  <g transform="matrix(1, 0, 0, 1, 19.900024, 28.000004)">
+    <ellipse cx="617" cy="616" rx="489.715" ry="489.717" fill="#c14a4d" style="stroke: rgb(0, 0, 0); stroke-width: 10px;"></ellipse>
+    <g fill="#f0eef0" stroke="#f0eef0" stroke-width="0.5">
+      <path d="M 617 616 L 1207 616 C 1207 616 987.525 809.502 846.922 829.806 C 706.319 850.11 617 616 617 616 Z" style="stroke: rgb(0, 0, 0); stroke-width: 10px;"></path>
+      <path d="M 617 616 L 1207 616 C 1207 616 987.525 809.502 846.922 829.806 C 706.319 850.11 617 616 617 616 Z" transform="rotate(90 617 616)" style="stroke: rgb(0, 0, 0); stroke-width: 10px;"></path>
+      <path d="M 617 616 L 1207 616 C 1207 616 987.525 809.502 846.922 829.806 C 706.319 850.11 617 616 617 616 Z" transform="rotate(180 617 616)" style="stroke: rgb(0, 0, 0); stroke-width: 10px;"></path>
+      <path d="M 617 616 L 1207 616 C 1207 616 987.525 809.502 846.922 829.806 C 706.319 850.11 617 616 617 616 Z" transform="rotate(270 617 616)" style="stroke: rgb(0, 0, 0); stroke-width: 10px;"></path>
+    </g>
+  </g>
+</svg>
