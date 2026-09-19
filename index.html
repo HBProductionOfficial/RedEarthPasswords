@@ -83,7 +83,10 @@
   * { box-sizing: border-box; }
 
   .app {
-    height: 100%; display: grid; grid-template-rows: auto 1fr auto;
+    height: 100%; display: grid;
+    /* minmax(0, 1fr), not 1fr: a bare 1fr will not shrink below its own
+     * content, so a tall page pushed the credits off the bottom. */
+    grid-template-rows: auto minmax(0, 1fr) auto;
     gap: var(--unit); padding: var(--unit) 16px calc(var(--unit) * 1.5);
     max-width: 760px; margin: 0 auto; min-height: 0;
   }
@@ -381,10 +384,12 @@
   .key b { color: var(--dim); font-weight: 400; }
 
   .foot { color: #555; font-size: 11px; line-height: 1.6; }
-  /* Outside the three pages, so it shows whichever one is open. */
+  /* Outside the three pages, so it shows whichever one is open, and outside
+   * the scrolling area so it stays in view rather than sitting under it. */
   .credits {
     color: #4a4a4a; font-size: 10px; line-height: 1.5;
     border-top: 1px solid var(--line); padding-top: 7px; margin-top: 2px;
+    flex: none;
   }
   .credits b { color: var(--dim); font-weight: 400; }
   .foot b { color: var(--dim); font-weight: 400; }
@@ -477,6 +482,38 @@
       transition: none !important;
       scroll-behavior: auto !important;
     }
+  }
+
+
+  /* --- a wide window ------------------------------------------------------
+   *
+   * Two columns, because the customise panel is open from the start now and
+   * one column of it runs off the bottom of a laptop while three hundred
+   * pixels sit unused down each side.
+   *
+   * The steps keep their order on the left; the panel sits beside them rather
+   * than below. Only the generator page splits: reading a password and the
+   * special passwords are each one column of content and look wrong stretched.
+   */
+  @media (min-width: 1060px) {
+    .app { max-width: 1180px; }
+    #p-gen {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-auto-rows: min-content;
+      align-content: start;
+      gap: 14px 26px;
+    }
+    /* left, in the order they are worked through */
+    #p-gen > .step:nth-of-type(1) { grid-column: 1; grid-row: 1; }
+    #p-gen > .step:nth-of-type(2) { grid-column: 1; grid-row: 2; }
+    #p-gen > .step:nth-of-type(3) { grid-column: 1; grid-row: 3; }
+    /* right, from the top, so it is beside the steps and not under them */
+    #p-gen > details.tune { grid-column: 2; grid-row: 1 / span 3; }
+    #p-gen > .foot { grid-column: 1 / -1; }
+    /* the panel can breathe now, so the list is not squeezed into 132px */
+    .alts .all { max-height: 150px; }
+    .all { max-height: 190px; }
   }
 
   /* --- smaller screens ----------------------------------------------------
@@ -804,7 +841,7 @@
         'at.announced': 'The game tells you it gives {said} here, but the message is wrong and the line above is what you get.',
         'at.moves': 'Moves: ',
         'at.nomoves': 'none recorded yet',
-        'at.research': 'The passwords come from the game\u2019s own code. What each level gives was written down while playing, so it is observed rather than proved.',
+        'at.research': 'The passwords come from the game\u2019s own code. What each level gives was written down while playing. Items the game never announces, including the starting pair and everything the password grants, have no name in it at all: those are labels from published research.',
         'dec.reading': 'Reading as {who}.', 'dec.try': 'Try',
         'dec.example': '{pw} as {who}',
         'dec.only': 'Only 1-6, Y and M are symbols.',
@@ -874,7 +911,7 @@
         'at.moves': '\u6280: ',
         'at.announced': '\u30b2\u30fc\u30e0\u306f\u3053\u3053\u3067 {said} \u3092\u5f97\u3089\u308c\u308b\u3068\u8868\u793a\u3057\u307e\u3059\u304c\u3001\u305d\u308c\u306f\u8aa4\u308a\u3067\u3001\u4e0a\u306e\u884c\u304c\u5b9f\u969b\u306b\u5f97\u3089\u308c\u308b\u3082\u306e\u3067\u3059\u3002',
         'at.nomoves': '\u307e\u3060\u3042\u308a\u307e\u305b\u3093',
-        'at.research': '\u30d1\u30b9\u30ef\u30fc\u30c9\u306f\u30b2\u30fc\u30e0\u306e\u30b3\u30fc\u30c9\u304b\u3089\u5f97\u305f\u3082\u306e\u3067\u3059\u3002\u5404\u30ec\u30d9\u30eb\u3067\u5f97\u3089\u308c\u308b\u3082\u306e\u306f\u30d7\u30ec\u30a4\u4e2d\u306b\u8a18\u9332\u3057\u305f\u3082\u306e\u3067\u3001\u691c\u8a3c\u6e08\u307f\u3067\u306f\u306a\u304f\u89b3\u5bdf\u306b\u3088\u308b\u3082\u306e\u3067\u3059\u3002',
+        'at.research': '\u30d1\u30b9\u30ef\u30fc\u30c9\u306f\u30b2\u30fc\u30e0\u306e\u30b3\u30fc\u30c9\u304b\u3089\u5f97\u305f\u3082\u306e\u3067\u3059\u3002\u5404\u30ec\u30d9\u30eb\u3067\u5f97\u3089\u308c\u308b\u3082\u306e\u306f\u30d7\u30ec\u30a4\u4e2d\u306b\u8a18\u9332\u3057\u307e\u3057\u305f\u3002\u30b2\u30fc\u30e0\u304c\u8868\u793a\u3057\u306a\u3044\u88c5\u5099\u2015\u2015\u521d\u671f\u88c5\u5099\u3068\u30d1\u30b9\u30ef\u30fc\u30c9\u3067\u5f97\u308b\u3082\u306e\u2015\u2015\u306b\u306f\u30b2\u30fc\u30e0\u5185\u306e\u540d\u524d\u304c\u306a\u304f\u3001\u8abf\u67fb\u4e0a\u306e\u547c\u3073\u65b9\u3092\u4f7f\u3063\u3066\u3044\u307e\u3059\u3002',
         'dec.reading': '{who} \u3068\u3057\u3066\u8aad\u307f\u307e\u3059\u3002', 'dec.try': '\u4f8b',
         'dec.example': '{pw} ({who})',
         'dec.only': '\u4f7f\u3048\u308b\u306e\u306f 1-6\u3001Y\u3001M \u3060\u3051\u3067\u3059\u3002',
@@ -1080,25 +1117,30 @@
        * Stranding someone on an error after they moved a slider is no use, so
        * fall back to the nearest thing the game can actually produce and say
        * what was dropped. */
+      /* st is the wish and is only ever written to by ticking a box. What the
+       * level and total can actually produce is worked out fresh each time, so
+       * lowering the level hides an extra rather than forgetting it, and
+       * raising the level again brings it back without being asked twice. */
       var asked = { granted: st.granted, shield: st.shield };
+      var use = { granted: st.granted, shield: st.shield };
       opts.forEach(function (opt) {
         if (reach[opt.name]) return;
-        if (opt.shield) st.shield = 0; else st.granted &= ~opt.bit;
+        if (opt.shield) use.shield = 0; else use.granted &= ~opt.bit;
       });
-      if (!map[st.granted + ':' + st.shield]) {
+      if (!map[use.granted + ':' + use.shield]) {
         var fit = null;
         list.forEach(function (o) {
           /* Most of what was asked for, and least of what was not. */
-          var keep = bits(o.granted & st.granted) + ((o.shield && st.shield) ? 1 : 0);
-          var spare = bits(o.granted & ~st.granted) + ((o.shield && !st.shield) ? 1 : 0);
+          var keep = bits(o.granted & use.granted) + ((o.shield && use.shield) ? 1 : 0);
+          var spare = bits(o.granted & ~use.granted) + ((o.shield && !use.shield) ? 1 : 0);
           if (!fit || keep > fit.keep || (keep === fit.keep && spare < fit.spare)) {
             fit = { o: o, keep: keep, spare: spare };
           }
         });
-        if (fit) { st.granted = fit.o.granted; st.shield = fit.o.shield; }
+        if (fit) { use.granted = fit.o.granted; use.shield = fit.o.shield; }
       }
       var dropped = namesOf(opts, asked).filter(function (n) {
-        return namesOf(opts, st).indexOf(n) < 0;
+        return namesOf(opts, use).indexOf(n) < 0;
       });
 
       /* Can this be added to what is already ticked? Asked of the
@@ -1106,15 +1148,15 @@
        * elemental swords, the axe before level 28 and the legendary sword
        * before 32 all fall out of the same test. */
       function canAdd(opt) {
-        var g = opt.shield ? st.granted : (st.granted | opt.bit);
-        var sh = opt.shield ? 1 : st.shield;
+        var g = opt.shield ? use.granted : (use.granted | opt.bit);
+        var sh = opt.shield ? 1 : use.shield;
         return !!map[g + ':' + sh];
       }
 
       var host = $('toggles'), blocked = [];
       host.textContent = '';
       opts.forEach(function (opt, i) {
-        var on = opt.shield ? !!st.shield : !!(st.granted & opt.bit);
+        var on = opt.shield ? !!use.shield : !!(use.granted & opt.bit);
         /* Taking something off can never put a loadout out of reach, so what is
          * ticked stays tickable. */
         var free = on || canAdd(opt);
@@ -1187,7 +1229,7 @@
 
       g.appendChild(el('div', 'research', T('at.research')));
 
-      renderOut(map, list, dropped);
+      renderOut(map, list, dropped, use);
 
       $('all-sum').textContent = T('all.sum', { n: list.length });
       var all = $('all');
@@ -1213,8 +1255,11 @@
       return parts.length ? parts.join(', ') + '.' : T('carry.none');
     }
 
-    function renderOut(map, list, dropped) {
-      var outEl = $('out'), hit = map[st.granted + ':' + st.shield];
+    /* `eff` is the loadout the level and total can actually give, which is
+     * not always the one that was asked for. Named apart from `use` below,
+     * which is the chosen spelling of it. */
+    function renderOut(map, list, dropped, eff) {
+      var outEl = $('out'), hit = map[eff.granted + ':' + eff.shield];
       outEl.textContent = '';
       outEl.className = 'out' + (hit ? '' : ' bad');
       if (!hit) {
@@ -1226,7 +1271,7 @@
       /* Usually several different sequences decode to exactly this, because a
        * symbol the rules never consult for this outcome can be anything. Show
        * whichever of them types easiest. */
-      var sp = RE.spellings(st.character, st.level, st.points, st.granted, st.shield);
+      var sp = RE.spellings(st.character, st.level, st.points, eff.granted, eff.shield);
       var use = sp ? sp.best : hit;
       outEl.appendChild(el('div', cascade ? 'pw' : 'pw still', text(use.digits)));
       outEl.appendChild(chips(use.digits));
@@ -1437,7 +1482,10 @@
       }
     })();
 
-    applyKeys();
+    /* Everything the language table fills, not just the pieces that happened
+     * to be wired separately. The credits were built inside applyLang and
+     * applyLang only ran on a language switch, so on arrival they were empty. */
+    applyLang();
     render();
     decode();
     renderCodes();
