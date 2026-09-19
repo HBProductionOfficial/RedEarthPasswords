@@ -244,11 +244,20 @@
     background-color: transparent;
     background-image:
       repeating-conic-gradient(var(--check) 0% 25%, transparent 0% 50%);
-    /* Six pixels a tile, so three of check and three of gap. The sprite does it
+    /* Eight pixels a tile, so four of check and four of gap. The sprite does it
      * in one, but the sprite is 96 across and a plate here is more than twice
      * that: at one pixel the checks averaged into a flat grey, and at two they
-     * were a mesh you had to look for. */
-    background-size: 6px 6px;
+     * were a mesh you had to look for. One number: 4px for two-pixel checks,
+     * 6px for three, 8px for four.
+     *
+     * Centred, because a plate is whatever width four of them divide the strip
+     * into and that is never a whole number of tiles. Left to itself the tiling
+     * starts at the top left and the leftovers all land on the far side, so one
+     * edge was whole checks and the other a sliver. Centred, the two edges are
+     * cut the same amount -- and the bevel is two pixels thick over the top of
+     * them, so anything thinner than that does not show at all. */
+    background-size: 8px 8px;
+    background-position: center;
     border: 0;
     /* Even top and bottom: two pixels of difference is two pixels of the
      * name sitting off the middle of the plate. */
@@ -793,11 +802,17 @@
     max-height: clamp(96px, 24vh, 300px);
     overflow-y: auto; scrollbar-gutter: stable;
   }
+  /* flex-start, not baseline: a long combination wraps its label to a second
+   * line, and the password belongs beside the first of them. */
   .all div {
-    display: flex; justify-content: space-between; gap: 12px;
-    border-top: 1px solid var(--line); padding: 4px 0; font-size: 11px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 12px;
+    border-top: 1px solid var(--line); padding: 5px 0; font-size: 12px;
   }
-  .all .g { color: var(--dim); }
+  .all .g { color: var(--dim); min-width: 0; }
+  /* The password keeps its line whatever the label does. Without this it was a
+   * flex item like any other and got broken in half under a long name. */
+  .all div > span + span { flex: none; white-space: nowrap; }
 
   /* --- movement ------------------------------------------------------------
    *
@@ -1769,13 +1784,32 @@
       $('all-sum').textContent = T('all.sum', { n: list.length });
       var all = $('all');
       all.textContent = '';
-      list.forEach(function (o) {
+      /* A copy, sorted for reading. The enumerator hands these back in the order
+       * the password variations come out in, which put "nothing extra" fourth
+       * and every bare item after the pairs it belongs to. This is fewest
+       * extras first and then the game's own bit order, which is also the order
+       * of the tick boxes above. The shield is not one of those bits, so it
+       * takes a place above them all and lands last within its group. */
+      list.slice().sort(function (p, q) {
+        var pm = p.granted | (p.shield ? 0x100 : 0);
+        var qm = q.granted | (q.shield ? 0x100 : 0);
+        var pn = bitsIn(pm), qn = bitsIn(qm);
+        if (pn !== qn) return pn - qn;
+        return pm - qm;
+      }).forEach(function (o) {
         var r = el('div');
         r.appendChild(el('span', 'g',
           o.description === 'nothing' ? T('all.nothing') : jp(o.description)));
         r.appendChild(el('span', null, text(o.digits)));
         all.appendChild(r);
       });
+    }
+
+    /* How many extras a combination is, for sorting the list of them. */
+    function bitsIn(mask) {
+      var n = 0;
+      while (mask) { n += mask & 1; mask >>>= 1; }
+      return n;
     }
 
     /* The whole loadout in a sentence: the gear the level gave, with anything
