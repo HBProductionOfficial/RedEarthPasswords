@@ -233,7 +233,7 @@
       {"text": "Attacking Power Increased"},
       {"text": "Resistant to Poison + Sun Staff (VS Point Exclusive + Beat Ravange with special requirement)"},
       {"text": "Attacking Power Increased"},
-      {"text": "Title Mageload, New Move - Death Phenomenon", "title": "Mageload", "move": "Death Phenomenon"},
+      {"text": "Title Magelord, New Move - Death Phenomenon", "title": "Magelord", "move": "Death Phenomenon"},
     ],
     /* Mai-Ling */ [
       {},
