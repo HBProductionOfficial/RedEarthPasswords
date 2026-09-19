@@ -71,6 +71,16 @@
    * the moment it appeared. */
   html { scrollbar-gutter: stable both-edges; }
   body {
+    /* Declared here as well as registered above, so that a browser without
+     * @property still has a value to read -- it lands in the right place, it
+     * just does not travel there. */
+    --push: 0px;
+    transition: --push .34s cubic-bezier(.22, .61, .36, 1);
+    /* The browser's own eight pixels. They never showed while the page was a
+     * fixed height with its overflow hidden, and the moment it was allowed to
+     * grow they became eight pixels of nothing under the select strip and a
+     * document sixteen pixels taller than the window. */
+    margin: 0;
     background: var(--bg); color: var(--text);
     font-family: var(--mono); font-size: 14px; line-height: 1.65;
     overflow-x: hidden;
@@ -90,10 +100,17 @@
     /* min-height, and a middle row that fills what is spare but is never
      * squeezed below its contents. A fixed height with a capped middle row is
      * what made each page a scrolling box of its own. */
-    min-height: 100vh; display: grid;
-    grid-template-rows: auto 1fr auto;
-    gap: var(--unit); padding: var(--unit) 22px calc(var(--unit) * 1.5);
-    max-width: 760px; margin: 0 auto; min-height: 0;
+    min-height: 100vh;
+    /* dvh where it is understood: on a phone the browser's own bar sits over
+     * the bottom of 100vh, and the strip is meant to end at the bottom of what
+     * can actually be seen. */
+    min-height: 100dvh;
+    display: grid;
+    /* head, page, credits, select strip -- and no padding under the last of
+     * them, because the strip ends where the window does. */
+    grid-template-rows: auto 1fr auto auto;
+    gap: var(--unit); padding: var(--unit) 22px 0;
+    max-width: 760px; margin: 0 auto;
   }
 
   /* Always stacked. Title, three tabs and two language buttons come to about
@@ -173,9 +190,11 @@
 
   /* --- a numbered step --- */
   .step { display: flex; flex-direction: column; gap: 11px; }
-  /* Pushed to the foot of whatever room the page has, so it is against the
-   * credits rule rather than wherever the content above happens to end. */
-  .step.pick { margin-top: auto; padding-top: 4px; }
+  /* It is the bottom row of the page, so it needs no pushing; the room under
+   * it is gone rather than shared out. Hidden on the reading page, which has no
+   * character to choose. */
+  .step.pick { padding-bottom: 0; }
+  body[data-page="dec"] .pick { display: none; }
   .step > h2 {
     margin: 0; font-size: 12px; font-weight: var(--w-mid);
     letter-spacing: var(--track-eyebrow);
@@ -208,13 +227,13 @@
      * checkerboard, so this is the sprite's own fill rather than a colour that
      * looks like it. */
     --check: #846984;
-    background-color: #000;
+    /* Transparent between the checks rather than black: the gaps are gaps, so
+     * whatever is behind the plate shows through them instead of a second black
+     * that happens to match the page. */
+    background-color: transparent;
     background-image:
-      repeating-conic-gradient(var(--check) 0% 25%, #000 0% 50%);
+      repeating-conic-gradient(var(--check) 0% 25%, transparent 0% 50%);
     background-size: 2px 2px;
-    /* The gold sits on the dither rather than on a flat colour, so it is given
-     * an edge to hold against it. */
-    text-shadow: 0 0 3px #000, 0 1px 0 #000;
     border: 0;
     padding: 14px 6px 12px; cursor: pointer;
     transition: color .14s, --check .14s;
@@ -237,9 +256,39 @@
       linear-gradient(to bottom, #f7f3f7 0%, #9c9a9c 30%, #525152 78%, #181818 100%),
       linear-gradient(to bottom, #f7f3f7 0%, #8c8a8c 25%, #424142 78%, #181818 100%);
   }
+  /* --- the name on a plate ------------------------------------------------
+   *
+   * The cabinet's own lettering, read off a grab of one name: a vertical ramp
+   * from white at the crown through yellow and gold to a red-orange at the
+   * foot, outlined in a navy dark enough to read as black.
+   *
+   * The ramp is a gradient clipped to the glyphs. The outline is eight offset
+   * shadows rather than a text stroke: a stroke is centred on the glyph's edge
+   * and takes half its width out of letters this size, while shadows sit behind
+   * and leave the shape alone.
+   *
+   * ArcadeClassic is named first and is not shipped -- its licence says not to
+   * distribute it without the author's permission -- so it is treated the way
+   * Berkeley Mono is: whoever has it sees it, and everyone else gets the page's
+   * own face at the same size.
+   */
   .char .nm {
-    font-size: 16px; font-weight: var(--w-brand); letter-spacing: .07em;
-    line-height: 1.1;
+    font-family: 'ArcadeClassic', var(--mono);
+    font-size: 19px; font-weight: var(--w-brand); letter-spacing: .09em;
+    line-height: 1.15;
+    background: linear-gradient(to bottom,
+      #f7f3f7 0%, #efeb94 16%, #efe300 32%, #efba00 50%,
+      #ef9a00 66%, #ef7100 82%, #e75900 92%, #de3800 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    /* drop-shadow, not text-shadow: a text shadow is painted between the
+     * element's background and its glyphs, and the ramp lives in that
+     * background because it is clipped to the text -- so the outline covered
+     * the very thing it was meant to outline. A filter applies to what has
+     * already been drawn, and four of them chained give a whole ring, each one
+     * shadowing the result of the last. */
+    filter: drop-shadow(1px 0 0 #00005a) drop-shadow(-1px 0 0 #00005a)
+            drop-shadow(0 1px 0 #00005a) drop-shadow(0 -1px 0 #00005a);
   }
   /* Reserved whether or not there is any, so the four plates are one height in
    * both languages. */
@@ -247,14 +296,18 @@
     font-size: 11px; letter-spacing: .06em; line-height: 1.2;
     min-height: 1.2em; opacity: .8;
   }
-  /* The dither lifts and the gold goes to white. Nothing moves. */
-  .char:hover { color: #f7f3f7; --check: #a8879f; }
+  /* The dither lifts. The name keeps its own colours, which are the cabinet's
+   * and do not change under a pointer it does not have. */
+  .char:hover { --check: #a8879f; }
+  .char:hover .kana { color: #f7f3f7; }
   /* Chosen: the character's own colour instead of the dither, and the chase
    * instead of the bevel. */
+  /* Chosen: the character's own colour behind the same lettering. The cabinet
+   * does not change the name when a plate is picked, it changes what is behind
+   * it. */
   .char[aria-pressed="true"] {
     color: var(--on-fill);
     background-color: var(--fill); background-image: none;
-    text-shadow: none;
     box-shadow: 0 0 16px var(--glow);
   }
   .char[aria-pressed="true"]::before { display: none; }
@@ -470,6 +523,15 @@
    */
   :root { --tune-w: min(430px, 100vw - 46px); }
 
+  /* How far the page gets out of the drawer's way. Registered as a length so
+   * the browser will animate it: a custom property it knows nothing about can
+   * only be swapped, and everything worked out from it would swap with it. */
+  @property --push {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+  }
+
   /* Customise sits in the row with the two recommendations, because it is the
    * third answer to the same question. It was a tab stuck to the right edge of
    * the window, which is a long way from where anyone is deciding what they
@@ -496,12 +558,15 @@
     background: #060606; border-left: 1px solid var(--line);
     box-shadow: -18px 0 40px rgba(0, 0, 0, .6);
     transform: translateX(100%); visibility: hidden;
-    transition: transform .28s cubic-bezier(.22, .61, .36, 1),
-                visibility 0s linear .28s;
+    transition: transform .34s cubic-bezier(.22, .61, .36, 1),
+                visibility 0s linear .34s;
   }
+  /* The drawer's width, plus 40 for the button that used to hang off its edge
+   * and the breathing room that leaves. */
+  body.tuning { --push: calc(var(--tune-w) + 40px); }
   body.tuning .tune {
     transform: none; visibility: visible;
-    transition: transform .28s cubic-bezier(.22, .61, .36, 1), visibility 0s;
+    transition: transform .34s cubic-bezier(.22, .61, .36, 1), visibility 0s;
   }
   .tune-head {
     display: flex; align-items: flex-start; justify-content: space-between;
@@ -536,11 +601,11 @@
     position: fixed; inset: 0; z-index: 29;
     background: rgba(0, 0, 0, .62);
     opacity: 0; visibility: hidden;
-    transition: opacity .28s ease, visibility 0s linear .28s;
+    transition: opacity .34s ease, visibility 0s linear .34s;
   }
   body.tuning .tune-veil {
     opacity: 1; visibility: visible;
-    transition: opacity .28s ease, visibility 0s;
+    transition: opacity .34s ease, visibility 0s;
   }
   .field { display: flex; flex-direction: column; gap: 4px; }
   .field-top { display: flex; justify-content: space-between; align-items: baseline; }
@@ -667,6 +732,11 @@
    * password are told apart at a glance rather than by reading the names. */
   .verdicts .out { margin: 0; }
   .foot { color: #838383; font-size: 12px; line-height: 1.75; text-align: center; }
+  /* The note about the language is empty on the English page, and an empty
+   * block still took a gap of the page's spacing with it -- which was the
+   * difference between the select strip sitting on the bottom edge and hanging
+   * a little below it. */
+  .foot:empty { display: none; }
   /* Outside the three pages, so it shows whichever one is open, and outside
    * the scrolling area so it stays in view rather than sitting under it. */
   .credits {
@@ -794,22 +864,23 @@
   #p-codes.on { gap: 18px; }
 
   @media (min-width: 1060px) {
-    .app {
-      max-width: 860px;
-      transition: max-width .28s cubic-bezier(.22, .61, .36, 1),
-                  margin-right .28s cubic-bezier(.22, .61, .36, 1);
-    }
     /* Reflowed out of the way rather than slid out of it. Sliding is one line
      * shorter and pushes the left edge of the page off a 1100px window, which
      * is most laptops; this narrows the column instead, so everything stays on
      * screen and the password is still readable while it is being changed --
-     * which is the only reason to have the drawer open. */
-    body.tuning .app {
-      /* The extra 40px is the tab, which hangs off the drawer's left edge and
-       * would otherwise sit on top of the page. */
-      max-width: min(860px, calc(100vw - var(--tune-w) - 72px));
-      margin-right: calc(var(--tune-w) + 40px);
-    }
+     * which is the only reason to have the drawer open.
+     *
+     * Both of these read --push, and --push is what is animated, so the page
+     * follows the drawer across rather than arriving before it. The same
+     * expression holds in both states, which is the whole point: there is no
+     * pair of different-shaped values for the browser to give up on. */
+    /* The room goes on the body, not on the page's right margin: .app centres
+     * itself with margin: 0 auto, and setting one of those margins to a length
+     * hands all the slack to the other one -- so the page sat against the right
+     * edge of the window instead of in the middle of what was left. Taking the
+     * room off the body keeps the page centred in what remains. */
+    body { padding-right: var(--push); }
+    .app { max-width: min(860px, calc(100vw - var(--push) - 44px)); }
     /* Nothing is covered, so nothing needs dimming. */
     .tune-veil { display: none; }
   }
@@ -869,7 +940,9 @@
   }
 
   @media (max-height: 820px) {
-    .app { gap: 6px; padding-block: 6px 10px; }
+    /* No bottom padding here either: the strip is the last row and it ends
+     * where the window does. */
+    .app { gap: 6px; padding-block: 6px 0; }
     .page { gap: 11px; }
     .step { gap: 5px; }
     .out { padding: 11px 12px; gap: 7px; }
@@ -877,7 +950,7 @@
     .pw { font-size: clamp(18px, 3.4vw, 26px); }
     .chip { width: clamp(26px, 6.4vw, 38px); }
     .char { padding: 9px 4px 7px; }
-    .char .nm { font-size: 14px; }
+    .char .nm { font-size: 17px; }
     .preset { padding: 7px 12px; }
     /* The special passwords give up their own spacing rather than letting the
      * page scroll: four blocks of ten symbols is the most there is to fit. */
@@ -885,12 +958,6 @@
     #p-codes .codes { gap: 5px; }
     #p-codes .code { padding: 6px 11px; }
     #p-codes .code .chip { max-width: 26px; }
-  }
-
-  /* Room under the credits on a phone, where the bottom of the window is
-   * where the browser puts its own furniture. */
-  @media (max-width: 700px) {
-    .app { padding-bottom: 28px; }
   }
 
   @media (max-width: 380px) {
@@ -939,13 +1006,6 @@
     </div>
 
     <div class="foot" id="langnote"></div>
-
-    <!-- Last, and pushed to the foot of the page: the cabinet runs the select
-         strip along the bottom of the screen under everything else. -->
-    <div class="step pick">
-      <h2><span data-t="gen.s1">Select your warrior</span></h2>
-      <div class="chars" id="chars" role="group" aria-label="Character"></div>
-    </div>
   </div>
 
   <!-- read one -->
@@ -984,12 +1044,17 @@
       These four are matched by the game before it tries to read a password at
       all, which is how they can do things a normal password could not.
     </div>
-    <div class="step pick">
-      <h2><span data-t="codes.s1">Select your warrior</span></h2>
-      <div class="chars" id="code-chars" role="group" aria-label="Character"></div>
-    </div>
   </div>
   <div class="credits" id="credits"></div>
+
+  <!-- Along the very bottom, the way the cabinet runs it, and under everything
+       including the credits. One strip rather than one per page: it chooses the
+       same character either way, and the reading page works out whose the
+       password is rather than asking. -->
+  <div class="step pick" id="pick">
+    <h2><span data-t="gen.s1">Select your warrior</span></h2>
+    <div class="chars" id="chars" role="group" aria-label="Character"></div>
+  </div>
 </div>
 
 <script src="password.js"></script>
@@ -1402,6 +1467,9 @@
         });
         /* It belongs to the generator, so it goes away with it. */
         setTune(false);
+        /* The strip is hidden on the reading page, which works out whose the
+         * password is rather than asking. */
+        document.body.setAttribute('data-page', name);
         if (name === 'dec') $('dec').focus();
       });
     });
@@ -1419,9 +1487,11 @@
       b.appendChild(el('span', 'kana', m ? m[2] : ''));
     }
 
-    /* --- one character choice, three pickers --- */
-    /* The read page has no picker: it works out whose the password is. */
-    var PICKERS = ['chars', 'code-chars'];
+    /* --- one character choice, one strip --- */
+    /* It used to be built twice, once per page, and the two kept in step by
+     * copying every press across. The strip is outside the pages now, so there
+     * is one of it. */
+    var PICKERS = ['chars'];
     PICKERS.forEach(function (id) {
       var host = $(id);
       ORDER.forEach(function (i) {
