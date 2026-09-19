@@ -307,7 +307,7 @@
     ['Super Brave Pigeon', '\u30b9\u30fc\u30d1\u30fc\u30d6\u30ec\u30a4\u30d6\u30fb\u30d4\u30b8\u30e7\u30f3'],  /* guess */
     ['Super Chakura Wave', '\u30b9\u30fc\u30d1\u30fc\u30c1\u30e3\u30af\u30e9\u30fb\u30a6\u30a7\u30fc\u30d6'],  /* guess */
     ['Super Chakra Wave', '\u30b9\u30fc\u30d1\u30fc\u30c1\u30e3\u30af\u30e9\u30fb\u30a6\u30a7\u30fc\u30d6'],  /* guess */
-    ['Cho-Enryuu-Kyaku', '\u30c1\u30e7\u30a6\u30a8\u30f3\u30ea\u30e5\u30a6\u30ad\u30e3\u30af'],  /* reading */
+    ['Cho-Enryuu-Kyaku', '\u8d85\u708e\u9f8d\u811a'],  /* confirmed on screen */
     ['Air Chakura Wave', '\u30a8\u30a2\u30c1\u30e3\u30af\u30e9\u30fb\u30a6\u30a7\u30fc\u30d6'],  /* confirmed on screen */
     ['Death Phenomenon', '\u30c7\u30b9\u30fb\u30d5\u30a7\u30ce\u30e1\u30ce\u30f3'],  /* guess */
     ['Legendary Shield', '\u30ec\u30b8\u30a7\u30f3\u30c0\u30ea\u30fc\u30b7\u30fc\u30eb\u30c9'],  /* guess */
@@ -321,7 +321,7 @@
     ['Jamming Ghost', '\u30b8\u30e3\u30df\u30f3\u30b0\u30fb\u30b4\u30fc\u30b9\u30c8'],  /* guess */
     ['Diamond Sword', '\u30c0\u30a4\u30e4\u30e2\u30f3\u30c9\u30bd\u30fc\u30c9'],  /* guess */
     ['Wooden Shield', '\u30a6\u30c3\u30c9\u30b7\u30fc\u30eb\u30c9'],  /* guess */
-    ['Kuugeki-Shou', '\u30af\u30a6\u30b2\u30ad\u30b7\u30e7\u30a6'],  /* reading */
+    ['Kuugeki-Shou', '\u7a7a\u6483\u638c'],  /* confirmed on screen */
     ['Glace Cannon', '\u30b0\u30e9\u30fc\u30b9\u30fb\u30ab\u30ce\u30f3'],  /* confirmed on screen */
     ['Hyper Cannon', '\u30cf\u30a4\u30d1\u30fc\u30fb\u30ab\u30ce\u30f3'],  /* guess */
     ['Steel Shield', '\u30b9\u30c1\u30fc\u30eb\u30b7\u30fc\u30eb\u30c9'],  /* guess */
@@ -329,12 +329,12 @@
     ['Wooden Staff', '\u30a6\u30c3\u30c9\u30b9\u30bf\u30c3\u30d5'],  /* guess */
     ['Baku-Ryusho', '\u7206\u9f8d\u6607'],  /* confirmed on screen */
     ['Kimo-Yaburi', '\u809d\u7834\u308a'],  /* confirmed on screen */
-    ['Koukaku-Shu', '\u30b3\u30a6\u30ab\u30af\u30b7\u30e5'],  /* reading */
+    ['Koukaku-Shu', '\u7d05\u9db4\u8e74'],  /* confirmed on screen */
     ['Kumo-Gakure', '\u96f2\u96a0\u308c'],  /* confirmed on screen */
     ['Rasetsu-Jin', '\u7f85\u5239\u5203'],  /* confirmed on screen */
     ['Gaia Driver', '\u30ac\u30a4\u30a2\u30fb\u30c9\u30e9\u30a4\u30d0\u30fc'],  /* guess */
     ['Steel Sword', '\u30b9\u30c1\u30fc\u30eb\u30bd\u30fc\u30c9'],  /* guess */
-    ['Tentsui-Ga', '\u30c6\u30f3\u30c4\u30a4\u30ac'],  /* reading */
+    ['Tentsui-Ga', '\u5929\u589c\u7259'],  /* confirmed on screen */
     ['Battle Axe', '\u30d0\u30c8\u30eb\u30a2\u30c3\u30af\u30b9'],  /* guess */
     ['Old Shield', '\u30aa\u30fc\u30eb\u30c9\u30b7\u30fc\u30eb\u30c9'],  /* guess */
     ['Fire Sword', '\u30d5\u30a1\u30a4\u30a2\u30bd\u30fc\u30c9'],  /* guess */
@@ -342,13 +342,12 @@
     ['Old Sword', '\u30aa\u30fc\u30eb\u30c9\u30bd\u30fc\u30c9'],  /* guess */
     ['Sun Staff', '\u30b5\u30f3\u30b9\u30bf\u30c3\u30d5'],  /* guess */
     ['Ice Sword', '\u30a2\u30a4\u30b9\u30bd\u30fc\u30c9'],  /* guess */
-    ['Kokuu-Ha', '\u30b3\u30af\u30a6\u30cf'],  /* reading */
+    ['Kokuu-Ha', '\u864e\u7a7a\u7834'],  /* confirmed on screen */
     ['Utsusemi', '\u7a7a\u8749'],  /* confirmed on screen */
     ['Kagerou', '\u873b\u86c9'],  /* confirmed on screen */
     ['Tsumuji', '\u65cb\u98a8'],  /* confirmed on screen */
-    ['Idaten', '\u30a4\u30c0\u30c6\u30f3'],  /* reading */
-    ['Ashura', '\u30a2\u30b7\u30e5\u30e9'],  /* reading */
-    ['Koen', '\u30b3\u30a6\u30a8\u30f3'],  /* reading */
+    ['Idaten', '\u97cb\u99c4\u5929'],  /* confirmed on screen */
+    ['Koen', '\u5f27\u708e'],  /* confirmed on screen */
   ];
 
   /* --- the level text in Japanese --------------------------------------
