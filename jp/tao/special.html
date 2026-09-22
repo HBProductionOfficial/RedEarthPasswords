@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ja" data-boot="codes">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>特殊パスワード | ウォーザード パスワード生成器</title>
+<meta name="description" id="m-desc" content="ゲームが解析しない4つのパスワード。パワーファイトモード、アルティメットバトルモード、スタッフロール、そしてレベル1に固定されるもの。">
+<link rel="canonical" id="m-canon" href="https://redearthpassword.vercel.app/jp/tao/special">
+<link rel="alternate" hreflang="en" id="m-alt-en" href="https://redearthpassword.vercel.app/en/mai-ling/special">
+<link rel="alternate" hreflang="ja" id="m-alt-ja" href="https://redearthpassword.vercel.app/jp/tao/special">
+<link rel="alternate" hreflang="x-default" id="m-alt-x" href="https://redearthpassword.vercel.app/en/mai-ling/special">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Red Earth Password Generator">
+<meta property="og:title" id="m-og-title" content="特殊パスワード | ウォーザード パスワード生成器">
+<meta property="og:description" id="m-og-desc" content="ゲームが解析しない4つのパスワード。パワーファイトモード、アルティメットバトルモード、スタッフロール、そしてレベル1に固定されるもの。">
+<meta property="og:url" id="m-og-url" content="https://redearthpassword.vercel.app/jp/tao/special">
+<meta property="og:image" content="https://redearthpassword.vercel.app/art/icons/apple-touch-icon.png">
+<meta name="twitter:card" content="summary">
+
+<script data-root>
+  if (window.location && /^https?:$/.test(window.location.protocol))
+    document.write('<base href="/">');
+  if (window.location && /^https?:$/.test(window.location.protocol)) {
+    var BOOT_SLUG = { password: 'gen', special: 'codes', analyze: 'dec',
+                      analyse: 'dec', 'how-it-works': 'how' };
+    var bits = String(window.location.pathname || '')
+                 .toLowerCase().split('/').filter(function (x) { return x; });
+    document.documentElement.setAttribute(
+      'data-boot', BOOT_SLUG[bits[bits.length - 1]] || 'gen');
+  }
+</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/svg+xml" href="/art/icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="/art/icons/favicon-192.png">
+<link rel="apple-touch-icon" href="/art/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/site.css">
+
+<body data-char="leo">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false"
+     style="position:absolute">
+  <filter id="nofringe" x="-20%" y="-20%" width="140%" height="140%"
+          color-interpolation-filters="sRGB">
+    <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 1 1"/></feComponentTransfer>
+  </filter>
+</svg>
+
+<div class="app" id="app" data-char="leo">
+  <div class="head">
+    <div class="title">
+      <h1 id="brand" lang="en"><span id="brand-name">Red Earth</span> <span id="brand-what">Password Generator</span></h1>
+      <div class="also" id="also" lang="ja">ウォーザード (War-Zard)</div>
+    </div>
+    <div class="headright">
+      <nav class="nav">
+        <button id="n-gen" aria-current="page" data-t="nav.gen">Get a password</button>
+        <button id="n-dec" data-t="nav.dec">Analyze a password</button>
+        <button id="n-codes" data-t="nav.codes">Special passwords</button>
+        <button id="n-how" data-t="nav.how">How it works</button>
+      </nav>
+      <div class="langs" role="group" aria-label="Language">
+        <button id="l-en" class="lang" aria-pressed="true" lang="en"><svg class="flag" viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" fill="none"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="2" fill="none"/><path d="M30,0 V30 M0,15 H60" stroke="#fff" stroke-width="10" fill="none"/><path d="M30,0 V30 M0,15 H60" stroke="#C8102E" stroke-width="6" fill="none"/></svg><span>English</span></button>
+        <button id="l-ja" class="lang" aria-pressed="false" lang="ja"><svg class="flag" viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#fff"/><circle cx="30" cy="15" r="9" fill="#BC002D"/></svg><span lang="ja">日本語</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page on" id="p-gen">
+    <div class="step answer">
+      <h2><span data-t="gen.s3">Enter this at the password screen</span></h2>
+      <div class="out" id="out"></div>
+    </div>
+
+    <div class="step">
+      <h2><span data-t="gen.s2">Pick what you want</span></h2>
+      <div class="row" id="presets"></div>
+      <div class="row" id="tune-row"></div>
+    </div>
+
+    <div class="foot" id="langnote"></div>
+  </div>
+
+  <div class="page" id="p-dec">
+    <div class="step">
+      <h2><span data-t="dec.s2">Type the ten symbols</span></h2>
+      <input id="dec" type="text" inputmode="text" spellcheck="false" autocomplete="off"
+             maxlength="24" aria-label="Password to read">
+      <div class="typekeys" id="typekeys" role="group"
+           aria-label="What to type for each symbol"></div>
+    </div>
+    <div class="step">
+      <h2><span data-t="dec.s1">Whose password it is</span></h2>
+      <div class="verdicts" id="verdict"></div>
+    </div>
+  </div>
+
+  <div class="page" id="p-codes">
+    <div class="step">
+      <h2><span data-t="codes.s2">Enter one of these instead of a normal password</span></h2>
+      <div class="codes" id="codes"></div>
+    </div>
+    <div class="keys" id="keys-codes"></div>
+  </div>
+  <div class="page" id="p-how">
+    <div class="step">
+      <h2><span data-t="how.s1">Ten symbols, three groups</span></h2>
+      <div class="said" data-t="how.b1"></div>
+      <ol class="carries">
+        <li data-t="how.b1a"></li>
+        <li data-t="how.b1b"></li>
+        <li data-t="how.b1c"></li>
+      </ol>
+    </div>
+
+    <div class="step">
+      <h2><span data-t="how.s2">Every character shuffles them differently</span></h2>
+      <div class="said" data-t="how.b2"></div>
+      <div class="ilv" id="ilv"></div>
+      <div class="said" data-t="how.b2b"></div>
+    </div>
+
+    <div class="step">
+      <h2><span data-t="how.s3">The level</span></h2>
+      <div class="said" data-t="how.b3"></div>
+      <div class="rom" id="rom"></div>
+      <div class="said" data-t="how.b3t"></div>
+      <div class="ex" data-hi="0,6"></div>
+      <div class="said" data-t="how.ex.lv"></div>
+    </div>
+
+    <div class="step">
+      <h2><span data-t="how.s3b">The VS points</span></h2>
+      <div class="said" data-t="how.b3b"></div>
+      <ol class="carries">
+        <li data-t="how.b3b.i1"></li>
+        <li data-t="how.b3b.i2"></li>
+        <li data-t="how.b3b.i3"></li>
+      </ol>
+      <div class="said" data-t="how.b3b2"></div>
+      <div class="said" data-t="how.b3b3"></div>
+      <div class="worked">
+        <div><span>7770</span><i>&rarr;</i><b>1 4444</b></div>
+        <div><span>500</span><i>&rarr;</i><b>2 3263</b></div>
+        <div><span>10</span><i>&rarr;</i><b>6 3 355</b></div>
+      </div>
+      <div class="said" data-t="how.b3c"></div>
+      <div class="ex" data-hi="1,2,3,4,5"></div>
+      <div class="said" data-t="how.ex.vs"></div>
+    </div>
+
+    <div class="step">
+      <h2><span data-t="how.s3z">A password with no VS points</span></h2>
+      <div class="said" data-t="how.b3z"></div>
+      <div class="ex" data-pw="4544654114" data-hi="1,2,3,4,5"></div>
+      <div class="said" data-t="how.ex.zero"></div>
+      <div class="said" data-t="how.b3z2"></div>
+    </div>
+
+    <div class="step">
+      <h2><span data-t="how.s3d">The three that decide the extras</span></h2>
+      <div class="said" data-t="how.b3d"></div>
+      <div class="said" data-t="how.b3d2"></div>
+      <div class="said" data-t="how.b3d3"></div>
+      <div class="rules" id="rules"></div>
+      <div class="ex" data-hi="7,8,9"></div>
+      <div class="said" data-t="how.ex.var"></div>
+    </div>
+
+    <div class="step">
+      <h2><span data-t="how.s5">The special passwords are never decoded</span></h2>
+      <div class="said" id="b5"></div>
+    </div>
+
+    <div class="foot" data-t="how.foot"></div>
+  </div>
+
+  <div class="step pick" id="pick">
+    <h2><span data-t="gen.s1">Select your warrior</span></h2>
+    <div class="chars" id="chars" role="group" aria-label="Character"></div>
+  </div>
+
+
+  <div class="credits" id="credits"></div>
+
+</div>
+
+<script src="/js/password.js"></script>
+
+<div class="tune-veil" id="tune-veil"></div>
+<aside class="tune" id="tune" aria-hidden="true">
+  <div class="tune-head">
+    <div id="head-tune">
+      <h2 data-t="gen.tab">Customize</h2>
+      <p data-t="gen.tune">Pick a different level, VS points or extras</p>
+    </div>
+    <div id="head-roll" hidden>
+      <h2 data-t="roll.tab">Randomize</h2>
+      <p data-t="roll.sub">Roll a random password</p>
+    </div>
+    <button class="tune-shut" id="tune-shut" type="button"
+            aria-label="Close">&#215;</button>
+  </div>
+  <div class="tune-body">
+    <div class="tuner" id="tuner">
+      <div class="field">
+        <div class="field-top">
+          <label for="lv-num" data-t="lbl.level">Level</label>
+          <input class="num" type="number" id="lv-num" min="1" max="32" step="1"
+                 value="32" inputmode="numeric" aria-label="Level">
+        </div>
+        <input type="range" id="lv" min="1" max="32" value="32" step="1"
+               aria-label="Level slider">
+      </div>
+      <div class="field">
+        <div class="field-top">
+          <label for="vs-num" data-t="lbl.vs">VS points</label>
+          <input class="num" type="number" id="vs-num" min="0" max="9990" step="10"
+                 value="9990" inputmode="numeric" aria-label="VS points">
+        </div>
+        <input type="range" id="vs" min="0" max="9990" value="9990" step="10"
+               aria-label="VS points slider">
+        <div class="quick" id="vs-quick"></div>
+      </div>
+      <div class="span2 gained" id="gained"></div>
+      <div class="span2 toggles" id="toggles"></div>
+      <div class="span2 combonote" id="combonote"></div>
+      <details class="span2">
+        <summary id="all-sum" class="more">Every combination here</summary>
+        <div class="all" id="all"></div>
+      </details>
+    </div>
+    <div class="tuner" id="roller" hidden>
+      <div class="field">
+        <div class="field-top">
+          <label data-t="roll.level">Level range</label>
+          <span class="rollpair">
+            <input class="num" type="number" id="r-lv-min" min="1" max="32" step="1"
+                   value="1" inputmode="numeric" aria-label="Lowest level">
+            <input class="num" type="number" id="r-lv-max" min="1" max="32" step="1"
+                   value="32" inputmode="numeric" aria-label="Highest level">
+          </span>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-top">
+          <label data-t="roll.vs">VS points range</label>
+          <span class="rollpair">
+            <input class="num" type="number" id="r-vs-min" min="0" max="9990" step="10"
+                   value="0" inputmode="numeric" aria-label="Lowest VS points">
+            <input class="num" type="number" id="r-vs-max" min="0" max="9990" step="10"
+                   value="9990" inputmode="numeric" aria-label="Highest VS points">
+          </span>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="r-seed" data-t="roll.seed">Seed, if you want the same roll twice</label></div>
+        <input class="rollseed" type="text" id="r-seed" autocomplete="off"
+               spellcheck="false" aria-label="Seed">
+      </div>
+      <div class="field">
+        <div class="field-top"><label data-t="roll.chars">Characters</label></div>
+        <div class="toggles" id="r-chars"></div>
+      </div>
+      <div class="field">
+        <div class="field-top"><label data-t="roll.rules">Rules</label></div>
+        <div class="toggles" id="r-rules">
+          <label class="toggle">
+            <input type="checkbox" id="r-must">
+            <span data-t="roll.must">Only passwords that grant something</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="r-noleg">
+            <span data-t="roll.noleg">No legendary gear</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="r-keep">
+            <span data-t="roll.keep">Keep the level and points I have</span>
+          </label>
+        </div>
+      </div>
+      <button class="rollgo" id="r-go" type="button" data-t="roll.go">Roll</button>
+      <div class="rollout" id="r-out"></div>
+    </div>
+  </div>
+</aside>
+
+<script src="/js/app.js"></script>

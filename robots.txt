@@ -1,0 +1,7 @@
+# A password generator for Red Earth / War-Zard. Nothing here is the
+# game: the artwork is drawn for this site and the tables are this
+# project's own reading of the format.
+User-agent: *
+Allow: /
+
+Sitemap: https://redearthpassword.vercel.app/sitemap.xml

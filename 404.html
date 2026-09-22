@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found | Red Earth Password Generator</title>
+<link rel="icon" type="image/svg+xml" href="/art/icons/favicon.svg">
+<link rel="apple-touch-icon" href="/art/icons/apple-touch-icon.png">
+<style>
+  @font-face {
+    font-family: 'Public Pixel';
+    src: url('/fonts/publicpixel.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --bg: #000;
+    --card: #050505;
+    --line: #333;
+    --text: #fff;
+    --dim: #9d9d9d;
+    --fill: #c73737;
+    --on-fill: #fff;
+    --ink-accent: #a797a7;
+    --glow: #c7373766;
+    --hi: #fff;
+    --unit: 10px;
+    --mono: 'Berkeley Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular,
+            Menlo, monospace;
+    --w-body: 400;
+    --w-mid: 600;
+    --w-bold: 700;
+    --w-brand: 800;
+    --track-display: -.04em;
+    --track-eyebrow: .16em;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg); color: var(--text);
+    font-family: var(--mono); font-weight: var(--w-body);
+    padding: 40px 22px; text-align: center;
+  }
+  .say { max-width: 620px; }
+  h1 {
+    margin: 0; font-size: 20px; font-weight: var(--w-brand);
+    letter-spacing: var(--track-display);
+  }
+  .also { margin-top: 4px; font-size: 11px; color: var(--dim); }
+  .code {
+    margin: 30px 0 14px; font-family: 'Public Pixel', var(--mono);
+    font-size: 48px; line-height: 1; color: var(--fill);
+    filter: url(#nofringe);
+  }
+  h2 {
+    margin: 0 0 12px; font-size: 13px; font-weight: var(--w-mid);
+    letter-spacing: var(--track-eyebrow); text-transform: uppercase;
+    color: var(--dim);
+  }
+  p { margin: 0 auto 26px; font-size: 13px; line-height: 1.75; color: var(--dim); }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  nav a {
+    font-size: 11px; font-weight: var(--w-mid); letter-spacing: .1em;
+    text-transform: uppercase; text-decoration: none;
+    color: var(--text); border: 1px solid var(--line);
+    padding: 9px 12px;
+  }
+  nav a:hover, nav a:focus-visible {
+    border-color: var(--fill); color: var(--fill);
+  }
+  @media (max-width: 420px) { nav a { flex: 1 1 100%; } }
+</style>
+
+<body>
+<svg width="0" height="0" aria-hidden="true" focusable="false"
+     style="position:absolute">
+  <filter id="nofringe" x="-20%" y="-20%" width="140%" height="140%"
+          color-interpolation-filters="sRGB">
+    <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 1 1"/></feComponentTransfer>
+  </filter>
+</svg>
+  <main>
+    <div class="say" id="say-en" lang="en">
+      <h1><span>Red Earth</span> <span>Password Generator</span></h1>
+      <div class="also" lang="ja">&#12454;&#12457;&#12540;&#12470;&#12540;&#12489; (War-Zard)</div>
+      <div class="code">404</div>
+      <h2>There is no page at that address</h2>
+      <p>Nothing is broken. The site simply has no page with that name. Everything it does have is here:</p>
+      <nav>
+      <a href="/en/leo/password">Get a password</a>
+      <a href="/en/analyze">Analyze a password</a>
+      <a href="/en/leo/special">Special passwords</a>
+      <a href="/en/how-it-works">How it works</a>
+      </nav>
+    </div>
+    <div class="say" id="say-ja" lang="ja" hidden>
+      <h1><span>&#12454;&#12457;&#12540;&#12470;&#12540;&#12489;</span> <span>&#12497;&#12473;&#12527;&#12540;&#12489;&#29983;&#25104;&#22120;</span></h1>
+      <div class="also" lang="en">Red Earth</div>
+      <div class="code">404</div>
+      <h2>&#12381;&#12398;&#12450;&#12489;&#12524;&#12473;&#12395;&#12506;&#12540;&#12472;&#12399;&#12354;&#12426;&#12414;&#12379;&#12435;</h2>
+      <p>&#22730;&#12428;&#12390;&#12356;&#12427;&#12431;&#12369;&#12391;&#12399;&#12394;&#12367;&#12289;&#12381;&#12398;&#21517;&#21069;&#12398;&#12506;&#12540;&#12472;&#12364;&#12394;&#12356;&#12384;&#12369;&#12391;&#12377;&#12290;&#12371;&#12398;&#12469;&#12452;&#12488;&#12395;&#12354;&#12427;&#12398;&#12399;&#27425;&#12398;&#22235;&#12388;&#12391;&#12377;&#12290;</p>
+      <nav>
+      <a href="/jp/leo/password">&#12497;&#12473;&#12527;&#12540;&#12489;&#12434;&#20316;&#12427;</a>
+      <a href="/jp/analyze">&#12497;&#12473;&#12527;&#12540;&#12489;&#12434;&#35299;&#26512;</a>
+      <a href="/jp/leo/special">&#29305;&#27530;&#12497;&#12473;&#12527;&#12540;&#12489;</a>
+      <a href="/jp/how-it-works">&#20181;&#32068;&#12415;</a>
+      </nav>
+    </div>
+  </main>
+
+  <script>
+
+    (function () {
+      var byPath = /^\/(jp|ja)(\/|$)/.test(location.pathname);
+      var byHost = /warzard/i.test(location.hostname || '');
+      if (!byPath && !byHost) return;
+      document.documentElement.lang = 'ja';
+      document.getElementById('say-en').hidden = true;
+      document.getElementById('say-ja').hidden = false;
+      document.title = "\u30da\u30fc\u30b8\u304c\u3042\u308a\u307e\u305b\u3093 | \u30a6\u30a9\u30fc\u30b6\u30fc\u30c9 \u30d1\u30b9\u30ef\u30fc\u30c9\u751f\u6210\u5668";
+    }());
+  </script>
+</body>
