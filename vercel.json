@@ -84,5 +84,18 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "warzardpasswords?\\.vercel\\.app"
+        }
+      ],
+      "destination": "/jp/leo/password",
+      "permanent": false
+    }
   ]
 }
