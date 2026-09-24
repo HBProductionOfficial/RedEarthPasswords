@@ -132,14 +132,14 @@ body {
   -webkit-text-fill-color: transparent;
 }
 .nav { display: flex; gap: 18px; }
-.nav button {
+.nav button, .nav a { text-decoration: none;
   font-family: var(--mono); font-size: 11px; font-weight: var(--w-mid);
   letter-spacing: var(--track-eyebrow);
   text-transform: uppercase; background: none; color: var(--dim);
   border: 1px solid transparent; padding: 5px 10px; cursor: pointer;
 }
-.nav button:hover { color: var(--text); }
-.nav button[aria-current="page"] {
+.nav button:hover, .nav a:hover { color: var(--text); }
+.nav button[aria-current="page"], .nav a[aria-current="page"] {
   color: var(--text); border-color: var(--ink-accent);
 }
 
@@ -149,7 +149,7 @@ body {
 .headright { display: flex; justify-content: center; }
 .langs { position: absolute; right: 0; top: 0; }
 .langs { display: flex; gap: 2px; }
-.lang {
+.lang { text-decoration: none;
   display: inline-flex; align-items: center; gap: 5px;
   font-family: var(--mono); font-size: 9px; font-weight: var(--w-mid);
   letter-spacing: .1em; text-transform: uppercase;
@@ -202,7 +202,7 @@ body[data-page="how"] .pick {
 
 
 .chars { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
-.char {
+.char { text-decoration: none;
   position: relative;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 3px;
@@ -553,13 +553,6 @@ body.tuning .tune {
 }
 .rollgo:hover { color: var(--hi); border-color: var(--hi); }
 .rollout { font-size: 12px; color: var(--ink-accent); line-height: 1.6; }
-.sitenav {
-  display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center;
-  max-width: var(--wrap); margin: 0 auto; padding: 0 22px 14px;
-  font-size: 11px; line-height: 1.9;
-}
-.sitenav a { color: var(--line); text-decoration: none; }
-.sitenav a:hover { color: var(--ink-accent); }
 
 
 

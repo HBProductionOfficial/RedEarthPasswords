@@ -979,7 +979,8 @@
   }
 
   ['en', 'ja'].forEach(function (l) {
-    $('l-' + l).addEventListener('click', function () {
+    $('l-' + l).addEventListener('click', function (e) {
+      if (e && e.preventDefault) e.preventDefault();
       LANG = l; applyLang(); setPath();
     });
   });
@@ -1015,7 +1016,8 @@
     }
   }
   PAGES.forEach(function (name) {
-    $('n-' + name).addEventListener('click', function () {
+    $('n-' + name).addEventListener('click', function (e) {
+      if (e && e.preventDefault) e.preventDefault();
       showPage(name, true);
       setPath();
     });
@@ -1035,12 +1037,12 @@
   PICKERS.forEach(function (id) {
     var host = $(id);
     ORDER.forEach(function (i) {
-      var b = el('button', 'char');
+      var b = el('a', 'char');
       plate(b, i);
-      b.type = 'button';
       b.id = id + '-c' + i;
       b.setAttribute('aria-pressed', i === st.character ? 'true' : 'false');
-      b.addEventListener('click', function () {
+      b.addEventListener('click', function (e) {
+        if (e && e.preventDefault) e.preventDefault();
         pickChar(i);
         setPath();
       });
@@ -1115,6 +1117,28 @@
     set('m-og-url', 'content', CANON + path);
   }
 
+  function linkUp() {
+    PAGES.forEach(function (name) {
+      var a = $('n-' + name);
+      if (a && a.setAttribute) a.setAttribute('href', pathFor(name, st.character, LANG));
+    });
+    ['en', 'ja'].forEach(function (l) {
+      var a = $('l-' + l);
+      var p = document.body.getAttribute('data-page') || 'gen';
+      if (a && a.setAttribute) a.setAttribute('href', pathFor(p, st.character, l));
+    });
+    PICKERS.forEach(function (id) {
+      var host = $(id);
+      if (!host) return;
+      var p = document.body.getAttribute('data-page') || 'gen';
+      var page = (p === 'gen' || p === 'codes') ? p : 'gen';
+      ORDER.forEach(function (i, k) {
+        var a = host.children[k];
+        if (a && a.setAttribute) a.setAttribute('href', pathFor(page, i, LANG));
+      });
+    });
+  }
+
   function setPath(replace) {
     if (!ROUTED) return;
     var url = pathFor(document.body.getAttribute('data-page') || 'gen',
@@ -1122,6 +1146,7 @@
     if (url !== window.location.pathname)
       window.history[replace ? 'replaceState' : 'pushState']({}, '', url);
     describePage();
+    linkUp();
   }
 
   function charFromSlug(slug) {
