@@ -553,6 +553,14 @@ body.tuning .tune {
 }
 .rollgo:hover { color: var(--hi); border-color: var(--hi); }
 .rollout { font-size: 12px; color: var(--ink-accent); line-height: 1.6; }
+.sitenav {
+  display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center;
+  max-width: var(--wrap); margin: 0 auto; padding: 0 22px 14px;
+  font-size: 11px; line-height: 1.9;
+}
+.sitenav a { color: var(--line); text-decoration: none; }
+.sitenav a:hover { color: var(--ink-accent); }
+
 
 
 .tune-veil {
