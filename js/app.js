@@ -1794,7 +1794,7 @@
     host.addEventListener('mouseleave', leave);
   }
 
-  var SCRAMBLES = '.nav button, .preset, .lang, .quick button, .tune-tab,'
+  var SCRAMBLES = '.nav a, .preset, .lang, .quick button, .tune-tab,'
                 + ' .toggle, .tune-shut';
   if (document.addEventListener && !LESS_MOTION) {
     document.addEventListener('mouseover', function (e) {
