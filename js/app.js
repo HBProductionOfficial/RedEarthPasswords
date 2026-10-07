@@ -1752,6 +1752,7 @@
     if (pin) {
       box.style.display = 'inline-block';
       box.style.width = pin + 'px';
+      box.style.whiteSpace = 'pre';
     }
     node.parentNode.replaceChild(box, node);
 
